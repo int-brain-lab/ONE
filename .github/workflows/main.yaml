@@ -16,7 +16,7 @@ jobs:
       fail-fast: false  # Whether to stop execution of other instances
       max-parallel: 2
       matrix:
-        python-version: ["3.10", "3.12"]
+        python-version: ["3.10", "3.12"]  # make sure you also change coverage l.40
         os: ["ubuntu-latest", "windows-latest"]  #  , "macos-latest"
     steps:
     - uses: actions/checkout@v2
@@ -37,6 +37,7 @@ jobs:
         ruff check .
         coverage run --omit=one/tests/* -m unittest discover
     - name: Upload coverage data to coveralls.io
+      if: ${{ matrix.python-version == '3.12' }}
       run: coveralls --service=github
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

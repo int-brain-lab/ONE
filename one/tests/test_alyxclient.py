@@ -1,4 +1,6 @@
 """Unit tests for the one.webclient module."""
+
+from pathlib import Path
 import unittest
 from unittest import mock
 import urllib.parse
@@ -6,6 +8,7 @@ import random
 import weakref
 import uuid
 import os
+import io
 import one.webclient as wc
 import one.params
 import tempfile
@@ -28,6 +31,108 @@ ac = wc.AlyxClient(**TEST_DB_1)
 # Remove /public from data server url
 if 'public' in ac._par.HTTP_DATA_SERVER:
     ac._par = ac._par.set('HTTP_DATA_SERVER', ac._par.HTTP_DATA_SERVER.rsplit('/', 1)[0])
+
+
+class TestRestDocumentation(unittest.TestCase):
+    """Tests for AlyxClient REST API schema parsing and printing."""
+
+    def setUp(self) -> None:
+        self.path_fixtures = Path(__file__).parent.joinpath('fixtures', 'rest_responses')
+        with open(self.path_fixtures.joinpath('coreapi.json'), 'r') as f:
+            rest_scheme = json.load(f)
+        self.scheme_coreapi = wc.RestSchemeCoreApi(rest_scheme)
+
+        with open(self.path_fixtures.joinpath('openapiv3.json'), 'r') as f:
+            rest_scheme = json.load(f)
+        self.scheme_openapi = wc.RestSchemeOpenApi(rest_scheme)
+
+    def test_rest_schema_core_api(self):
+        """Test parsing of coreapi REST schema."""
+        # test the list of endpoints
+        self.assertEqual(set(self.scheme_openapi.endpoints), set(self.scheme_coreapi.endpoints))
+        # test the list of actions for each endpoint
+        self.assertEqual(
+            set(self.scheme_coreapi.actions('sessions')),
+            {'create', 'delete', 'list', 'partial_update', 'read', 'update'},
+        )
+        self.assertEqual(
+            set(self.scheme_openapi.actions('sessions')),
+            {'create', 'delete', 'list', 'partial_update', 'read', 'update'},
+        )
+        # test getting the URL for each endpoint/action
+        self.assertEqual(self.scheme_openapi.url('sessions', 'read'), '/sessions/{id}')
+        self.assertEqual(self.scheme_coreapi.url('sessions', 'read'), '/sessions/{id}')
+        # test getting the parameters for each endpoint/action
+        self.assertTrue(len(self.scheme_openapi.fields('sessions', 'partial_update')) >= 19)
+        self.assertTrue(len(self.scheme_coreapi.fields('sessions', 'partial_update')) >= 19)
+        self.assertTrue(len(self.scheme_openapi.field_names('sessions', 'partial_update')) >= 19)
+        self.assertTrue(len(self.scheme_coreapi.field_names('sessions', 'partial_update')) >= 19)
+
+    def test_print_endpoint_info(self):
+        """Test endpoint query params are printed when calling AlyxClient.rest without action."""
+        # Check behaviour when endpoint invalid
+        endpoint = 'foobar'
+        for scheme in [self.scheme_openapi, self.scheme_coreapi]:
+            with self.subTest(scheme=scheme):
+                with unittest.mock.patch('sys.stdout', new_callable=io.StringIO) as stdout:
+                    scheme.print_endpoint_info(endpoint)
+                    self.assertRegex(stdout.getvalue(), f'"{endpoint}" does not exist')
+                # Check returns endpoint info as well as printing
+                with unittest.mock.patch('sys.stdout', new_callable=io.StringIO) as stdout:
+                    scheme.print_endpoint_info('sessions', 'partial_update')
+                    self.assertRegex(stdout.getvalue(), 'parent_session')
+                    self.assertRegex(stdout.getvalue(), 'extended_qc')
+
+                with unittest.mock.patch('sys.stdout', new_callable=io.StringIO) as stdout:
+                    scheme.print_endpoint_info('sessions')
+                    self.assertRegex(stdout.getvalue(), 'partial_update')
+
+                with unittest.mock.patch('sys.stdout', new_callable=io.StringIO) as stdout:
+                    scheme.print_endpoint_info('insertions', 'erase')
+                    self.assertRegex(stdout.getvalue(),
+                                     'Endpoint "insertions" does not have action "erase"')
+
+    @unittest.skipIf(OFFLINE_ONLY, 'online only test')
+    def test_alyx_client_methods(self):
+        """Test AlyxClient.list_endpoints and AlyxClient.print_endpoint_info."""
+        with unittest.mock.patch('sys.stdout', new_callable=io.StringIO) as stdout:
+            self.assertTrue(len(ac.list_endpoints()) > 20)
+            self.assertRegex(stdout.getvalue(), 'sessions')
+
+        with unittest.mock.patch('sys.stdout', new_callable=io.StringIO) as stdout:
+            ac.print_endpoint_info('sessions')
+            self.assertRegex(stdout.getvalue(), 'partial_update')
+
+    def test_schema_support(self):
+        """Test that both coreapi and openapiv3 REST schemas are supported."""
+        ac = wc.AlyxClient(**TEST_DB_1)
+        # The new alyx uses openapiv3 schema on the /api/schema endpoint
+        output = self.scheme_openapi._rest_scheme
+        with mock.patch.object(ac, 'get', return_value=output) as mock_get:
+            assert ac._rest_schemes is None  # Ensure not cached
+            scheme = ac.rest_schemes
+        self.assertIsInstance(scheme, wc.RestSchemeOpenApi)
+        mock_get.assert_called_once_with('/api/schema', expires=mock.ANY)
+        ac._rest_schemes = None  # Reset cached scheme
+        # Old alyx uses coreapi schema on the /docs endpoint
+        err = requests.HTTPError()
+        rep = requests.Response()
+        rep.status_code = 404
+        err.response = rep
+        responses = (err, self.scheme_coreapi._rest_scheme)
+        with mock.patch.object(ac, 'get', side_effect=responses) as mock_get:
+            scheme = ac.rest_schemes
+        self.assertIsInstance(scheme, wc.RestSchemeCoreApi)
+        # Should try new schema endpoint then fallback to old one
+        self.assertTrue(mock_get.call_count, 2)
+        endpoints = [x.args[0] for x in mock_get.call_args_list]
+        expected = ['/api/schema', '/docs']
+        self.assertEqual(endpoints, expected)
+        # If the status code is not 404, should raise the error
+        rep.status_code = 500
+        ac._rest_schemes = None  # Reset cached scheme
+        with mock.patch.object(ac, 'get', side_effect=err), self.assertRaises(requests.HTTPError):
+            scheme = ac.rest_schemes
 
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
@@ -64,8 +169,9 @@ class TestAuthentication(unittest.TestCase):
             self.ac.authenticate(password=None)
 
         # Test using input args
-        ac._par = iopar.from_dict({k: v for k, v in ac._par.as_dict().items()
-                                   if k not in login_keys})
+        ac._par = iopar.from_dict(
+            {k: v for k, v in ac._par.as_dict().items() if k not in login_keys}
+        )
         with mock.patch('builtins.input') as mock_input:
             ac.authenticate(TEST_DB_2['username'], TEST_DB_2['password'], cache_token=False)
             mock_input.assert_not_called()
@@ -75,8 +181,10 @@ class TestAuthentication(unittest.TestCase):
         # Test user prompts
         ac.logout()
         ac.silent = False
-        with mock.patch('builtins.input', return_value=TEST_DB_2['username']), \
-             mock.patch('one.webclient.getpass', return_value=TEST_DB_2['password']):
+        with (
+            mock.patch('builtins.input', return_value=TEST_DB_2['username']),
+            mock.patch('one.webclient.getpass', return_value=TEST_DB_2['password']),
+        ):
             ac.authenticate(cache_token=True)
         self.assertTrue(ac.is_logged_in)
         # Check token saved in cache
@@ -137,15 +245,19 @@ class TestAuthentication(unittest.TestCase):
             self.assertTrue('user = intbrainlab' in str(ex))
             self.assertFalse('wrong_pass' in str(ex))
         # Check behaviour when connection error occurs (should mention firewall settings)
-        with mock.patch('one.webclient.requests.post', side_effect=requests.ConnectionError), \
-             self.assertRaises(ConnectionError) as ex:
+        with (
+            mock.patch('one.webclient.requests.post', side_effect=requests.ConnectionError),
+            self.assertRaises(ConnectionError) as ex,
+        ):
             self.ac.authenticate()
             self.assertTrue('firewall' in str(ex))
         # Check behaviour when server error occurs
         rep = requests.Response()
         rep.status_code = 500
-        with mock.patch('one.webclient.requests.post', return_value=rep), \
-             self.assertRaises(requests.HTTPError):
+        with (
+            mock.patch('one.webclient.requests.post', return_value=rep),
+            self.assertRaises(requests.HTTPError),
+        ):
             self.ac.authenticate()
 
 
@@ -163,13 +275,20 @@ class TestJsonFieldMethods(unittest.TestCase):
         # Create new subject and two new sessions
         name = '0A' + str(random.randint(0, 10000))
         self.subj = self.ac.rest('subjects', 'create', data={'nickname': name, 'lab': 'cortexlab'})
-        sessions = [self.ac.rest('sessions', 'create', data={
-            'subject': name,
-            'start_time': datetime.isoformat(datetime.now()),
-            'number': random.randint(1, 999),
-            'type': 'Experiment',
-            'users': [TEST_DB_1['username']],
-        }) for _ in range(2)]
+        sessions = [
+            self.ac.rest(
+                'sessions',
+                'create',
+                data={
+                    'subject': name,
+                    'start_time': datetime.isoformat(datetime.now()),
+                    'number': random.randint(1, 999),
+                    'type': 'Experiment',
+                    'users': [TEST_DB_1['username']],
+                },
+            )
+            for _ in range(2)
+        ]
 
         self.eids = [uuid.UUID(x['url'].split('/')[-1]) for x in sessions]
         self.endpoint = 'sessions'
@@ -374,7 +493,6 @@ class _FakeDateTime(datetime):
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
 class TestDownloadHTTP(unittest.TestCase):
-
     def setUp(self):
         self.ac = ac
         self.test_data_uuid = '40af4a49-1b9d-45ec-b443-a151c010ea3c'  # OpenAlyx dataset
@@ -388,7 +506,7 @@ class TestDownloadHTTP(unittest.TestCase):
         dset = ac_public.get('/datasets/' + self.test_data_uuid)
         urls = wc.dataset_record_to_url(dset)
         url = [u for u in urls if u.startswith('https://ibl.flatiron')]
-        file_name, = ac_public.download_file(url, target_dir=cache_dir)
+        (file_name,) = ac_public.download_file(url, target_dir=cache_dir)
         self.assertTrue(os.path.isfile(file_name))
         os.unlink(file_name)
 
@@ -396,7 +514,7 @@ class TestDownloadHTTP(unittest.TestCase):
         dset = ac_public.get('/datasets?id=' + self.test_data_uuid)
         urls = wc.dataset_record_to_url(dset)
         url = [u for u in urls if u.startswith('https://ibl.flatiron')]
-        file_name, = ac_public.download_file(url, target_dir=cache_dir)
+        (file_name,) = ac_public.download_file(url, target_dir=cache_dir)
         self.assertTrue(os.path.isfile(file_name))
         os.unlink(file_name)
 
@@ -423,8 +541,7 @@ class TestDownloadHTTP(unittest.TestCase):
             'https://ibl.flatironinstitute.org/public/mrsicflogellab/Subjects/SWC_038/'
             '2020-07-29/001/alf/probes.description.f67570ac-1e54-4ce1-be5d-de2017a42116.json'
         )
-        file_name, md5 = wc.http_download_file(full_link_to_file,
-                                               return_md5=True, clobber=True)
+        file_name, md5 = wc.http_download_file(full_link_to_file, return_md5=True, clobber=True)
         with open(file_name, 'r') as json_file:
             data = json.load(json_file)
         self.assertTrue(len(data) > 0)
@@ -433,12 +550,14 @@ class TestDownloadHTTP(unittest.TestCase):
         self.assertFalse(wc.http_download_file('', clobber=True))
 
         # test downloading a list of files
-        links = [full_link_to_file,
-                 r'https://ibl.flatironinstitute.org/public/hoferlab/Subjects/SWC_043/'
-                 r'2020-09-21/001/alf/probes.description.c4df1eea-c92c-479f-a907-41fa6e770094.json'
-                 ]
-        file_list = wc.http_download_file_list(links, username=par.HTTP_DATA_SERVER_LOGIN,
-                                               password=par.HTTP_DATA_SERVER_PWD)
+        links = [
+            full_link_to_file,
+            r'https://ibl.flatironinstitute.org/public/hoferlab/Subjects/SWC_043/'
+            r'2020-09-21/001/alf/probes.description.c4df1eea-c92c-479f-a907-41fa6e770094.json',
+        ]
+        file_list = wc.http_download_file_list(
+            links, username=par.HTTP_DATA_SERVER_LOGIN, password=par.HTTP_DATA_SERVER_PWD
+        )
         for file in file_list:
             with open(file, 'r') as json_file:
                 data = json.load(json_file)
@@ -561,9 +680,9 @@ class TestMisc(unittest.TestCase):
         # Check fetching uncached item with +ve int
         n = offset = lim
         res['results'] = [{'id': i} for i in range(offset, offset + lim)]
-        assert not any(pg._cache[offset:offset + lim])
+        assert not any(pg._cache[offset : offset + lim])
         self.assertEqual({'id': lim}, pg[n])
-        self.assertEqual(res['results'], pg._cache[offset:offset + lim])
+        self.assertEqual(res['results'], pg._cache[offset : offset + lim])
         alyx._generic_request.assert_called_once_with(requests.get, mock.ANY, clobber=True)
         self._check_get_query(alyx._generic_request.call_args, lim, offset)
         for cb in [cb1, cb2]:
@@ -574,9 +693,9 @@ class TestMisc(unittest.TestCase):
         offset = lim * 3
         res['results'] = [{'id': i} for i in range(offset, offset + lim)]
         n = offset - N + 2
-        assert not any(pg._cache[offset:offset + lim])
+        assert not any(pg._cache[offset : offset + lim])
         self.assertEqual({'id': N + n}, pg[n])
-        self.assertEqual(res['results'], pg._cache[offset:offset + lim])
+        self.assertEqual(res['results'], pg._cache[offset : offset + lim])
         alyx._generic_request.assert_called_with(requests.get, mock.ANY, clobber=True)
         self._check_get_query(alyx._generic_request.call_args, lim, offset)
         self.assertEqual(1, len(pg._callbacks), 'failed to remove weakref callback')
@@ -584,17 +703,17 @@ class TestMisc(unittest.TestCase):
         offset = lim * 5
         res['results'] = [{'id': i} for i in range(offset, offset + lim)]
         n = offset + 20
-        assert not any(pg._cache[offset:offset + lim])
-        self.assertEqual([{'id': n}, {'id': n + 1}], pg[n:n + 2])
-        self.assertEqual(res['results'], pg._cache[offset:offset + lim])
+        assert not any(pg._cache[offset : offset + lim])
+        self.assertEqual([{'id': n}, {'id': n + 1}], pg[n : n + 2])
+        self.assertEqual(res['results'], pg._cache[offset : offset + lim])
         alyx._generic_request.assert_called_with(requests.get, mock.ANY, clobber=True)
         self._check_get_query(alyx._generic_request.call_args, lim, offset)
         # Check fetching uncached item with -ve slice
         offset = N - lim
         res['results'] = [{'id': i} for i in range(offset, offset + lim)]
-        assert not any(pg._cache[offset:offset + lim])
+        assert not any(pg._cache[offset : offset + lim])
         self.assertEqual([{'id': N - 2}, {'id': N - 1}], pg[-2:])
-        self.assertEqual(res['results'], pg._cache[offset:offset + lim])
+        self.assertEqual(res['results'], pg._cache[offset : offset + lim])
         alyx._generic_request.assert_called_with(requests.get, mock.ANY, clobber=True)
         self._check_get_query(alyx._generic_request.call_args, lim, offset)
         # At this point, there should be a certain number of None values left

@@ -26,6 +26,33 @@ class TestREST(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.alyx = AlyxClient(**TEST_DB_1)
 
+    def test_id_django_fields(self):
+        """
+        Test.
+
+        The id and django kwargs have a specific meaning when using the list actions
+        on endpoints that implement the Alyx base REST framework. On endpoints that
+        do not implement the base REST framework, such as dataset_types and revisions,
+        the id/django args should yield an error.
+        :return:
+        """
+        with self.assertRaises(ValueError):
+            self.alyx.rest('revisions', 'list', id='boum')
+        with self.assertRaises(ValueError):
+            self.alyx.rest('revisions', 'list', django='boum')
+
+    def test_validation_list_fields(self):
+        # test raising an error when specifying a non-existent action
+        with self.assertRaises(ValueError) as cm:
+            self.alyx.rest('datasets', 'erase')
+        self.assertIn(
+            'Action "erase" for REST endpoint "datasets" does not exist', str(cm.exception))
+
+        # test raising an error when specifying a non-existent field
+        with self.assertRaises(ValueError) as cm:
+            self.alyx.rest('insertions', 'list', djangodd='boum')
+        self.assertIn("Unsupported fields '{'djangodd'}' in query parameters", str(cm.exception))
+
     def test_paginated_request(self):
         """Check that paginated response object is returned upon making large queries."""
         rep = self.alyx.rest('datasets', 'list')
@@ -121,8 +148,8 @@ class TestREST(unittest.TestCase):
         if sub:
             self.alyx.rest('subjects', 'delete', id=nickname)
         self.alyx.rest('subjects', 'create', data=newsub)
-        # partial update and full update
-        newsub = self.alyx.rest('subjects', 'partial_update',
+        # partial update (with hyphen correction) and full update
+        newsub = self.alyx.rest('subjects', 'partial-update',
                                 id=nickname, data={'description': 'hey'})
         self.assertEqual(newsub['description'], 'hey')
         newsub['description'] = 'hoy'
@@ -148,7 +175,7 @@ class TestREST(unittest.TestCase):
     def test_endpoints_docs(self):
         """Test for AlyxClient.list_endpoints method and AlyxClient.rest."""
         # Test endpoint documentation and validation
-        endpoints = self.alyx.list_endpoints()
+        endpoints = self.alyx.rest_schemes.endpoints
         self.assertTrue('auth-token' not in endpoints)
         # Check that calling rest method with no args prints endpoints
         with unittest.mock.patch('sys.stdout', new_callable=io.StringIO) as stdout:
@@ -157,9 +184,9 @@ class TestREST(unittest.TestCase):
         # Same but with no action
         with unittest.mock.patch('sys.stdout', new_callable=io.StringIO) as stdout:
             self.assertIsNone(self.alyx.rest('sessions'))
-            actions = self.alyx.rest_schemes['sessions'].keys()
+            actions = self.alyx.rest_schemes.actions('sessions')
             self.assertTrue(all(k in stdout.getvalue() for k in actions))
-            expected = "['list', 'create', 'read', 'update', 'partial_update', 'delete']\n"
+            expected = "['create', 'delete', 'list', 'partial_update', 'read', 'update']\n"
             self.assertEqual(expected, stdout.getvalue()[:65])
         # Check raises when endpoint invalid
         self.assertRaises(ValueError, self.alyx.rest, 'foobar')
@@ -172,28 +199,6 @@ class TestREST(unittest.TestCase):
         with self.assertRaises(ValueError) as e:
             self.alyx.json_field_write('foobar')
         self.assertTrue(k in str(e.exception) for k in endpoints)
-
-    def test_print_endpoint_info(self):
-        """Test endpoint query params are printed when calling AlyxClient.rest without action."""
-        # Check behaviour when endpoint invalid
-        endpoint = 'foobar'
-        with unittest.mock.patch('sys.stdout', new_callable=io.StringIO) as stdout:
-            self.assertIsNone(self.alyx.print_endpoint_info(endpoint))
-            self.assertRegex(stdout.getvalue(), f'"{endpoint}" does not exist')
-        # Check returns endpoint info as well as printing
-        endpoint = 'subjects'
-        with unittest.mock.patch('sys.stdout', new_callable=io.StringIO) as stdout:
-            info = self.alyx.print_endpoint_info(endpoint)
-            self.assertEqual(self.alyx.rest_schemes[endpoint], info)
-            self.assertIsNot(self.alyx.rest_schemes[endpoint], info)  # Ensure copy returned
-            self.assertTrue(stdout.getvalue().strip(), 'failed to print endpoint info')
-        # Check action input
-        with unittest.mock.patch('sys.stdout', new_callable=io.StringIO) as stdout:
-            info = self.alyx.print_endpoint_info(endpoint, 'create')
-            self.assertEqual(self.alyx.rest_schemes[endpoint]['create'], info)
-            self.assertIsNot(self.alyx.rest_schemes[endpoint]['create'], info)  # Ensure copy
-            self.assertTrue(stdout.getvalue().strip(), 'failed to print endpoint info')
-            self.assertEqual("'create'\n\t", stdout.getvalue().strip()[:10])
 
     """Specific Alyx REST endpoint tests"""
     def test_water_restriction(self):

@@ -1824,7 +1824,7 @@ class OneAlyx(One):
 
         endpoint = endpoint or self._search_endpoint
         # Return search terms from REST schema
-        fields = self.alyx.rest_schemes[endpoint]['list']['fields']
+        fields = self.alyx.rest_schemes.fields(endpoint, action='list')
         excl = ('lab',)  # 'laboratory' already in search terms
         if endpoint != 'sessions':
             return tuple(x['name'] for x in fields)
@@ -2372,12 +2372,6 @@ class OneAlyx(One):
             # check that the input matches one of the defined filters
             if field == 'date_range':
                 params[field] = [x.date().isoformat() for x in util.validate_date_range(value)]
-            elif field == 'dataset':
-                if not isinstance(value, str):
-                    raise TypeError(
-                        '"dataset" parameter must be a string. For lists use "datasets"')
-                query = f'data_dataset_session_related__name__icontains,{value}'
-                params['django'] += (',' if params['django'] else '') + query
             elif field == 'laboratory':
                 params['lab'] = value
             else:

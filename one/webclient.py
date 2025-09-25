@@ -30,7 +30,9 @@ Download a remote file, given a local path
 >>> local_path = alyx.download_file(url, target_dir='zadorlab/Subjects/flowers/2018-07-13/1/')
 
 """
+
 from uuid import UUID
+import abc
 import json
 import logging
 import math
@@ -41,7 +43,7 @@ import urllib.request
 from urllib.error import HTTPError
 import urllib.parse
 from collections.abc import Mapping
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime, timedelta
 from pathlib import Path
 from weakref import ReferenceType
@@ -57,10 +59,12 @@ from tqdm import tqdm
 
 from pprint import pprint
 import one.params
+from one import __version__
 from iblutil.io import hashfile
 from iblutil.io.params import set_hidden
 from iblutil.util import ensure_list
 import concurrent.futures
+
 _logger = logging.getLogger(__name__)
 N_THREADS = int(os.environ.get('ONE_HTTP_DL_THREADS', 4))
 """int: The number of download threads."""
@@ -368,8 +372,10 @@ def http_download_file_list(links_to_file_list, **kwargs):
     zipped = zip(links_to_file_list, target_dir)
     with concurrent.futures.ThreadPoolExecutor(max_workers=N_THREADS) as executor:
         # Multithreading load operations
-        futures = [executor.submit(
-            http_download_file, link, target_dir=target, **kwargs) for link, target in zipped]
+        futures = [
+            executor.submit(http_download_file, link, target_dir=target, **kwargs)
+            for link, target in zipped
+        ]
         zip(links_to_file_list, ensure_list(kwargs.pop('target_dir', None)))
         # TODO Reintroduce variable timeout value based on file size and download speed of 5 Mb/s?
         # timeout = reduce(lambda x, y: x + (y.get('file_size', 0) or 0), dsets, 0) / 625000 ?
@@ -525,6 +531,322 @@ def dataset_record_to_url(dataset_record) -> list:
     return urls
 
 
+class RestScheme(abc.ABC):
+    """Alyx REST scheme documentation."""
+
+    EXCLUDE = ('_type', '_meta', '', 'auth-token', 'api')
+    """list: A list of endpoint names to exclude from listings."""
+
+    def __init__(self, rest_scheme: dict):
+        self._rest_scheme = rest_scheme
+
+    def _validate(self, endpoint: str, action: str = None) -> bool:
+        """Validate that an endpoint and action exist.
+
+        This is used by `print_endpoint_info` to print a message if the endpoint or action do not
+        exist.
+
+        Parameters
+        ----------
+        endpoint : str
+            The endpoint name.
+        action : str
+            The action name.
+
+        Returns
+        -------
+        bool
+            True if the endpoint and action exist, False otherwise.
+        """
+        if endpoint not in self.endpoints:
+            print(f'Endpoint "{endpoint}" does not exist')
+            return False
+        if action is not None and action not in self.actions(endpoint):
+            print(
+                f'Endpoint "{endpoint}" does not have action "{action}": '
+                f'available actions: {", ".join(self.actions(endpoint))}'
+            )
+            return False
+        return True
+
+    @abc.abstractmethod
+    def endpoints(self) -> list:
+        """Return the list of available endpoints.
+
+        Returns
+        -------
+        list
+            List of available endpoints
+        """
+
+    @abc.abstractmethod
+    def actions(self, endpoint: str, *args) -> list:
+        """Return a list of available actions for a given endpoint.
+
+        Parameters
+        ----------
+        endpoint : str
+            The endpoint name to find actions for
+
+        Returns
+        -------
+        list
+            List of available actions for the endpoint
+        """
+
+    @abc.abstractmethod
+    def fields(self, endpoint: str, action: str) -> List[dict]:
+        """Return a list of fields for a given endpoint/action combination.
+
+        Parameters
+        ----------
+        endpoint : str
+            The endpoint name to find fields and parameters for
+        action : str
+            The Django REST action:
+             'list', 'read', 'create', 'update', 'delete', 'partial_update'
+
+        Returns
+        -------
+        list
+            List of dictionaries containing fields for the endpoint
+        """
+
+    def field_names(self, endpoint: str, action: str) -> List[str]:
+        """Return a list of fields for a given endpoint/action combination.
+
+        Parameters
+        ----------
+        endpoint : str
+            The endpoint name to find fields and parameters for
+        action : str
+            The Django REST action:
+             'list', 'read', 'create', 'update', 'delete', 'partial_update'
+
+        Returns
+        -------
+        list
+            List of strings containing fields names for the endpoint
+        """
+        return [field['name'] for field in self.fields(endpoint, action)]
+
+    @abc.abstractmethod
+    def print_endpoint_info(self, endpoint: str, action: str = None) -> None:
+        """Prints relevant information about an endpoint and its actions.
+
+        Parameters
+        ----------
+        endpoint : str
+            The endpoint name to find actions for
+        action : str
+            The Django REST action to perform:
+             'list', 'read', 'create', 'update', 'delete', 'partial_update'
+
+        Returns
+        -------
+        None
+        """
+
+    def url(self, endpoint: str, action: str):
+        """Returns the url for a given endpoint/action combination.
+
+        Parameters
+        ----------
+        endpoint : str
+            The endpoint name to find actions for
+        action : str
+            The Django REST action to perform:
+             'list', 'read', 'create', 'update', 'delete', 'partial_update'
+
+        Returns
+        -------
+        str
+            url of the endpoint: for example /sessions/{id}
+        """
+
+
+def validate_endpoint_action(func):
+    """Decorator to validate endpoint and action before executing a method.
+
+    This decorator checks if the endpoint exists and, if an action is provided,
+    whether the action exists for that endpoint. If validation fails, it returns
+    None, otherwise it executes the decorated function.
+    """
+
+    @functools.wraps(func)
+    def wrapper(self, endpoint, action=None, *args, **kwargs):
+        if not self._validate(endpoint, action):
+            return
+        return func(self, endpoint, action, *args, **kwargs)
+
+    return wrapper
+
+
+class RestSchemeCoreApi(RestScheme):
+    """Legacy Alyx REST scheme documentation."""
+
+    backend = 'core_api'
+    """str: The name of the backend that generates the REST API documentation."""
+
+    @property
+    def endpoints(self) -> list:
+        return sorted(x for x in self._rest_scheme.keys() if x not in self.EXCLUDE)
+
+    @validate_endpoint_action
+    def actions(self, endpoint: str, *args) -> list:
+        return sorted(x for x in self._rest_scheme[endpoint].keys() if x not in self.EXCLUDE)
+
+    @validate_endpoint_action
+    def url(self, endpoint: str, action: str) -> str:
+        return self._rest_scheme[endpoint][action]['url']
+
+    @validate_endpoint_action
+    def fields(self, endpoint: str, action: str) -> list:
+        return self._rest_scheme[endpoint][action]['fields']
+
+    @validate_endpoint_action
+    def print_endpoint_info(self, endpoint: str, action: str = None) -> None:
+        for _action in self._rest_scheme[endpoint] if action is None else [action]:
+            doc = []
+            pprint(_action)
+            for f in self._rest_scheme[endpoint][_action]['fields']:
+                required = ' (required): ' if f.get('required', False) else ': '
+                doc.append(
+                    f'\t"{f["name"]}"{required}{f["schema"]["_type"]}'
+                    f', {f["schema"]["description"]}'
+                )
+            doc.sort()
+            [print(d) for d in doc if '(required)' in d]
+            [print(d) for d in doc if '(required)' not in d]
+
+
+class RestSchemeOpenApi(RestScheme):
+    """OpenAPI v3 Alyx REST scheme documentation."""
+
+    backend = 'open_api_v3'
+    """str: The name of the backend that generates the REST API documentation."""
+
+    @property
+    def endpoints(self) -> list:
+        endpoints = set()
+        for path in self._rest_scheme['paths'].keys():
+            # Extract the endpoint name (word between first and second slash,
+            # or after first slash if no second slash)
+            match = re.match(r'^/([^/]+)', path)
+            if match and match.group(1) not in self.EXCLUDE:
+                endpoints.add(match.group(1))
+        return sorted(list(endpoints))
+
+    @validate_endpoint_action
+    def _get_endpoint_actions(self, endpoint: str, *args) -> dict:
+        # Find all paths that start with this endpoint
+        endpoint_paths = []
+        for path in self._rest_scheme['paths'].keys():
+            # Match either /endpoint or /endpoint/{something}
+            if path == f'/{endpoint}' or path.startswith(f'/{endpoint}/'):
+                endpoint_paths.append(path)
+        # Extract available HTTP methods (actions) for these paths
+        actions = {}
+        for path in endpoint_paths:
+            for method in self._rest_scheme['paths'][path].keys():
+                # Convert HTTP methods to standard action names
+                if method == 'get':
+                    # Determine if this is a list or read action based on path pattern
+                    if '{' in path:  # Path has a parameter, likely a read action
+                        action = 'read'
+                    else:
+                        action = 'list'
+                elif method == 'post':
+                    action = 'create'
+                elif method == 'put':
+                    action = 'update'
+                elif method == 'patch':
+                    action = 'partial_update'
+                elif method == 'delete':
+                    action = 'delete'
+                actions[action] = path
+        return actions
+
+    @validate_endpoint_action
+    def _endpoint_action_info(self, endpoint: str, action: str) -> dict:
+        # Find all paths that start with this endpoint
+        endpoint_paths = []
+        for path in self._rest_scheme['paths'].keys():
+            # Match either /endpoint or /endpoint/{something}
+            if path == f'/{endpoint}' and not action == 'read' or path.startswith(f'/{endpoint}/'):
+                endpoint_paths.append(path)
+        # Extract available HTTP methods (actions) for these paths
+        rest2http = {
+            'list': 'get',
+            'read': 'get',
+            'create': 'post',
+            'update': 'put',
+            'partial_update': 'patch',
+            'delete': 'delete',
+        }
+
+        endpoint_method_info = {'fields': {}, 'description': '', 'parameters': [], 'url': ''}
+        for path in endpoint_paths:
+            operation = self._rest_scheme['paths'][path].get(rest2http[action], None)
+            if operation is not None:
+                endpoint_method_info['url'] = path
+                if 'requestBody' in operation:
+                    schema = operation['requestBody']['content']['application/json']['schema'][
+                        '$ref'
+                    ].split('/')[-1]
+                    endpoint_method_info['fields'] = self._rest_scheme['components']['schemas'][
+                        schema
+                    ]['properties']
+                if 'description' in operation:
+                    endpoint_method_info['description'] = operation['description']
+                if 'parameters' in operation:
+                    endpoint_method_info['parameters'] = operation['parameters']
+                break
+        return endpoint_method_info
+
+    def fields(self, endpoint: str, action: str) -> list:
+        # in openapi there is a distinction between fields and parameters
+        params = self._endpoint_action_info(endpoint, action)['parameters']
+        fields = self._endpoint_action_info(endpoint, action)['fields']
+        fields = [{'name': k, 'schema': v} for k, v in fields.items()]
+        return params + fields
+
+    @validate_endpoint_action
+    def actions(self, endpoint: str, *args) -> list:
+        actions = self._get_endpoint_actions(endpoint)
+        return sorted(list(actions.keys()))
+
+    def url(self, endpoint: str, action: str) -> str:
+        return self._endpoint_action_info(endpoint, action)['url']
+
+    @validate_endpoint_action
+    def print_endpoint_info(self, endpoint: str, action: str = None) -> None:
+        """Print detailed information about an endpoint's actions and parameters.
+
+        Parameters
+        ----------
+        endpoint : str
+            The endpoint name to display information for
+        action : str, optional
+            If provided, only show information for this specific action
+
+        Returns
+        -------
+        None
+        """
+        actions = self._get_endpoint_actions(endpoint) if action is None else [action]
+        for action in actions:
+            endpoint_action_info = self._endpoint_action_info(endpoint, action)
+            print(action)
+            for par in endpoint_action_info.get('parameters', []):
+                print(f'\t{par["name"]}')
+            all_fields = endpoint_action_info.get('fields', {})
+            if isinstance(all_fields, dict):
+                for field, field_info in all_fields.items():
+                    print(f'\t{field}: ({field_info.get("type", "")}), '
+                          f'{field_info.get("description", "")}')
+
+
 class AlyxClient:
     """Class that implements simple GET/POST wrappers for the Alyx REST API.
 
@@ -538,8 +860,15 @@ class AlyxClient:
     base_url = None
     """str: The Alyx database URL."""
 
-    def __init__(self, base_url=None, username=None, password=None,
-                 cache_dir=None, silent=False, cache_rest='GET'):
+    def __init__(
+        self,
+        base_url=None,
+        username=None,
+        password=None,
+        cache_dir=None,
+        silent=False,
+        cache_rest='GET',
+    ):
         """Create a client instance that allows to GET and POST to the Alyx server.
 
         For One, constructor attempts to authenticate with credentials in params.py.
@@ -571,7 +900,8 @@ class AlyxClient:
             self.authenticate(username, password)
         self._rest_schemes = None
         # the mixed accept application may cause errors sometimes, only necessary for the docs
-        self._headers = {**self._headers, 'Accept': 'application/json'}
+        self._headers = {
+            **self._headers, 'Accept': 'application/json', 'ONE-API-Version': __version__}
         # REST cache parameters
         # The default length of time that cache file is valid for,
         # The default expiry is overridden by the `expires` kwarg.  If False, the caching is
@@ -581,13 +911,6 @@ class AlyxClient:
         self.cache_mode = cache_rest
         self._obj_id = id(self)
 
-    @property
-    def rest_schemes(self):
-        """dict: The REST endpoints and their parameters."""
-        # Delayed fetch of rest schemes speeds up instantiation
-        if not self._rest_schemes:
-            self._rest_schemes = self.get('/docs', expires=timedelta(weeks=1))
-        return self._rest_schemes
 
     @property
     def cache_dir(self):
@@ -605,49 +928,29 @@ class AlyxClient:
         """bool: Check if user logged into Alyx database; True if user is authenticated."""
         return bool(self.user and self._token and 'Authorization' in self._headers)
 
+    @property
+    def rest_schemes(self) -> RestScheme:
+        """dict: The REST endpoints and their parameters."""
+        # Delayed fetch of rest schemes speeds up instantiation
+        if not self._rest_schemes:
+            try:
+                raw_schema = self.get('/api/schema', expires=timedelta(weeks=1))
+                self._rest_schemes = RestSchemeOpenApi(raw_schema)
+            except requests.exceptions.HTTPError as e:
+                if e.response.status_code == 404:
+                    raw_schema = self.get('/docs', expires=timedelta(weeks=1))
+                    self._rest_schemes = RestSchemeCoreApi(raw_schema)
+                else:
+                    raise e
+        return self._rest_schemes
+
     def list_endpoints(self):
-        """Return a list of available REST endpoints.
+        endpoints = self.rest_schemes.endpoints
+        pprint(endpoints)
+        return endpoints
 
-        Returns
-        -------
-            List of REST endpoint strings.
-
-        """
-        EXCLUDE = ('_type', '_meta', '', 'auth-token')
-        return sorted(x for x in self.rest_schemes.keys() if x not in EXCLUDE)
-
-    def print_endpoint_info(self, endpoint, action=None):
-        """Print the available actions and query parameters for a given REST endpoint.
-
-        Parameters
-        ----------
-        endpoint : str
-            An Alyx REST endpoint to query.
-        action : str
-            An optional action (e.g. 'list') to print. If None, all actions are printed.
-
-        Returns
-        -------
-        dict, list
-            A dictionary of endpoint query parameter details or a list of parameter details if
-            action is not None.
-
-        """
-        rs = self.rest_schemes
-        if endpoint not in rs:
-            return print(f'Endpoint "{endpoint}" does not exist')
-
-        for _action in (rs[endpoint] if action is None else [action]):
-            doc = []
-            pprint(_action)
-            for f in rs[endpoint][_action]['fields']:
-                required = ' (required): ' if f.get('required', False) else ': '
-                doc.append(f'\t"{f["name"]}"{required}{f["schema"]["_type"]}'
-                           f', {f["schema"]["description"]}')
-            doc.sort()
-            [print(d) for d in doc if '(required)' in d]
-            [print(d) for d in doc if '(required)' not in d]
-        return (rs[endpoint] if action is None else rs[endpoint][action]).copy()
+    def print_endpoint_info(self, endpoint: str, action: str = None):
+        self.rest_schemes.print_endpoint_info(endpoint, action)
 
     @_cache_response
     def _generic_request(self, reqfunction, rest_query, data=None, files=None):
@@ -662,12 +965,17 @@ class AlyxClient:
         if files is None:
             to_json = functools.partial(json.dumps, cls=_JSONEncoder)
             data = to_json(data) if isinstance(data, dict) or isinstance(data, list) else data
+            # __ONE_API_VERSION__
             headers['Content-Type'] = 'application/json'
         if rest_query.startswith('/docs'):
-            # the mixed accept application may cause errors sometimes, only necessary for the docs
             headers['Accept'] = 'application/coreapi+json'
-        r = reqfunction(self.base_url + rest_query,
-                        stream=True, headers=headers, data=data, files=files)
+        if rest_query.startswith('/api/schema'):
+            # the docs are now served as openapi media, so we need to change the accept header
+            headers['Accept'] = 'application/vnd.oai.openapi+json'
+            headers['Accept-Version'] = '3.0'
+        r = reqfunction(
+            self.base_url + rest_query, stream=True, headers=headers, data=data, files=files
+        )
         if r and r.status_code in (200, 201):
             return json.loads(r.text)
         elif r and r.status_code == 204:
@@ -688,7 +996,7 @@ class AlyxClient:
                 message.pop('status_code', None)  # Get status code from response object instead
                 message = message.get('detail') or message  # Get details if available
                 _logger.debug(message)
-            except json.decoder.JSONDecodeError:
+            except json.decoder.JSONDecodeError:  #nocov
                 message = r.text
             raise requests.HTTPError(r.status_code, rest_query, message, response=r)
 
@@ -725,7 +1033,8 @@ class AlyxClient:
             self._token = self._par.TOKEN[username]
             self._headers = {
                 'Authorization': f'Token {list(self._token.values())[0]}',
-                'Accept': 'application/json'}
+                'Accept': 'application/json'
+            }
             self.user = username
             return
 
@@ -738,7 +1047,9 @@ class AlyxClient:
                     'No password or cached token in silent mode. '
                     'Please run the following to re-authenticate:\n\t'
                     'AlyxClient(silent=False).authenticate'
-                    '(username=<username>, force=True)', UserWarning)
+                    '(username=<username>, force=True)',
+                    UserWarning,
+                )
             else:
                 password = getpass(f'Enter Alyx password for "{username}":')
         # Remove previous token
@@ -758,15 +1069,18 @@ class AlyxClient:
         else:
             if rep.status_code == 400:  # Auth error; re-raise with details
                 redacted = '*' * len(credentials['password']) if credentials['password'] else None
-                message = ('Alyx authentication failed with credentials: '
-                           f'user = {credentials["username"]}, password = {redacted}')
+                message = (
+                    'Alyx authentication failed with credentials: '
+                    f'user = {credentials["username"]}, password = {redacted}'
+                )
                 raise requests.HTTPError(rep.status_code, rep.url, message, response=rep)
             else:
                 rep.raise_for_status()
 
         self._headers = {
             'Authorization': 'Token {}'.format(list(self._token.values())[0]),
-            'Accept': 'application/json'}
+            'Accept': 'application/json',
+        }
         if cache_token:
             # Update saved pars
             par = one.params.get(client=self.base_url, silent=True)
@@ -861,14 +1175,16 @@ class AlyxClient:
             target_dir=kwargs.pop('target_dir', self._par.CACHE_DIR),
             username=self._par.HTTP_DATA_SERVER_LOGIN,
             password=self._par.HTTP_DATA_SERVER_PWD,
-            **kwargs
+            **kwargs,
         )
         try:
             files = download_fcn(url, **pars)
         except HTTPError as ex:
             if ex.code == 401:
-                ex.msg += (' - please check your HTTP_DATA_SERVER_LOGIN and '
-                           'HTTP_DATA_SERVER_PWD ONE params, or username/password kwargs')
+                ex.msg += (
+                    ' - please check your HTTP_DATA_SERVER_LOGIN and '
+                    'HTTP_DATA_SERVER_PWD ONE params, or username/password kwargs'
+                )
             raise ex
         return files
 
@@ -899,11 +1215,9 @@ class AlyxClient:
             headers = self._headers
 
         with tempfile.TemporaryDirectory(dir=destination) as tmp:
-            file = http_download_file(source,
-                                      headers=headers,
-                                      silent=self.silent,
-                                      target_dir=tmp,
-                                      clobber=True)
+            file = http_download_file(
+                source, headers=headers, silent=self.silent, target_dir=tmp, clobber=True
+            )
             with zipfile.ZipFile(file, 'r') as zipped:
                 files = zipped.namelist()
                 zipped.extractall(destination)
@@ -933,9 +1247,10 @@ class AlyxClient:
 
         """
         if url.startswith('http'):  # A full URL
-            assert url.startswith(self._par.HTTP_DATA_SERVER), \
-                ('remote protocol and/or hostname does not match HTTP_DATA_SERVER parameter:\n' +
-                 f'"{url[:40]}..." should start with "{self._par.HTTP_DATA_SERVER}"')
+            assert url.startswith(self._par.HTTP_DATA_SERVER), (
+                'remote protocol and/or hostname does not match HTTP_DATA_SERVER parameter:\n'
+                + f'"{url[:40]}..." should start with "{self._par.HTTP_DATA_SERVER}"'
+            )
         elif not url.startswith(self._par.HTTP_DATA_SERVER):
             url = self.rel_path2url(url)
         return url
@@ -1055,8 +1370,9 @@ class AlyxClient:
         """
         return self._generic_request(requests.put, rest_query, data=data, files=files)
 
-    def rest(self, url=None, action=None, id=None, data=None, files=None,
-             no_cache=False, **kwargs):
+    def rest(
+        self, url=None, action=None, id=None, data=None, files=None, no_cache=False, **kwargs
+    ):
         """Alyx REST API wrapper.
 
         If no arguments are passed, lists available endpoints.
@@ -1109,52 +1425,66 @@ class AlyxClient:
         """
         # if endpoint is None, list available endpoints
         if not url:
-            pprint(self.list_endpoints())
+            pprint(self.rest_schemes.endpoints)
             return
         # remove beginning slash if any
         if url.startswith('/'):
             url = url[1:]
         # and split to the next slash or question mark
-        endpoint = re.findall("^/*[^?/]*", url)[0].replace('/', '')
+        endpoint = re.findall('^/*[^?/]*', url)[0].replace('/', '')
         # make sure the queried endpoint exists, if not throw an informative error
-        if endpoint not in self.rest_schemes.keys():
-            av = [k for k in self.rest_schemes.keys() if not k.startswith('_') and k]
-            raise ValueError('REST endpoint "' + endpoint + '" does not exist. Available ' +
-                             'endpoints are \n       ' + '\n       '.join(av))
-        endpoint_scheme = self.rest_schemes[endpoint]
+        if endpoint not in self.rest_schemes.endpoints:
+            av = [k for k in self.rest_schemes.endpoints if not k.startswith('_') and k]
+            raise ValueError(
+                'REST endpoint "'
+                + endpoint
+                + '" does not exist. Available '
+                + 'endpoints are \n       '
+                + '\n       '.join(av)
+            )
         # on a filter request, override the default action parameter
         if '?' in url:
             action = 'list'
         # if action is None, list available actions for the required endpoint
         if not action:
-            pprint(list(endpoint_scheme.keys()))
-            self.print_endpoint_info(endpoint)
+            pprint(self.rest_schemes.actions(endpoint))
+            self.rest_schemes.print_endpoint_info(endpoint)
             return
+        if action == 'partial-update':
+            # Endpoint names are hyphenated but action names are underscored;
+            # convert for user convenience
+            action = 'partial_update'
         # make sure the desired action exists, if not throw an informative error
-        if action not in endpoint_scheme:
-            raise ValueError('Action "' + action + '" for REST endpoint "' + endpoint + '" does ' +
-                             'not exist. Available actions are: ' +
-                             '\n       ' + '\n       '.join(endpoint_scheme.keys()))
+        if action not in self.rest_schemes.actions(endpoint):
+            raise ValueError(
+                'Action "'
+                + action
+                + '" for REST endpoint "'
+                + endpoint
+                + '" does '
+                + 'not exist. Available actions are: '
+                + '\n       '
+                + '\n       '.join(self.rest_schemes.actions(endpoint))
+            )
         # the actions below require an id in the URL, warn and help the user
         if action in ['read', 'update', 'partial_update', 'delete'] and not id:
-            _logger.warning('REST action "' + action + '" requires an ID in the URL: ' +
-                            endpoint_scheme[action]['url'])
+            _logger.warning(
+                'REST action "'
+                + action
+                + '" requires an ID in the URL: '
+                + self.rest_schemes.url(endpoint, action)
+            )
             return
         # the actions below require a data dictionary, warn and help the user with fields list
-        data_required = 'fields' in endpoint_scheme[action]
-        if action in ['create', 'update', 'partial_update'] and data_required and not data:
-            pprint(endpoint_scheme[action]['fields'])
-            for act in endpoint_scheme[action]['fields']:
-                print("'" + act['name'] + "': ...,")
+        if action in ['create', 'update', 'partial_update'] and not data:
+            rest_params = self.rest_schemes.fields(endpoint, action)
+            pprint(rest_params)
             _logger.warning('REST action "' + action + '" requires a data dict with above keys')
             return
 
         # clobber=True means remote request always made, expires=True means response is not cached
         cache_args = {'clobber': no_cache, 'expires': kwargs.pop('expires', False) or no_cache}
         if action == 'list':
-            # list doesn't require id nor
-            assert endpoint_scheme[action]['action'] == 'get'
-            # add to url data if it is a string
             if id:
                 # this is a special case of the list where we query a uuid
                 # usually read is better but list may return fewer data and therefore be faster
@@ -1169,42 +1499,42 @@ class AlyxClient:
                 if 'django' in kwargs and kwargs['django'] is None:
                     del kwargs['django']
                 # Convert all lists in query params to comma separated list
+                if len(set(kwargs.keys()) - set(self.rest_schemes.field_names(endpoint, action))):
+                    missing = set(kwargs.keys()) - set(
+                        self.rest_schemes.field_names(endpoint, action))
+                    raise ValueError(f"Error: Unsupported fields '{missing}' in query parameters.")
                 query_params = {k: ','.join(map(str, ensure_list(v))) for k, v in kwargs.items()}
                 url = update_url_params(url, query_params)
             return self.get('/' + url, **cache_args)
         if not isinstance(id, str) and id is not None:
             id = str(id)  # e.g. may be uuid.UUID
         if action == 'read':
-            assert endpoint_scheme[action]['action'] == 'get'
             return self.get('/' + endpoint + '/' + id.split('/')[-1], **cache_args)
         elif action == 'create':
-            assert endpoint_scheme[action]['action'] == 'post'
             return self.post('/' + endpoint, data=data, files=files)
         elif action == 'delete':
-            assert endpoint_scheme[action]['action'] == 'delete'
             return self.delete('/' + endpoint + '/' + id.split('/')[-1])
         elif action == 'partial_update':
-            assert endpoint_scheme[action]['action'] == 'patch'
             return self.patch('/' + endpoint + '/' + id.split('/')[-1], data=data, files=files)
         elif action == 'update':
-            assert endpoint_scheme[action]['action'] == 'put'
             return self.put('/' + endpoint + '/' + id.split('/')[-1], data=data, files=files)
 
     # JSON field interface convenience methods
     def _check_inputs(self, endpoint: str) -> None:
         # make sure the queried endpoint exists, if not throw an informative error
-        if endpoint not in self.rest_schemes.keys():
-            av = (k for k in self.rest_schemes.keys() if not k.startswith('_') and k)
-            raise ValueError('REST endpoint "' + endpoint + '" does not exist. Available ' +
-                             'endpoints are \n       ' + '\n       '.join(av))
+        if endpoint not in self.rest_schemes.endpoints:
+            av = (k for k in self.rest_schemes.endpoints if not k.startswith('_') and k)
+            raise ValueError(
+                'REST endpoint "'
+                + endpoint
+                + '" does not exist. Available '
+                + 'endpoints are \n       '
+                + '\n       '.join(av)
+            )
         return
 
     def json_field_write(
-            self,
-            endpoint: str = None,
-            uuid: str = None,
-            field_name: str = None,
-            data: dict = None
+        self, endpoint: str = None, uuid: str = None, field_name: str = None, data: dict = None
     ) -> dict:
         """Write data to JSON field.
 
@@ -1235,11 +1565,7 @@ class AlyxClient:
         return ret[field_name]
 
     def json_field_update(
-            self,
-            endpoint: str = None,
-            uuid: str = None,
-            field_name: str = 'json',
-            data: dict = None
+        self, endpoint: str = None, uuid: str = None, field_name: str = 'json', data: dict = None
     ) -> dict:
         """Non-destructive update of JSON field of endpoint for object.
 
@@ -1290,11 +1616,7 @@ class AlyxClient:
         return ret[field_name]
 
     def json_field_remove_key(
-            self,
-            endpoint: str = None,
-            uuid: str = None,
-            field_name: str = 'json',
-            key: str = None
+        self, endpoint: str = None, uuid: str = None, field_name: str = 'json', key: str = None
     ) -> Optional[dict]:
         """Remove inputted key from JSON field dict and re-upload it to Alyx.
 
@@ -1328,9 +1650,7 @@ class AlyxClient:
             return None
         # If key not present in contents of json field cannot remove key, return contents
         if current.get(key, None) is None:
-            _logger.warning(
-                f'{key}: Key not found in endpoint {endpoint} field {field_name}'
-            )
+            _logger.warning(f'{key}: Key not found in endpoint {endpoint} field {field_name}')
             return current
         _logger.info(f'Removing key from dict: "{key}"')
         current.pop(key)
@@ -1341,7 +1661,7 @@ class AlyxClient:
         return written
 
     def json_field_delete(
-            self, endpoint: str = None, uuid: str = None, field_name: str = None
+        self, endpoint: str = None, uuid: str = None, field_name: str = None
     ) -> None:
         """Set an entire field to null.
 
