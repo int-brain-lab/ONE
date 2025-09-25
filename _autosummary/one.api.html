@@ -67,6 +67,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../notebooks/data_sharing.html">Releasing data with ONE</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../notebooks/recording_data_access.html">Recording data access</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/recording_data_access.html#Data-reproducibility">Data reproducibility</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">ALF</span></p>
 <ul>
@@ -83,6 +84,7 @@
 <li class="toctree-l3"><a class="reference internal" href="one.alf.html">one.alf</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">one.api</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="one.api.SAVE_ON_DELETE.html">one.api.SAVE_ON_DELETE</a></li>
+<li class="toctree-l4"><a class="reference internal" href="one.api.REVISION_LAST_BEFORE.html">one.api.REVISION_LAST_BEFORE</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#one.api.ONE"><code class="docutils literal notranslate"><span class="pre">ONE()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#one.api.One"><code class="docutils literal notranslate"><span class="pre">One</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#one.api.OneAlyx"><code class="docutils literal notranslate"><span class="pre">OneAlyx</span></code></a></li>
@@ -136,6 +138,9 @@
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="one.api.SAVE_ON_DELETE.html#one.api.SAVE_ON_DELETE" title="one.api.SAVE_ON_DELETE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SAVE_ON_DELETE</span></code></a></p></td>
 <td><p>Whether to save modified cache tables on delete.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="one.api.REVISION_LAST_BEFORE.html#one.api.REVISION_LAST_BEFORE" title="one.api.REVISION_LAST_BEFORE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">REVISION_LAST_BEFORE</span></code></a></p></td>
+<td><p>If set, the revision string to use when loading data before a given date.</p></td>
 </tr>
 </tbody>
 </table>
@@ -578,7 +583,7 @@ Supports asterisks as wildcards.</p></li>
 <li><p><strong>revision</strong> (<em>str</em>) – The dataset revision (typically an ISO date).  If no exact match, the previous
 revision (ordered lexicographically) is returned.  If None, the default revision is
 returned (usually the most recent revision).  Regular expressions/wildcards not
-permitted.</p></li>
+permitted.  May be set with <cite>ONE_REVISION_LAST_BEFORE</cite> environment variable.</p></li>
 <li><p><strong>query_type</strong> (<em>str</em>) – Query cache (‘local’) or Alyx database (‘remote’).</p></li>
 <li><p><strong>download_only</strong> (<em>bool</em>) – When true the data are downloaded and the file path is returned. NB: The order of the
 file path list is undefined.</p></li>
@@ -627,7 +632,7 @@ Supports asterisks as wildcards.</p></li>
 <li><p><strong>revision</strong> (<em>str</em>) – The dataset revision (typically an ISO date).  If no exact match, the previous
 revision (ordered lexicographically) is returned.  If None, the default revision is
 returned (usually the most recent revision).  Regular expressions/wildcards not
-permitted.</p></li>
+permitted.  May be set with <cite>ONE_REVISION_LAST_BEFORE</cite> environment variable.</p></li>
 <li><p><strong>query_type</strong> (<em>str</em>) – Query cache (‘local’) or Alyx database (‘remote’)</p></li>
 <li><p><strong>download_only</strong> (<em>bool</em>) – When true the data are downloaded and the file path is returned.</p></li>
 <li><p><strong>check_hash</strong> (<em>bool</em>) – Consider dataset missing if local file hash does not match. In online mode, the dataset
@@ -699,7 +704,7 @@ Supports asterisks as wildcards.</p></li>
 <li><p><strong>revisions</strong> (<em>str</em><em>, </em><em>list</em>) – The dataset revision (typically an ISO date).  If no exact match, the previous
 revision (ordered lexicographically) is returned.  If None, the default revision is
 returned (usually the most recent revision).  Regular expressions/wildcards not
-permitted.</p></li>
+permitted.  May be set with <cite>ONE_REVISION_LAST_BEFORE</cite> environment variable.</p></li>
 <li><p><strong>query_type</strong> (<em>str</em>) – Query cache (‘local’) or Alyx database (‘remote’)</p></li>
 <li><p><strong>assert_present</strong> (<em>bool</em>) – If true, missing datasets raises and error, otherwise None is returned</p></li>
 <li><p><strong>download_only</strong> (<em>bool</em>) – When true the data are downloaded and the file path is returned.</p></li>
@@ -795,7 +800,7 @@ Supports asterisks as wildcards.</p></li>
 <li><p><strong>revision</strong> (<em>str</em>) – The dataset revision (typically an ISO date).  If no exact match, the previous
 revision (ordered lexicographically) is returned.  If None, the default revision is
 returned (usually the most recent revision).  Regular expressions/wildcards not
-permitted.</p></li>
+permitted.  May be set with <cite>ONE_REVISION_LAST_BEFORE</cite> environment variable.</p></li>
 <li><p><strong>query_type</strong> (<em>str</em>) – Query cache (‘local’) or Alyx database (‘remote’)</p></li>
 <li><p><strong>download_only</strong> (<em>bool</em>) – When true the data are downloaded and the file path is returned.</p></li>
 <li><p><strong>check_hash</strong> (<em>bool</em>) – Consider dataset missing if local file hash does not match. In online mode, the dataset
@@ -1070,6 +1075,8 @@ Supports asterisks as wildcards.</p></li>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">trials</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_aggregate</span><span class="p">(</span><span class="s1">&#39;subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;SP026&#39;</span><span class="p">,</span> <span class="s1">&#39;_ibl_subjectTraining.table&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
+<p class="rubric">Notes</p>
+<p>Unlike other loading functions, this function loads datasets with a matching revision.</p>
 </dd></dl>
 
 <dl class="py method">

@@ -60,7 +60,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#Gotchas">Gotchas</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#Difference-between-search-term-behaviours">Difference between search term behaviours</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#Difference-between-remote-mode-search-terms">Difference between remote mode search terms</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#The-dataset,-datasets-and-dataset_types-remote-arguments">The dataset, datasets and dataset_types remote arguments</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#The-datasets-and-dataset_types-remote-arguments">The datasets and dataset_types remote arguments</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#Regex-systems-between-modes">Regex systems between modes</a></li>
 </ul>
 </li>
@@ -84,6 +84,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../data_sharing.html">Releasing data with ONE</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../recording_data_access.html">Recording data access</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../recording_data_access.html#Data-reproducibility">Data reproducibility</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">ALF</span></p>
 <ul>
@@ -444,31 +445,28 @@ case-sensitive in <a class="reference external" href="../one_modes.html">local m
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>dataset</p></td>
-<td><p>LIKE AND</p></td>
-</tr>
-<tr class="row-odd"><td><p>dataset_qc_lte</p></td>
+<tr class="row-even"><td><p>dataset_qc_lte</p></td>
 <td><p>&lt;=</p></td>
 </tr>
-<tr class="row-even"><td><p>number</p></td>
+<tr class="row-odd"><td><p>number</p></td>
 <td><p>EXACT</p></td>
 </tr>
-<tr class="row-odd"><td><p>date_range</p></td>
+<tr class="row-even"><td><p>date_range</p></td>
 <td><p>BETWEEN</p></td>
 </tr>
-<tr class="row-even"><td><p>subject, etc.</p></td>
+<tr class="row-odd"><td><p>subject, etc.</p></td>
 <td><p>LIKE OR</p></td>
 </tr>
 </tbody>
 </table>
-<p>Combinations of terms form a logical AND, for example <code class="docutils literal notranslate"><span class="pre">one.search(subject=['foo',</span> <span class="pre">'bar'],</span> <span class="pre">project='baz')</span></code> searches for sessions where the subject name contains foo OR bar, AND the project contains baz. NB: When <code class="docutils literal notranslate"><span class="pre">dataset_qc_lte</span></code> which is provided with <code class="docutils literal notranslate"><span class="pre">datasets</span></code>, sessions are returned where ALL matching datasets have a less than or equal QC value. When <code class="docutils literal notranslate"><span class="pre">dataset_qc_lte</span></code> is provided alone, sessions are returned where ANY of the datasets have a less than or equal QC value.</p>
+<p>Combinations of terms form a logical AND, for example <code class="docutils literal notranslate"><span class="pre">one.search(subject=['foo',</span> <span class="pre">'bar'],</span> <span class="pre">project='baz')</span></code> searches for sessions where the subject name contains foo OR bar, AND the project contains baz. NB: When <code class="docutils literal notranslate"><span class="pre">dataset_qc_lte</span></code> is provided with <code class="docutils literal notranslate"><span class="pre">datasets</span></code>, sessions are returned where ALL matching datasets have a less than or equal QC value. When <code class="docutils literal notranslate"><span class="pre">dataset_qc_lte</span></code> is provided alone, sessions are returned where ANY of the datasets have a less than or equal QC value.</p>
 </section>
 <section id="Difference-between-remote-mode-search-terms">
 <h4>Difference between remote mode search terms<a class="headerlink" href="#Difference-between-remote-mode-search-terms" title="Link to this heading"></a></h4>
 <p>Many search terms perform differently between <a class="reference external" href="../one_modes.html">local mode</a> and remote mode, namely in remote mode, search queries are case-insensitive.</p>
 </section>
-<section id="The-dataset,-datasets-and-dataset_types-remote-arguments">
-<h4>The dataset, datasets and dataset_types remote arguments<a class="headerlink" href="#The-dataset,-datasets-and-dataset_types-remote-arguments" title="Link to this heading"></a></h4>
+<section id="The-datasets-and-dataset_types-remote-arguments">
+<h4>The datasets and dataset_types remote arguments<a class="headerlink" href="#The-datasets-and-dataset_types-remote-arguments" title="Link to this heading"></a></h4>
 <p>In remote mode there are two ways to search for datasets:</p>
 <ul class="simple">
 <li><p><strong>datasets</strong> - an exact, case-sensitive match of one or more datasets. All datasets must be present. If <code class="docutils literal notranslate"><span class="pre">dataset_qc</span></code> provided, this criterion applies only to these datasets.</p></li>

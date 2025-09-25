@@ -23,6 +23,7 @@ one.tests.test\_alyxclient
       TestJsonFieldMethods
       TestMisc
       TestRestCache
+      TestRestDocumentation
    
    
 

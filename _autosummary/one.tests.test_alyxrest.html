@@ -67,6 +67,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../notebooks/data_sharing.html">Releasing data with ONE</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../notebooks/recording_data_access.html">Recording data access</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/recording_data_access.html#Data-reproducibility">Data reproducibility</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">ALF</span></p>
 <ul>
@@ -172,6 +173,22 @@
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_alyxrest.TestREST.test_id_django_fields">
+<span class="sig-name descname"><span class="pre">test_id_django_fields</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxrest.html#TestREST.test_id_django_fields"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxrest.TestREST.test_id_django_fields" title="Link to this definition"></a></dt>
+<dd><p>Test.</p>
+<p>The id and django kwargs have a specific meaning when using the list actions
+on endpoints that implement the Alyx base REST framework. On endpoints that
+do not implement the base REST framework, such as dataset_types and revisions,
+the id/django args should yield an error.
+:return:</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_alyxrest.TestREST.test_validation_list_fields">
+<span class="sig-name descname"><span class="pre">test_validation_list_fields</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxrest.html#TestREST.test_validation_list_fields"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxrest.TestREST.test_validation_list_fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_alyxrest.TestREST.test_paginated_request">
 <span class="sig-name descname"><span class="pre">test_paginated_request</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxrest.html#TestREST.test_paginated_request"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxrest.TestREST.test_paginated_request" title="Link to this definition"></a></dt>
 <dd><p>Check that paginated response object is returned upon making large queries.</p>
@@ -205,12 +222,6 @@
 <dt class="sig sig-object py" id="one.tests.test_alyxrest.TestREST.test_endpoints_docs">
 <span class="sig-name descname"><span class="pre">test_endpoints_docs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxrest.html#TestREST.test_endpoints_docs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxrest.TestREST.test_endpoints_docs" title="Link to this definition"></a></dt>
 <dd><p>Test for AlyxClient.list_endpoints method and AlyxClient.rest.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="one.tests.test_alyxrest.TestREST.test_print_endpoint_info">
-<span class="sig-name descname"><span class="pre">test_print_endpoint_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxrest.html#TestREST.test_print_endpoint_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxrest.TestREST.test_print_endpoint_info" title="Link to this definition"></a></dt>
-<dd><p>Test endpoint query params are printed when calling AlyxClient.rest without action.</p>
 </dd></dl>
 
 <dl class="py method">

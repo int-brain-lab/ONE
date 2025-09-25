@@ -67,6 +67,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../notebooks/data_sharing.html">Releasing data with ONE</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../notebooks/recording_data_access.html">Recording data access</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/recording_data_access.html#Data-reproducibility">Data reproducibility</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">ALF</span></p>
 <ul>
@@ -315,7 +316,7 @@ must use two separate queries.</p></li>
 <li><p><strong>datasets</strong> (<em>pandas.DataFrame</em>) – A datasets cache table.</p></li>
 <li><p><strong>revision</strong> (<em>str</em>) – A revision string to match (regular expressions not permitted).</p></li>
 <li><p><strong>assert_unique</strong> (<em>bool</em>) – When true an alferr.ALFMultipleRevisionsFound exception is raised when multiple
-default revisions are found; an alferr.ALFError when no default revision is found.</p></li>
+default revisions are found; an alferr.ALFWarning when no default revision is found.</p></li>
 <li><p><strong>assert_consistent</strong> (<em>bool</em>) – Will raise alferr.ALFMultipleRevisionsFound if matching revision is different between
 datasets.</p></li>
 </ul>
@@ -343,6 +344,19 @@ datasets.</p></li>
 </ul>
 </dd>
 </dl>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<dl class="simple">
+<dt>one.alf.exceptions.ALFWarning</dt><dd><p>When the ‘default_revision’ column exists and no revision is passed, this warning means
+that one or more matching datasets have no default revision specified. This is typically
+an error in the cache table itself as all datasets should have one and only one default
+revision specified.  It may be that the default revision is unavailable (e.g. deleted).</p>
+</dd>
+<dt>one.alf.exceptions.ALFWarning</dt><dd><p>When <cite>assert_consistent</cite> is False, this warning may mean that the matching datasets have
+mixed revisions.</p>
+</dd>
+</dl>
+</div>
 <p class="rubric">Notes</p>
 <ul class="simple">
 <li><p>When <cite>revision</cite> is not None, the default revision value is not used. If an older revision is

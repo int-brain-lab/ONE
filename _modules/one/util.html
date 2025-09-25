@@ -64,6 +64,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../notebooks/data_sharing.html">Releasing data with ONE</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../notebooks/recording_data_access.html">Recording data access</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notebooks/recording_data_access.html#Data-reproducibility">Data reproducibility</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">ALF</span></p>
 <ul>
@@ -468,7 +469,7 @@
 <span class="sd">        A revision string to match (regular expressions not permitted).</span>
 <span class="sd">    assert_unique : bool</span>
 <span class="sd">        When true an alferr.ALFMultipleRevisionsFound exception is raised when multiple</span>
-<span class="sd">        default revisions are found; an alferr.ALFError when no default revision is found.</span>
+<span class="sd">        default revisions are found; an alferr.ALFWarning when no default revision is found.</span>
 <span class="sd">    assert_consistent : bool</span>
 <span class="sd">        Will raise alferr.ALFMultipleRevisionsFound if matching revision is different between</span>
 <span class="sd">        datasets.</span>
@@ -496,6 +497,17 @@
 <span class="sd">        revision specified. This is typically an error in the cache table itself as all datasets</span>
 <span class="sd">        should have one and only one default revision specified.</span>
 
+<span class="sd">    Warnings</span>
+<span class="sd">    --------</span>
+<span class="sd">    one.alf.exceptions.ALFWarning</span>
+<span class="sd">        When the &#39;default_revision&#39; column exists and no revision is passed, this warning means</span>
+<span class="sd">        that one or more matching datasets have no default revision specified. This is typically</span>
+<span class="sd">        an error in the cache table itself as all datasets should have one and only one default</span>
+<span class="sd">        revision specified.  It may be that the default revision is unavailable (e.g. deleted).</span>
+<span class="sd">    one.alf.exceptions.ALFWarning</span>
+<span class="sd">        When `assert_consistent` is False, this warning may mean that the matching datasets have</span>
+<span class="sd">        mixed revisions.</span>
+
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
 <span class="sd">    - When `revision` is not None, the default revision value is not used. If an older revision is</span>
@@ -517,9 +529,6 @@
                     <span class="k">return</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">default_revision</span><span class="p">]</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># This may be the case when called from load_datasets</span>
                     <span class="k">return</span> <span class="n">df</span>  <span class="c1"># It&#39;s not the default but there&#39;s only one available revision</span>
-                <span class="c1"># default_revision column all False; default isn&#39;t copied to remote repository</span>
-                <span class="k">if</span> <span class="n">assert_unique</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="n">alferr</span><span class="o">.</span><span class="n">ALFError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;No default revision for dataset </span><span class="si">{</span><span class="n">dset_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s1">&#39;No default revision for dataset </span><span class="si">{</span><span class="n">dset_name</span><span class="si">}</span><span class="s1">; using most recent&#39;</span><span class="p">,</span>
                 <span class="n">alferr</span><span class="o">.</span><span class="n">ALFWarning</span><span class="p">)</span>

@@ -74,6 +74,18 @@
 <li class="toctree-l2"><a class="reference internal" href="#Example">Example</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="#Data-reproducibility">Data reproducibility</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#Saving-the-data-access-tables">Saving the data access tables</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Example-1:-Saving-the-access-tables">Example 1: Saving the access tables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Example-2:-Save-tables-to-different-location">Example 2: Save tables to different location</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#Setting-a-revision-date">Setting a revision date</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Example:">Example:</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">ALF</span></p>
 <ul>
@@ -134,10 +146,10 @@ recording_data_access.ipynb"><button id="github">Github link</button></a><sectio
 <section id="Example">
 <h2>Example<a class="headerlink" href="#Example" title="Link to this heading"></a></h2>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">one.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">ONE</span>
 <span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://openalyx.internationalbrainlab.org&#39;</span><span class="p">)</span>
 
@@ -195,6 +207,105 @@ F:\FlatIron\openalyx.internationalbrainlab.org\2022-02-24T13-37-07_loaded_sessio
 1  aad23144-0e52-4eac-80c5-c4ee2decb198
 </pre></div></div>
 </div>
+</section>
+</section>
+<section id="Data-reproducibility">
+<h1>Data reproducibility<a class="headerlink" href="#Data-reproducibility" title="Link to this heading"></a></h1>
+<p>The Alyx database may be periodically updated with revised datasets. Data revisions occur when a session is preprocessed with a better algorithm. Typically the newest revision will be considered the default one to load. Therefore, to ensure the results of an analysis don’t change unexpectedly, either of the below two methods can be used to ‘freeze’ the data.</p>
+<section id="Saving-the-data-access-tables">
+<h2>Saving the data access tables<a class="headerlink" href="#Saving-the-data-access-tables" title="Link to this heading"></a></h2>
+<p>When search and load queries are made, the results are stored in memory. These access tables can be saved to disk then used by ONE in <a class="reference external" href="./one_modes">local mode</a>. First, run your analysis code with the various search and load queries to build up the access tables in memory, then save them using the <code class="docutils literal notranslate"><span class="pre">save_cache</span></code> method.</p>
+<div class="admonition note">
+<p class="admonition-title fa fa-exclamation-circle">Note.</p>
+<p>Unlike the <code class="docutils literal notranslate"><span class="pre">record_loaded</span></code> option above, these access tables contain the results of all session and dataset queries, not just a list of loaded datasets.</p>
+</div>
+<section id="Example-1:-Saving-the-access-tables">
+<h3>Example 1: Saving the access tables<a class="headerlink" href="#Example-1:-Saving-the-access-tables" title="Link to this heading"></a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">one.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">ONE</span>
+<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">()</span>
+
+<span class="o">...</span> <span class="c1"># Run one.search and one.load_* methods here</span>
+
+<span class="c1"># Save the tables to disk</span>
+<span class="n">one</span><span class="o">.</span><span class="n">save_cache</span><span class="p">()</span>
+
+<span class="c1"># To use these tables in a new session, initialize ONE in local mode</span>
+<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;local&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>When the access tables are saved in the default location they will be loaded by default each time ONE is instantiated, however they won’t be used unless either mode is set to ‘local’, or a method is called with <code class="docutils literal notranslate"><span class="pre">query_type='local'</span></code>. The access tables can be reset at any time by calling <code class="docutils literal notranslate"><span class="pre">one.reset_cache</span></code>. Additionally, when saving, if tables already exist on disk, they will be merged and updated. To fully overwrite the tables on disk, use <code class="docutils literal notranslate"><span class="pre">clobber=True</span></code> in the <code class="docutils literal notranslate"><span class="pre">save_cache</span></code> method.</p>
+</section>
+<section id="Example-2:-Save-tables-to-different-location">
+<h3>Example 2: Save tables to different location<a class="headerlink" href="#Example-2:-Save-tables-to-different-location" title="Link to this heading"></a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">one.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">ONE</span>
+<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">()</span>
+
+<span class="o">...</span> <span class="c1"># Run one.search and one.load_* methods here</span>
+
+<span class="c1"># Save the tables to disk, overwriting any existing tables</span>
+<span class="n">one</span><span class="o">.</span><span class="n">save_cache</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">cache_dir</span> <span class="o">/</span> <span class="s1">&#39;my_analysis_tables&#39;</span><span class="p">,</span> <span class="n">clobber</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># To use these tables in a new session, initialize ONE in local mode</span>
+<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;local&#39;</span><span class="p">)</span>  <span class="c1"># tables_dir may also be passed as a kwarg here</span>
+<span class="c1"># The tables must be manually loaded as they are not in the default location</span>
+<span class="n">one</span><span class="o">.</span><span class="n">load_cache</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">cache_dir</span> <span class="o">/</span> <span class="s1">&#39;my_analysis_tables&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>The saved access tables are .pqt files that can also be manually shared with other users.</p>
+<div class="admonition note">
+<p class="admonition-title fa fa-exclamation-circle">Note.</p>
+<p>If a dataset is deleted from the database it will only be loadable if the file still exists locally.</p>
+</div>
+</section>
+</section>
+<section id="Setting-a-revision-date">
+<h2>Setting a revision date<a class="headerlink" href="#Setting-a-revision-date" title="Link to this heading"></a></h2>
+<p>Another way to reproduce data access on a certain date is to use the <code class="docutils literal notranslate"><span class="pre">ONE_REVISION_LAST_BEFORE</span></code> environment variable. With this variable set to an ISO formatted date, any datasets with a revision newer than this date are ignored. Similarly, a user can pass this date into the load methods using the <code class="docutils literal notranslate"><span class="pre">revision</span></code> kwarg.</p>
+<section id="Example:">
+<h3>Example:<a class="headerlink" href="#Example:" title="Link to this heading"></a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;ONE_REVISION_LAST_BEFORE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;2024-04-01&#39;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">one.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">ONE</span>
+<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">()</span>
+
+<span class="n">eid</span> <span class="o">=</span> <span class="s1">&#39;b52182e7-39f6-4914-9717-136db589706e&#39;</span>
+<span class="n">dsets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;drift.times.npy&#39;</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe00/pykilosort&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">dsets</span><span class="p">)</span>  <span class="c1"># shows at least two versions of this dataset</span>
+
+<span class="n">file</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;drift.times.npy&#39;</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe00/pykilosort&#39;</span><span class="p">,</span> <span class="n">download_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">relative_to_session</span><span class="p">())</span>  <span class="c1"># shows the older version of this dataset</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[&#39;alf/probe00/pykilosort/#2024-05-06#/drift.times.npy&#39;, &#39;alf/probe00/pykilosort/drift.times.npy&#39;]
+alf\probe00\pykilosort\drift.times.npy
+</pre></div></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title fa fa-exclamation-circle">Warning.</p>
+<p>If a dataset’s QC is set to CRITICAL it will no longer be loadable, even with the <code class="docutils literal notranslate"><span class="pre">ONE_REVISION_LAST_BEFORE</span></code>. Additionally, if a dataset is removed from the database it will be no longer loadable. In these cases, saving data access tables is more robust.</p>
+</div>
+</section>
 </section>
 </section>
 

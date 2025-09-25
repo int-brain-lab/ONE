@@ -1,0 +1,6 @@
+one.api.REVISION\_LAST\_BEFORE
+==============================
+
+.. currentmodule:: one.api
+
+.. autodata:: REVISION_LAST_BEFORE

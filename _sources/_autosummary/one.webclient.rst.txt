@@ -27,6 +27,7 @@ one.webclient
       http_download_file_list
       no_cache
       update_url_params
+      validate_endpoint_action
    
    
 
@@ -38,6 +39,9 @@ one.webclient
       :nosignatures:
    
       AlyxClient
+      RestScheme
+      RestSchemeCoreApi
+      RestSchemeOpenApi
    
    
 

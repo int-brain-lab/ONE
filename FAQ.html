@@ -67,6 +67,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="notebooks/data_sharing.html">Releasing data with ONE</a></li>
 <li class="toctree-l1"><a class="reference internal" href="notebooks/recording_data_access.html">Recording data access</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/recording_data_access.html#Data-reproducibility">Data reproducibility</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">ALF</span></p>
 <ul>
@@ -89,6 +90,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#how-do-i-log-out-or-temporarily-log-in-as-someone-else">How do I log out, or temporarily log in as someone else?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#what-to-do-if-i-am-seeing-a-certificate-error">What to do if I am seeing a certificate error?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#how-do-i-download-the-datasets-cache-for-a-specific-ibl-paper-release">How do I download the datasets cache for a specific IBL paper release?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-do-i-ensure-my-own-analyses-don-t-change-when-the-database-is-updated">How do I ensure my own analyses don’t change when the database is updated?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#how-do-i-check-which-version-of-one-i-m-using-within-python">How do I check which version of ONE I’m using within Python?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#how-do-i-use-one-in-a-read-only-environment">How do I use ONE in a read-only environment?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#why-does-the-search-return-a-lazyid-object">Why does the search return a LazyID object?</a></li>
@@ -268,13 +270,19 @@ This is a unique issue with the way that the Windows OS handles certificates.</p
 <span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">()</span>
 <span class="n">TAG</span> <span class="o">=</span> <span class="s1">&#39;2021_Q1_IBL_et_al_Behaviour&#39;</span>  <span class="c1"># Release tag to download cache for</span>
 <span class="n">one</span><span class="o">.</span><span class="n">load_cache</span><span class="p">(</span><span class="n">tag</span><span class="o">=</span><span class="n">TAG</span><span class="p">)</span>
+<span class="n">one</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;local&#39;</span>  <span class="c1"># Tell API to use loaded table instead of Alyx db</span>
 </pre></div>
 </div>
 <p>To return to the full cache containing an index of all experiments:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ONE</span><span class="o">.</span><span class="n">cache_clear</span><span class="p">()</span>
-<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">()</span>
+<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;remote&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
+</section>
+<section id="how-do-i-ensure-my-own-analyses-don-t-change-when-the-database-is-updated">
+<h2>How do I ensure my own analyses don’t change when the database is updated?<a class="headerlink" href="#how-do-i-ensure-my-own-analyses-don-t-change-when-the-database-is-updated" title="Link to this heading"></a></h2>
+<p>You can record then ‘freeze’ your data access by loading the saved data access tables in local mode.
+See the <a class="reference internal" href="#notebooks/recording_data_access.html#Data-reproducibility"><span class="xref myst">Data reproducibility guide</span></a>.</p>
 </section>
 <section id="how-do-i-check-which-version-of-one-i-m-using-within-python">
 <h2>How do I check which version of ONE I’m using within Python?<a class="headerlink" href="#how-do-i-check-which-version-of-one-i-m-using-within-python" title="Link to this heading"></a></h2>
@@ -331,11 +339,10 @@ to assert the start and end of the search string:</p>
 <section id="why-are-my-search-results-inconsistent-and-or-seem-to-change">
 <h2>Why are my search results inconsistent and/or seem to change?<a class="headerlink" href="#why-are-my-search-results-inconsistent-and-or-seem-to-change" title="Link to this heading"></a></h2>
 <p>This may be caused by one of two things:</p>
-<p>First, each day when connecting to the database you download an updated cache table. The data on the database
-may simply have changed, or you are loading a different cache table from somewhere. This may be because you
+<p>First, the data on the database may simply have changed, or you are loading a different cache table (in local mode). This may be because you
 are connecting to a different database (check <code class="docutils literal notranslate"><span class="pre">one.alyx.base_url</span></code>), providing a different cache location (check <code class="docutils literal notranslate"><span class="pre">one._tables_dir</span></code>),
 or provided a different tag (see <a class="reference internal" href="#how-do-i-download-the-datasets-cache-for-a-specific-ibl-paper-release"><span class="std std-ref">this question</span></a>).</p>
-<p>Second, there are minor differences between the default/local modes and remote mode. Namely that in remote mode
+<p>Second, there are minor differences between the default/remote modes and local mode. Namely that in remote mode
 queries are generally case-insensitive.  See the ‘gotcha’ section of
 ‘<a class="reference internal" href="#notebooks/one_search/one_search.html#Gotchas"><span class="xref myst">Searching with ONE</span></a>’ for more information.</p>
 </section>

@@ -64,6 +64,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../notebooks/data_sharing.html">Releasing data with ONE</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../notebooks/recording_data_access.html">Recording data access</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notebooks/recording_data_access.html#Data-reproducibility">Data reproducibility</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">ALF</span></p>
 <ul>
@@ -136,7 +137,9 @@
 <span class="sd">&gt;&gt;&gt; local_path = alyx.download_file(url, target_dir=&#39;zadorlab/Subjects/flowers/2018-07-13/1/&#39;)</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
+
 <span class="kn">from</span><span class="w"> </span><span class="nn">uuid</span><span class="w"> </span><span class="kn">import</span> <span class="n">UUID</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">abc</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
@@ -147,7 +150,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">urllib.error</span><span class="w"> </span><span class="kn">import</span> <span class="n">HTTPError</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">urllib.parse</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mapping</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">weakref</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReferenceType</span>
@@ -163,10 +166,12 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pprint</span><span class="w"> </span><span class="kn">import</span> <span class="n">pprint</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">one.params</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">one</span><span class="w"> </span><span class="kn">import</span> <span class="n">__version__</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">iblutil.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">hashfile</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">iblutil.io.params</span><span class="w"> </span><span class="kn">import</span> <span class="n">set_hidden</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">iblutil.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">ensure_list</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">concurrent.futures</span>
+
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 <span class="n">N_THREADS</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ONE_HTTP_DL_THREADS&#39;</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
 <span class="sd">&quot;&quot;&quot;int: The number of download threads.&quot;&quot;&quot;</span>
@@ -482,8 +487,10 @@
     <span class="n">zipped</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">links_to_file_list</span><span class="p">,</span> <span class="n">target_dir</span><span class="p">)</span>
     <span class="k">with</span> <span class="n">concurrent</span><span class="o">.</span><span class="n">futures</span><span class="o">.</span><span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="n">N_THREADS</span><span class="p">)</span> <span class="k">as</span> <span class="n">executor</span><span class="p">:</span>
         <span class="c1"># Multithreading load operations</span>
-        <span class="n">futures</span> <span class="o">=</span> <span class="p">[</span><span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span>
-            <span class="n">http_download_file</span><span class="p">,</span> <span class="n">link</span><span class="p">,</span> <span class="n">target_dir</span><span class="o">=</span><span class="n">target</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="k">for</span> <span class="n">link</span><span class="p">,</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">zipped</span><span class="p">]</span>
+        <span class="n">futures</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">http_download_file</span><span class="p">,</span> <span class="n">link</span><span class="p">,</span> <span class="n">target_dir</span><span class="o">=</span><span class="n">target</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">link</span><span class="p">,</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">zipped</span>
+        <span class="p">]</span>
         <span class="nb">zip</span><span class="p">(</span><span class="n">links_to_file_list</span><span class="p">,</span> <span class="n">ensure_list</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;target_dir&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)))</span>
         <span class="c1"># TODO Reintroduce variable timeout value based on file size and download speed of 5 Mb/s?</span>
         <span class="c1"># timeout = reduce(lambda x, y: x + (y.get(&#39;file_size&#39;, 0) or 0), dsets, 0) / 625000 ?</span>
@@ -649,6 +656,376 @@
 
 
 
+<div class="viewcode-block" id="RestScheme">
+<a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.RestScheme">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">RestScheme</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Alyx REST scheme documentation.&quot;&quot;&quot;</span>
+
+    <span class="n">EXCLUDE</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;_type&#39;</span><span class="p">,</span> <span class="s1">&#39;_meta&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;auth-token&#39;</span><span class="p">,</span> <span class="s1">&#39;api&#39;</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;list: A list of endpoint names to exclude from listings.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rest_scheme</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rest_scheme</span> <span class="o">=</span> <span class="n">rest_scheme</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate that an endpoint and action exist.</span>
+
+<span class="sd">        This is used by `print_endpoint_info` to print a message if the endpoint or action do not</span>
+<span class="sd">        exist.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        endpoint : str</span>
+<span class="sd">            The endpoint name.</span>
+<span class="sd">        action : str</span>
+<span class="sd">            The action name.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if the endpoint and action exist, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">endpoint</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">endpoints</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Endpoint &quot;</span><span class="si">{</span><span class="n">endpoint</span><span class="si">}</span><span class="s1">&quot; does not exist&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">action</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">action</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">actions</span><span class="p">(</span><span class="n">endpoint</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;Endpoint &quot;</span><span class="si">{</span><span class="n">endpoint</span><span class="si">}</span><span class="s1">&quot; does not have action &quot;</span><span class="si">{</span><span class="n">action</span><span class="si">}</span><span class="s1">&quot;: &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;available actions: </span><span class="si">{</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">actions</span><span class="p">(</span><span class="n">endpoint</span><span class="p">))</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="RestScheme.endpoints">
+<a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.RestScheme.endpoints">[docs]</a>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">endpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the list of available endpoints.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            List of available endpoints</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="RestScheme.actions">
+<a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.RestScheme.actions">[docs]</a>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">actions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a list of available actions for a given endpoint.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        endpoint : str</span>
+<span class="sd">            The endpoint name to find actions for</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            List of available actions for the endpoint</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="RestScheme.fields">
+<a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.RestScheme.fields">[docs]</a>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a list of fields for a given endpoint/action combination.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        endpoint : str</span>
+<span class="sd">            The endpoint name to find fields and parameters for</span>
+<span class="sd">        action : str</span>
+<span class="sd">            The Django REST action:</span>
+<span class="sd">             &#39;list&#39;, &#39;read&#39;, &#39;create&#39;, &#39;update&#39;, &#39;delete&#39;, &#39;partial_update&#39;</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            List of dictionaries containing fields for the endpoint</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="RestScheme.field_names">
+<a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.RestScheme.field_names">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">field_names</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a list of fields for a given endpoint/action combination.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        endpoint : str</span>
+<span class="sd">            The endpoint name to find fields and parameters for</span>
+<span class="sd">        action : str</span>
+<span class="sd">            The Django REST action:</span>
+<span class="sd">             &#39;list&#39;, &#39;read&#39;, &#39;create&#39;, &#39;update&#39;, &#39;delete&#39;, &#39;partial_update&#39;</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            List of strings containing fields names for the endpoint</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">field</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">action</span><span class="p">)]</span></div>
+
+
+<div class="viewcode-block" id="RestScheme.print_endpoint_info">
+<a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.RestScheme.print_endpoint_info">[docs]</a>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">print_endpoint_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Prints relevant information about an endpoint and its actions.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        endpoint : str</span>
+<span class="sd">            The endpoint name to find actions for</span>
+<span class="sd">        action : str</span>
+<span class="sd">            The Django REST action to perform:</span>
+<span class="sd">             &#39;list&#39;, &#39;read&#39;, &#39;create&#39;, &#39;update&#39;, &#39;delete&#39;, &#39;partial_update&#39;</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="RestScheme.url">
+<a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.RestScheme.url">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the url for a given endpoint/action combination.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        endpoint : str</span>
+<span class="sd">            The endpoint name to find actions for</span>
+<span class="sd">        action : str</span>
+<span class="sd">            The Django REST action to perform:</span>
+<span class="sd">             &#39;list&#39;, &#39;read&#39;, &#39;create&#39;, &#39;update&#39;, &#39;delete&#39;, &#39;partial_update&#39;</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            url of the endpoint: for example /sessions/{id}</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="validate_endpoint_action">
+<a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.validate_endpoint_action">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">validate_endpoint_action</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Decorator to validate endpoint and action before executing a method.</span>
+
+<span class="sd">    This decorator checks if the endpoint exists and, if an action is provided,</span>
+<span class="sd">    whether the action exists for that endpoint. If validation fails, it returns</span>
+<span class="sd">    None, otherwise it executes the decorated function.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
+            <span class="k">return</span>
+        <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">wrapper</span></div>
+
+
+
+<div class="viewcode-block" id="RestSchemeCoreApi">
+<a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.RestSchemeCoreApi">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">RestSchemeCoreApi</span><span class="p">(</span><span class="n">RestScheme</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Legacy Alyx REST scheme documentation.&quot;&quot;&quot;</span>
+
+    <span class="n">backend</span> <span class="o">=</span> <span class="s1">&#39;core_api&#39;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;str: The name of the backend that generates the REST API documentation.&quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">endpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest_scheme</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">EXCLUDE</span><span class="p">)</span>
+
+<div class="viewcode-block" id="RestSchemeCoreApi.actions">
+<a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.RestSchemeCoreApi.actions">[docs]</a>
+    <span class="nd">@validate_endpoint_action</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">actions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest_scheme</span><span class="p">[</span><span class="n">endpoint</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">EXCLUDE</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RestSchemeCoreApi.url">
+<a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.RestSchemeCoreApi.url">[docs]</a>
+    <span class="nd">@validate_endpoint_action</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest_scheme</span><span class="p">[</span><span class="n">endpoint</span><span class="p">][</span><span class="n">action</span><span class="p">][</span><span class="s1">&#39;url&#39;</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="RestSchemeCoreApi.fields">
+<a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.RestSchemeCoreApi.fields">[docs]</a>
+    <span class="nd">@validate_endpoint_action</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest_scheme</span><span class="p">[</span><span class="n">endpoint</span><span class="p">][</span><span class="n">action</span><span class="p">][</span><span class="s1">&#39;fields&#39;</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="RestSchemeCoreApi.print_endpoint_info">
+<a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.RestSchemeCoreApi.print_endpoint_info">[docs]</a>
+    <span class="nd">@validate_endpoint_action</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">print_endpoint_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">_action</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest_scheme</span><span class="p">[</span><span class="n">endpoint</span><span class="p">]</span> <span class="k">if</span> <span class="n">action</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[</span><span class="n">action</span><span class="p">]:</span>
+            <span class="n">doc</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">pprint</span><span class="p">(</span><span class="n">_action</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest_scheme</span><span class="p">[</span><span class="n">endpoint</span><span class="p">][</span><span class="n">_action</span><span class="p">][</span><span class="s1">&#39;fields&#39;</span><span class="p">]:</span>
+                <span class="n">required</span> <span class="o">=</span> <span class="s1">&#39; (required): &#39;</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;required&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">else</span> <span class="s1">&#39;: &#39;</span>
+                <span class="n">doc</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&quot;</span><span class="si">{</span><span class="n">f</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&quot;</span><span class="si">{</span><span class="n">required</span><span class="si">}{</span><span class="n">f</span><span class="p">[</span><span class="s2">&quot;schema&quot;</span><span class="p">][</span><span class="s2">&quot;_type&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;, </span><span class="si">{</span><span class="n">f</span><span class="p">[</span><span class="s2">&quot;schema&quot;</span><span class="p">][</span><span class="s2">&quot;description&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="p">)</span>
+            <span class="n">doc</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+            <span class="p">[</span><span class="nb">print</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">doc</span> <span class="k">if</span> <span class="s1">&#39;(required)&#39;</span> <span class="ow">in</span> <span class="n">d</span><span class="p">]</span>
+            <span class="p">[</span><span class="nb">print</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">doc</span> <span class="k">if</span> <span class="s1">&#39;(required)&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">d</span><span class="p">]</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="RestSchemeOpenApi">
+<a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.RestSchemeOpenApi">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">RestSchemeOpenApi</span><span class="p">(</span><span class="n">RestScheme</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;OpenAPI v3 Alyx REST scheme documentation.&quot;&quot;&quot;</span>
+
+    <span class="n">backend</span> <span class="o">=</span> <span class="s1">&#39;open_api_v3&#39;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;str: The name of the backend that generates the REST API documentation.&quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">endpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="n">endpoints</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest_scheme</span><span class="p">[</span><span class="s1">&#39;paths&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="c1"># Extract the endpoint name (word between first and second slash,</span>
+            <span class="c1"># or after first slash if no second slash)</span>
+            <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^/([^/]+)&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">match</span> <span class="ow">and</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">EXCLUDE</span><span class="p">:</span>
+                <span class="n">endpoints</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">endpoints</span><span class="p">))</span>
+
+    <span class="nd">@validate_endpoint_action</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_endpoint_actions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="c1"># Find all paths that start with this endpoint</span>
+        <span class="n">endpoint_paths</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest_scheme</span><span class="p">[</span><span class="s1">&#39;paths&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="c1"># Match either /endpoint or /endpoint/{something}</span>
+            <span class="k">if</span> <span class="n">path</span> <span class="o">==</span> <span class="sa">f</span><span class="s1">&#39;/</span><span class="si">{</span><span class="n">endpoint</span><span class="si">}</span><span class="s1">&#39;</span> <span class="ow">or</span> <span class="n">path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;/</span><span class="si">{</span><span class="n">endpoint</span><span class="si">}</span><span class="s1">/&#39;</span><span class="p">):</span>
+                <span class="n">endpoint_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="c1"># Extract available HTTP methods (actions) for these paths</span>
+        <span class="n">actions</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">endpoint_paths</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">method</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest_scheme</span><span class="p">[</span><span class="s1">&#39;paths&#39;</span><span class="p">][</span><span class="n">path</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="c1"># Convert HTTP methods to standard action names</span>
+                <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;get&#39;</span><span class="p">:</span>
+                    <span class="c1"># Determine if this is a list or read action based on path pattern</span>
+                    <span class="k">if</span> <span class="s1">&#39;{&#39;</span> <span class="ow">in</span> <span class="n">path</span><span class="p">:</span>  <span class="c1"># Path has a parameter, likely a read action</span>
+                        <span class="n">action</span> <span class="o">=</span> <span class="s1">&#39;read&#39;</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">action</span> <span class="o">=</span> <span class="s1">&#39;list&#39;</span>
+                <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;post&#39;</span><span class="p">:</span>
+                    <span class="n">action</span> <span class="o">=</span> <span class="s1">&#39;create&#39;</span>
+                <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;put&#39;</span><span class="p">:</span>
+                    <span class="n">action</span> <span class="o">=</span> <span class="s1">&#39;update&#39;</span>
+                <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;patch&#39;</span><span class="p">:</span>
+                    <span class="n">action</span> <span class="o">=</span> <span class="s1">&#39;partial_update&#39;</span>
+                <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;delete&#39;</span><span class="p">:</span>
+                    <span class="n">action</span> <span class="o">=</span> <span class="s1">&#39;delete&#39;</span>
+                <span class="n">actions</span><span class="p">[</span><span class="n">action</span><span class="p">]</span> <span class="o">=</span> <span class="n">path</span>
+        <span class="k">return</span> <span class="n">actions</span>
+
+    <span class="nd">@validate_endpoint_action</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_endpoint_action_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="c1"># Find all paths that start with this endpoint</span>
+        <span class="n">endpoint_paths</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest_scheme</span><span class="p">[</span><span class="s1">&#39;paths&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="c1"># Match either /endpoint or /endpoint/{something}</span>
+            <span class="k">if</span> <span class="n">path</span> <span class="o">==</span> <span class="sa">f</span><span class="s1">&#39;/</span><span class="si">{</span><span class="n">endpoint</span><span class="si">}</span><span class="s1">&#39;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;read&#39;</span> <span class="ow">or</span> <span class="n">path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;/</span><span class="si">{</span><span class="n">endpoint</span><span class="si">}</span><span class="s1">/&#39;</span><span class="p">):</span>
+                <span class="n">endpoint_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="c1"># Extract available HTTP methods (actions) for these paths</span>
+        <span class="n">rest2http</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;list&#39;</span><span class="p">:</span> <span class="s1">&#39;get&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;read&#39;</span><span class="p">:</span> <span class="s1">&#39;get&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;create&#39;</span><span class="p">:</span> <span class="s1">&#39;post&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;update&#39;</span><span class="p">:</span> <span class="s1">&#39;put&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;partial_update&#39;</span><span class="p">:</span> <span class="s1">&#39;patch&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;delete&#39;</span><span class="p">:</span> <span class="s1">&#39;delete&#39;</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="n">endpoint_method_info</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;fields&#39;</span><span class="p">:</span> <span class="p">{},</span> <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;parameters&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;url&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">}</span>
+        <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">endpoint_paths</span><span class="p">:</span>
+            <span class="n">operation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest_scheme</span><span class="p">[</span><span class="s1">&#39;paths&#39;</span><span class="p">][</span><span class="n">path</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">rest2http</span><span class="p">[</span><span class="n">action</span><span class="p">],</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">operation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">endpoint_method_info</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">path</span>
+                <span class="k">if</span> <span class="s1">&#39;requestBody&#39;</span> <span class="ow">in</span> <span class="n">operation</span><span class="p">:</span>
+                    <span class="n">schema</span> <span class="o">=</span> <span class="n">operation</span><span class="p">[</span><span class="s1">&#39;requestBody&#39;</span><span class="p">][</span><span class="s1">&#39;content&#39;</span><span class="p">][</span><span class="s1">&#39;application/json&#39;</span><span class="p">][</span><span class="s1">&#39;schema&#39;</span><span class="p">][</span>
+                        <span class="s1">&#39;$ref&#39;</span>
+                    <span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">endpoint_method_info</span><span class="p">[</span><span class="s1">&#39;fields&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest_scheme</span><span class="p">[</span><span class="s1">&#39;components&#39;</span><span class="p">][</span><span class="s1">&#39;schemas&#39;</span><span class="p">][</span>
+                        <span class="n">schema</span>
+                    <span class="p">][</span><span class="s1">&#39;properties&#39;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="s1">&#39;description&#39;</span> <span class="ow">in</span> <span class="n">operation</span><span class="p">:</span>
+                    <span class="n">endpoint_method_info</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">operation</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="s1">&#39;parameters&#39;</span> <span class="ow">in</span> <span class="n">operation</span><span class="p">:</span>
+                    <span class="n">endpoint_method_info</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">operation</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span>
+                <span class="k">break</span>
+        <span class="k">return</span> <span class="n">endpoint_method_info</span>
+
+<div class="viewcode-block" id="RestSchemeOpenApi.fields">
+<a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.RestSchemeOpenApi.fields">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="c1"># in openapi there is a distinction between fields and parameters</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_endpoint_action_info</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">action</span><span class="p">)[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_endpoint_action_info</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">action</span><span class="p">)[</span><span class="s1">&#39;fields&#39;</span><span class="p">]</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">k</span><span class="p">,</span> <span class="s1">&#39;schema&#39;</span><span class="p">:</span> <span class="n">v</span><span class="p">}</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">fields</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+        <span class="k">return</span> <span class="n">params</span> <span class="o">+</span> <span class="n">fields</span></div>
+
+
+<div class="viewcode-block" id="RestSchemeOpenApi.actions">
+<a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.RestSchemeOpenApi.actions">[docs]</a>
+    <span class="nd">@validate_endpoint_action</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">actions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="n">actions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_endpoint_actions</span><span class="p">(</span><span class="n">endpoint</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">actions</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span></div>
+
+
+<div class="viewcode-block" id="RestSchemeOpenApi.url">
+<a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.RestSchemeOpenApi.url">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_endpoint_action_info</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">action</span><span class="p">)[</span><span class="s1">&#39;url&#39;</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="RestSchemeOpenApi.print_endpoint_info">
+<a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.RestSchemeOpenApi.print_endpoint_info">[docs]</a>
+    <span class="nd">@validate_endpoint_action</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">print_endpoint_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Print detailed information about an endpoint&#39;s actions and parameters.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        endpoint : str</span>
+<span class="sd">            The endpoint name to display information for</span>
+<span class="sd">        action : str, optional</span>
+<span class="sd">            If provided, only show information for this specific action</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">actions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_endpoint_actions</span><span class="p">(</span><span class="n">endpoint</span><span class="p">)</span> <span class="k">if</span> <span class="n">action</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[</span><span class="n">action</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">action</span> <span class="ow">in</span> <span class="n">actions</span><span class="p">:</span>
+            <span class="n">endpoint_action_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_endpoint_action_info</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">action</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">par</span> <span class="ow">in</span> <span class="n">endpoint_action_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;parameters&#39;</span><span class="p">,</span> <span class="p">[]):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="se">\t</span><span class="si">{</span><span class="n">par</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">all_fields</span> <span class="o">=</span> <span class="n">endpoint_action_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;fields&#39;</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">all_fields</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">field_info</span> <span class="ow">in</span> <span class="n">all_fields</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="se">\t</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s1">: (</span><span class="si">{</span><span class="n">field_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1">), &#39;</span>
+                          <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">field_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;description&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
+</div>
+
+
+
 <div class="viewcode-block" id="AlyxClient">
 <a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.AlyxClient">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AlyxClient</span><span class="p">:</span>
@@ -664,8 +1041,15 @@
     <span class="n">base_url</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;str: The Alyx database URL.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">cache_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cache_rest</span><span class="o">=</span><span class="s1">&#39;GET&#39;</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">base_url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">username</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">cache_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">cache_rest</span><span class="o">=</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a client instance that allows to GET and POST to the Alyx server.</span>
 
 <span class="sd">        For One, constructor attempts to authenticate with credentials in params.py.</span>
@@ -697,7 +1081,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_rest_schemes</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="c1"># the mixed accept application may cause errors sometimes, only necessary for the docs</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_headers</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_headers</span><span class="p">,</span> <span class="s1">&#39;Accept&#39;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_headers</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_headers</span><span class="p">,</span> <span class="s1">&#39;Accept&#39;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">,</span> <span class="s1">&#39;ONE-API-Version&#39;</span><span class="p">:</span> <span class="n">__version__</span><span class="p">}</span>
         <span class="c1"># REST cache parameters</span>
         <span class="c1"># The default length of time that cache file is valid for,</span>
         <span class="c1"># The default expiry is overridden by the `expires` kwarg.  If False, the caching is</span>
@@ -707,13 +1092,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">cache_mode</span> <span class="o">=</span> <span class="n">cache_rest</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_obj_id</span> <span class="o">=</span> <span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">rest_schemes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;dict: The REST endpoints and their parameters.&quot;&quot;&quot;</span>
-        <span class="c1"># Delayed fetch of rest schemes speeds up instantiation</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest_schemes</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_rest_schemes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;/docs&#39;</span><span class="p">,</span> <span class="n">expires</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">weeks</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest_schemes</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">cache_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -731,54 +1109,34 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;bool: Check if user logged into Alyx database; True if user is authenticated.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">user</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_token</span> <span class="ow">and</span> <span class="s1">&#39;Authorization&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_headers</span><span class="p">)</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rest_schemes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RestScheme</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;dict: The REST endpoints and their parameters.&quot;&quot;&quot;</span>
+        <span class="c1"># Delayed fetch of rest schemes speeds up instantiation</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest_schemes</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">raw_schema</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;/api/schema&#39;</span><span class="p">,</span> <span class="n">expires</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">weeks</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_rest_schemes</span> <span class="o">=</span> <span class="n">RestSchemeOpenApi</span><span class="p">(</span><span class="n">raw_schema</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">HTTPError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
+                    <span class="n">raw_schema</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;/docs&#39;</span><span class="p">,</span> <span class="n">expires</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">weeks</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_rest_schemes</span> <span class="o">=</span> <span class="n">RestSchemeCoreApi</span><span class="p">(</span><span class="n">raw_schema</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">e</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest_schemes</span>
+
 <div class="viewcode-block" id="AlyxClient.list_endpoints">
 <a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.AlyxClient.list_endpoints">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">list_endpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a list of available REST endpoints.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">            List of REST endpoint strings.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">EXCLUDE</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;_type&#39;</span><span class="p">,</span> <span class="s1">&#39;_meta&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;auth-token&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest_schemes</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">EXCLUDE</span><span class="p">)</span></div>
+        <span class="n">endpoints</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest_schemes</span><span class="o">.</span><span class="n">endpoints</span>
+        <span class="n">pprint</span><span class="p">(</span><span class="n">endpoints</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">endpoints</span></div>
 
 
 <div class="viewcode-block" id="AlyxClient.print_endpoint_info">
 <a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.AlyxClient.print_endpoint_info">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">print_endpoint_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Print the available actions and query parameters for a given REST endpoint.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        endpoint : str</span>
-<span class="sd">            An Alyx REST endpoint to query.</span>
-<span class="sd">        action : str</span>
-<span class="sd">            An optional action (e.g. &#39;list&#39;) to print. If None, all actions are printed.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        dict, list</span>
-<span class="sd">            A dictionary of endpoint query parameter details or a list of parameter details if</span>
-<span class="sd">            action is not None.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">rs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest_schemes</span>
-        <span class="k">if</span> <span class="n">endpoint</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">rs</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Endpoint &quot;</span><span class="si">{</span><span class="n">endpoint</span><span class="si">}</span><span class="s1">&quot; does not exist&#39;</span><span class="p">)</span>
-
-        <span class="k">for</span> <span class="n">_action</span> <span class="ow">in</span> <span class="p">(</span><span class="n">rs</span><span class="p">[</span><span class="n">endpoint</span><span class="p">]</span> <span class="k">if</span> <span class="n">action</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[</span><span class="n">action</span><span class="p">]):</span>
-            <span class="n">doc</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="n">pprint</span><span class="p">(</span><span class="n">_action</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">rs</span><span class="p">[</span><span class="n">endpoint</span><span class="p">][</span><span class="n">_action</span><span class="p">][</span><span class="s1">&#39;fields&#39;</span><span class="p">]:</span>
-                <span class="n">required</span> <span class="o">=</span> <span class="s1">&#39; (required): &#39;</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;required&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">else</span> <span class="s1">&#39;: &#39;</span>
-                <span class="n">doc</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&quot;</span><span class="si">{</span><span class="n">f</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&quot;</span><span class="si">{</span><span class="n">required</span><span class="si">}{</span><span class="n">f</span><span class="p">[</span><span class="s2">&quot;schema&quot;</span><span class="p">][</span><span class="s2">&quot;_type&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span>
-                           <span class="sa">f</span><span class="s1">&#39;, </span><span class="si">{</span><span class="n">f</span><span class="p">[</span><span class="s2">&quot;schema&quot;</span><span class="p">][</span><span class="s2">&quot;description&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-            <span class="n">doc</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
-            <span class="p">[</span><span class="nb">print</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">doc</span> <span class="k">if</span> <span class="s1">&#39;(required)&#39;</span> <span class="ow">in</span> <span class="n">d</span><span class="p">]</span>
-            <span class="p">[</span><span class="nb">print</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">doc</span> <span class="k">if</span> <span class="s1">&#39;(required)&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">d</span><span class="p">]</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">rs</span><span class="p">[</span><span class="n">endpoint</span><span class="p">]</span> <span class="k">if</span> <span class="n">action</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">rs</span><span class="p">[</span><span class="n">endpoint</span><span class="p">][</span><span class="n">action</span><span class="p">])</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="nf">print_endpoint_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rest_schemes</span><span class="o">.</span><span class="n">print_endpoint_info</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">action</span><span class="p">)</span></div>
 
 
     <span class="nd">@_cache_response</span>
@@ -794,12 +1152,17 @@
         <span class="k">if</span> <span class="n">files</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">to_json</span> <span class="o">=</span> <span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="n">_JSONEncoder</span><span class="p">)</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">to_json</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">data</span>
+            <span class="c1"># __ONE_API_VERSION__</span>
             <span class="n">headers</span><span class="p">[</span><span class="s1">&#39;Content-Type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;application/json&#39;</span>
         <span class="k">if</span> <span class="n">rest_query</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;/docs&#39;</span><span class="p">):</span>
-            <span class="c1"># the mixed accept application may cause errors sometimes, only necessary for the docs</span>
             <span class="n">headers</span><span class="p">[</span><span class="s1">&#39;Accept&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;application/coreapi+json&#39;</span>
-        <span class="n">r</span> <span class="o">=</span> <span class="n">reqfunction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span> <span class="o">+</span> <span class="n">rest_query</span><span class="p">,</span>
-                        <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="n">files</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">rest_query</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;/api/schema&#39;</span><span class="p">):</span>
+            <span class="c1"># the docs are now served as openapi media, so we need to change the accept header</span>
+            <span class="n">headers</span><span class="p">[</span><span class="s1">&#39;Accept&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;application/vnd.oai.openapi+json&#39;</span>
+            <span class="n">headers</span><span class="p">[</span><span class="s1">&#39;Accept-Version&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;3.0&#39;</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">reqfunction</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">base_url</span> <span class="o">+</span> <span class="n">rest_query</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="n">files</span>
+        <span class="p">)</span>
         <span class="k">if</span> <span class="n">r</span> <span class="ow">and</span> <span class="n">r</span><span class="o">.</span><span class="n">status_code</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">201</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">r</span> <span class="ow">and</span> <span class="n">r</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">204</span><span class="p">:</span>
@@ -820,7 +1183,7 @@
                 <span class="n">message</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;status_code&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># Get status code from response object instead</span>
                 <span class="n">message</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;detail&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">message</span>  <span class="c1"># Get details if available</span>
                 <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
-            <span class="k">except</span> <span class="n">json</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">:</span>
+            <span class="k">except</span> <span class="n">json</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">:</span>  <span class="c1">#nocov</span>
                 <span class="n">message</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">text</span>
             <span class="k">raise</span> <span class="n">requests</span><span class="o">.</span><span class="n">HTTPError</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span> <span class="n">rest_query</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">response</span><span class="o">=</span><span class="n">r</span><span class="p">)</span>
 
@@ -859,7 +1222,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_token</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">TOKEN</span><span class="p">[</span><span class="n">username</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_headers</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="s1">&#39;Authorization&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;Token </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_token</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;Accept&#39;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+                <span class="s1">&#39;Accept&#39;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span>
+            <span class="p">}</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">user</span> <span class="o">=</span> <span class="n">username</span>
             <span class="k">return</span>
 
@@ -872,7 +1236,9 @@
                     <span class="s1">&#39;No password or cached token in silent mode. &#39;</span>
                     <span class="s1">&#39;Please run the following to re-authenticate:</span><span class="se">\n\t</span><span class="s1">&#39;</span>
                     <span class="s1">&#39;AlyxClient(silent=False).authenticate&#39;</span>
-                    <span class="s1">&#39;(username=&lt;username&gt;, force=True)&#39;</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">)</span>
+                    <span class="s1">&#39;(username=&lt;username&gt;, force=True)&#39;</span><span class="p">,</span>
+                    <span class="ne">UserWarning</span><span class="p">,</span>
+                <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">password</span> <span class="o">=</span> <span class="n">getpass</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Enter Alyx password for &quot;</span><span class="si">{</span><span class="n">username</span><span class="si">}</span><span class="s1">&quot;:&#39;</span><span class="p">)</span>
         <span class="c1"># Remove previous token</span>
@@ -892,15 +1258,18 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">rep</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">400</span><span class="p">:</span>  <span class="c1"># Auth error; re-raise with details</span>
                 <span class="n">redacted</span> <span class="o">=</span> <span class="s1">&#39;*&#39;</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">credentials</span><span class="p">[</span><span class="s1">&#39;password&#39;</span><span class="p">])</span> <span class="k">if</span> <span class="n">credentials</span><span class="p">[</span><span class="s1">&#39;password&#39;</span><span class="p">]</span> <span class="k">else</span> <span class="kc">None</span>
-                <span class="n">message</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Alyx authentication failed with credentials: &#39;</span>
-                           <span class="sa">f</span><span class="s1">&#39;user = </span><span class="si">{</span><span class="n">credentials</span><span class="p">[</span><span class="s2">&quot;username&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">, password = </span><span class="si">{</span><span class="n">redacted</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">message</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="s1">&#39;Alyx authentication failed with credentials: &#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;user = </span><span class="si">{</span><span class="n">credentials</span><span class="p">[</span><span class="s2">&quot;username&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">, password = </span><span class="si">{</span><span class="n">redacted</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="p">)</span>
                 <span class="k">raise</span> <span class="n">requests</span><span class="o">.</span><span class="n">HTTPError</span><span class="p">(</span><span class="n">rep</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span> <span class="n">rep</span><span class="o">.</span><span class="n">url</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">response</span><span class="o">=</span><span class="n">rep</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">rep</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_headers</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;Authorization&#39;</span><span class="p">:</span> <span class="s1">&#39;Token </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_token</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]),</span>
-            <span class="s1">&#39;Accept&#39;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+            <span class="s1">&#39;Accept&#39;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">,</span>
+        <span class="p">}</span>
         <span class="k">if</span> <span class="n">cache_token</span><span class="p">:</span>
             <span class="c1"># Update saved pars</span>
             <span class="n">par</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -1004,14 +1373,16 @@
             <span class="n">target_dir</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;target_dir&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">CACHE_DIR</span><span class="p">),</span>
             <span class="n">username</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">HTTP_DATA_SERVER_LOGIN</span><span class="p">,</span>
             <span class="n">password</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">HTTP_DATA_SERVER_PWD</span><span class="p">,</span>
-            <span class="o">**</span><span class="n">kwargs</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">files</span> <span class="o">=</span> <span class="n">download_fcn</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="o">**</span><span class="n">pars</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">HTTPError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">ex</span><span class="o">.</span><span class="n">code</span> <span class="o">==</span> <span class="mi">401</span><span class="p">:</span>
-                <span class="n">ex</span><span class="o">.</span><span class="n">msg</span> <span class="o">+=</span> <span class="p">(</span><span class="s1">&#39; - please check your HTTP_DATA_SERVER_LOGIN and &#39;</span>
-                           <span class="s1">&#39;HTTP_DATA_SERVER_PWD ONE params, or username/password kwargs&#39;</span><span class="p">)</span>
+                <span class="n">ex</span><span class="o">.</span><span class="n">msg</span> <span class="o">+=</span> <span class="p">(</span>
+                    <span class="s1">&#39; - please check your HTTP_DATA_SERVER_LOGIN and &#39;</span>
+                    <span class="s1">&#39;HTTP_DATA_SERVER_PWD ONE params, or username/password kwargs&#39;</span>
+                <span class="p">)</span>
             <span class="k">raise</span> <span class="n">ex</span>
         <span class="k">return</span> <span class="n">files</span></div>
 
@@ -1045,11 +1416,9 @@
             <span class="n">headers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_headers</span>
 
         <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">(</span><span class="nb">dir</span><span class="o">=</span><span class="n">destination</span><span class="p">)</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
-            <span class="n">file</span> <span class="o">=</span> <span class="n">http_download_file</span><span class="p">(</span><span class="n">source</span><span class="p">,</span>
-                                      <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
-                                      <span class="n">silent</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">silent</span><span class="p">,</span>
-                                      <span class="n">target_dir</span><span class="o">=</span><span class="n">tmp</span><span class="p">,</span>
-                                      <span class="n">clobber</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">file</span> <span class="o">=</span> <span class="n">http_download_file</span><span class="p">(</span>
+                <span class="n">source</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">silent</span><span class="p">,</span> <span class="n">target_dir</span><span class="o">=</span><span class="n">tmp</span><span class="p">,</span> <span class="n">clobber</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
             <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">zipped</span><span class="p">:</span>
                 <span class="n">files</span> <span class="o">=</span> <span class="n">zipped</span><span class="o">.</span><span class="n">namelist</span><span class="p">()</span>
                 <span class="n">zipped</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">destination</span><span class="p">)</span>
@@ -1080,9 +1449,10 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">url</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;http&#39;</span><span class="p">):</span>  <span class="c1"># A full URL</span>
-            <span class="k">assert</span> <span class="n">url</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">HTTP_DATA_SERVER</span><span class="p">),</span> \
-                <span class="p">(</span><span class="s1">&#39;remote protocol and/or hostname does not match HTTP_DATA_SERVER parameter:</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span>
-                 <span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="n">url</span><span class="p">[:</span><span class="mi">40</span><span class="p">]</span><span class="si">}</span><span class="s1">...&quot; should start with &quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">HTTP_DATA_SERVER</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">url</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">HTTP_DATA_SERVER</span><span class="p">),</span> <span class="p">(</span>
+                <span class="s1">&#39;remote protocol and/or hostname does not match HTTP_DATA_SERVER parameter:</span><span class="se">\n</span><span class="s1">&#39;</span>
+                <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="n">url</span><span class="p">[:</span><span class="mi">40</span><span class="p">]</span><span class="si">}</span><span class="s1">...&quot; should start with &quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">HTTP_DATA_SERVER</span><span class="si">}</span><span class="s1">&quot;&#39;</span>
+            <span class="p">)</span>
         <span class="k">elif</span> <span class="ow">not</span> <span class="n">url</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_par</span><span class="o">.</span><span class="n">HTTP_DATA_SERVER</span><span class="p">):</span>
             <span class="n">url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rel_path2url</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">url</span>
@@ -1219,8 +1589,9 @@
 
 <div class="viewcode-block" id="AlyxClient.rest">
 <a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.AlyxClient.rest">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">rest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-             <span class="n">no_cache</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rest</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">no_cache</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Alyx REST API wrapper.</span>
 
 <span class="sd">        If no arguments are passed, lists available endpoints.</span>
@@ -1273,52 +1644,66 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># if endpoint is None, list available endpoints</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">url</span><span class="p">:</span>
-            <span class="n">pprint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">list_endpoints</span><span class="p">())</span>
+            <span class="n">pprint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rest_schemes</span><span class="o">.</span><span class="n">endpoints</span><span class="p">)</span>
             <span class="k">return</span>
         <span class="c1"># remove beginning slash if any</span>
         <span class="k">if</span> <span class="n">url</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">):</span>
             <span class="n">url</span> <span class="o">=</span> <span class="n">url</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
         <span class="c1"># and split to the next slash or question mark</span>
-        <span class="n">endpoint</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;^/*[^?/]*&quot;</span><span class="p">,</span> <span class="n">url</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">endpoint</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s1">&#39;^/*[^?/]*&#39;</span><span class="p">,</span> <span class="n">url</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
         <span class="c1"># make sure the queried endpoint exists, if not throw an informative error</span>
-        <span class="k">if</span> <span class="n">endpoint</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest_schemes</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="n">av</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest_schemes</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">k</span><span class="p">]</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;REST endpoint &quot;&#39;</span> <span class="o">+</span> <span class="n">endpoint</span> <span class="o">+</span> <span class="s1">&#39;&quot; does not exist. Available &#39;</span> <span class="o">+</span>
-                             <span class="s1">&#39;endpoints are </span><span class="se">\n</span><span class="s1">       &#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">       &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">av</span><span class="p">))</span>
-        <span class="n">endpoint_scheme</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest_schemes</span><span class="p">[</span><span class="n">endpoint</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">endpoint</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest_schemes</span><span class="o">.</span><span class="n">endpoints</span><span class="p">:</span>
+            <span class="n">av</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest_schemes</span><span class="o">.</span><span class="n">endpoints</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">k</span><span class="p">]</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;REST endpoint &quot;&#39;</span>
+                <span class="o">+</span> <span class="n">endpoint</span>
+                <span class="o">+</span> <span class="s1">&#39;&quot; does not exist. Available &#39;</span>
+                <span class="o">+</span> <span class="s1">&#39;endpoints are </span><span class="se">\n</span><span class="s1">       &#39;</span>
+                <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">       &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">av</span><span class="p">)</span>
+            <span class="p">)</span>
         <span class="c1"># on a filter request, override the default action parameter</span>
         <span class="k">if</span> <span class="s1">&#39;?&#39;</span> <span class="ow">in</span> <span class="n">url</span><span class="p">:</span>
             <span class="n">action</span> <span class="o">=</span> <span class="s1">&#39;list&#39;</span>
         <span class="c1"># if action is None, list available actions for the required endpoint</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">action</span><span class="p">:</span>
-            <span class="n">pprint</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">endpoint_scheme</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">print_endpoint_info</span><span class="p">(</span><span class="n">endpoint</span><span class="p">)</span>
+            <span class="n">pprint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rest_schemes</span><span class="o">.</span><span class="n">actions</span><span class="p">(</span><span class="n">endpoint</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rest_schemes</span><span class="o">.</span><span class="n">print_endpoint_info</span><span class="p">(</span><span class="n">endpoint</span><span class="p">)</span>
             <span class="k">return</span>
+        <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;partial-update&#39;</span><span class="p">:</span>
+            <span class="c1"># Endpoint names are hyphenated but action names are underscored;</span>
+            <span class="c1"># convert for user convenience</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="s1">&#39;partial_update&#39;</span>
         <span class="c1"># make sure the desired action exists, if not throw an informative error</span>
-        <span class="k">if</span> <span class="n">action</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">endpoint_scheme</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Action &quot;&#39;</span> <span class="o">+</span> <span class="n">action</span> <span class="o">+</span> <span class="s1">&#39;&quot; for REST endpoint &quot;&#39;</span> <span class="o">+</span> <span class="n">endpoint</span> <span class="o">+</span> <span class="s1">&#39;&quot; does &#39;</span> <span class="o">+</span>
-                             <span class="s1">&#39;not exist. Available actions are: &#39;</span> <span class="o">+</span>
-                             <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">       &#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">       &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">endpoint_scheme</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+        <span class="k">if</span> <span class="n">action</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest_schemes</span><span class="o">.</span><span class="n">actions</span><span class="p">(</span><span class="n">endpoint</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;Action &quot;&#39;</span>
+                <span class="o">+</span> <span class="n">action</span>
+                <span class="o">+</span> <span class="s1">&#39;&quot; for REST endpoint &quot;&#39;</span>
+                <span class="o">+</span> <span class="n">endpoint</span>
+                <span class="o">+</span> <span class="s1">&#39;&quot; does &#39;</span>
+                <span class="o">+</span> <span class="s1">&#39;not exist. Available actions are: &#39;</span>
+                <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">       &#39;</span>
+                <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">       &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rest_schemes</span><span class="o">.</span><span class="n">actions</span><span class="p">(</span><span class="n">endpoint</span><span class="p">))</span>
+            <span class="p">)</span>
         <span class="c1"># the actions below require an id in the URL, warn and help the user</span>
         <span class="k">if</span> <span class="n">action</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;read&#39;</span><span class="p">,</span> <span class="s1">&#39;update&#39;</span><span class="p">,</span> <span class="s1">&#39;partial_update&#39;</span><span class="p">,</span> <span class="s1">&#39;delete&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">id</span><span class="p">:</span>
-            <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;REST action &quot;&#39;</span> <span class="o">+</span> <span class="n">action</span> <span class="o">+</span> <span class="s1">&#39;&quot; requires an ID in the URL: &#39;</span> <span class="o">+</span>
-                            <span class="n">endpoint_scheme</span><span class="p">[</span><span class="n">action</span><span class="p">][</span><span class="s1">&#39;url&#39;</span><span class="p">])</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s1">&#39;REST action &quot;&#39;</span>
+                <span class="o">+</span> <span class="n">action</span>
+                <span class="o">+</span> <span class="s1">&#39;&quot; requires an ID in the URL: &#39;</span>
+                <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest_schemes</span><span class="o">.</span><span class="n">url</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">action</span><span class="p">)</span>
+            <span class="p">)</span>
             <span class="k">return</span>
         <span class="c1"># the actions below require a data dictionary, warn and help the user with fields list</span>
-        <span class="n">data_required</span> <span class="o">=</span> <span class="s1">&#39;fields&#39;</span> <span class="ow">in</span> <span class="n">endpoint_scheme</span><span class="p">[</span><span class="n">action</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">action</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;create&#39;</span><span class="p">,</span> <span class="s1">&#39;update&#39;</span><span class="p">,</span> <span class="s1">&#39;partial_update&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">data_required</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">data</span><span class="p">:</span>
-            <span class="n">pprint</span><span class="p">(</span><span class="n">endpoint_scheme</span><span class="p">[</span><span class="n">action</span><span class="p">][</span><span class="s1">&#39;fields&#39;</span><span class="p">])</span>
-            <span class="k">for</span> <span class="n">act</span> <span class="ow">in</span> <span class="n">endpoint_scheme</span><span class="p">[</span><span class="n">action</span><span class="p">][</span><span class="s1">&#39;fields&#39;</span><span class="p">]:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span> <span class="o">+</span> <span class="n">act</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;&#39;: ...,&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">action</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;create&#39;</span><span class="p">,</span> <span class="s1">&#39;update&#39;</span><span class="p">,</span> <span class="s1">&#39;partial_update&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">rest_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest_schemes</span><span class="o">.</span><span class="n">fields</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">action</span><span class="p">)</span>
+            <span class="n">pprint</span><span class="p">(</span><span class="n">rest_params</span><span class="p">)</span>
             <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;REST action &quot;&#39;</span> <span class="o">+</span> <span class="n">action</span> <span class="o">+</span> <span class="s1">&#39;&quot; requires a data dict with above keys&#39;</span><span class="p">)</span>
             <span class="k">return</span>
 
         <span class="c1"># clobber=True means remote request always made, expires=True means response is not cached</span>
         <span class="n">cache_args</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;clobber&#39;</span><span class="p">:</span> <span class="n">no_cache</span><span class="p">,</span> <span class="s1">&#39;expires&#39;</span><span class="p">:</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;expires&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="ow">or</span> <span class="n">no_cache</span><span class="p">}</span>
         <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;list&#39;</span><span class="p">:</span>
-            <span class="c1"># list doesn&#39;t require id nor</span>
-            <span class="k">assert</span> <span class="n">endpoint_scheme</span><span class="p">[</span><span class="n">action</span><span class="p">][</span><span class="s1">&#39;action&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;get&#39;</span>
-            <span class="c1"># add to url data if it is a string</span>
             <span class="k">if</span> <span class="nb">id</span><span class="p">:</span>
                 <span class="c1"># this is a special case of the list where we query a uuid</span>
                 <span class="c1"># usually read is better but list may return fewer data and therefore be faster</span>
@@ -1333,45 +1718,45 @@
                 <span class="k">if</span> <span class="s1">&#39;django&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="ow">and</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;django&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;django&#39;</span><span class="p">]</span>
                 <span class="c1"># Convert all lists in query params to comma separated list</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rest_schemes</span><span class="o">.</span><span class="n">field_names</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">action</span><span class="p">))):</span>
+                    <span class="n">missing</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">rest_schemes</span><span class="o">.</span><span class="n">field_names</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">action</span><span class="p">))</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error: Unsupported fields &#39;</span><span class="si">{</span><span class="n">missing</span><span class="si">}</span><span class="s2">&#39; in query parameters.&quot;</span><span class="p">)</span>
                 <span class="n">query_params</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">ensure_list</span><span class="p">(</span><span class="n">v</span><span class="p">)))</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
                 <span class="n">url</span> <span class="o">=</span> <span class="n">update_url_params</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">query_params</span><span class="p">)</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">url</span><span class="p">,</span> <span class="o">**</span><span class="n">cache_args</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="nb">id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>  <span class="c1"># e.g. may be uuid.UUID</span>
         <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;read&#39;</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="n">endpoint_scheme</span><span class="p">[</span><span class="n">action</span><span class="p">][</span><span class="s1">&#39;action&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;get&#39;</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">endpoint</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="nb">id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="o">**</span><span class="n">cache_args</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;create&#39;</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="n">endpoint_scheme</span><span class="p">[</span><span class="n">action</span><span class="p">][</span><span class="s1">&#39;action&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;post&#39;</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">endpoint</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="n">files</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;delete&#39;</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="n">endpoint_scheme</span><span class="p">[</span><span class="n">action</span><span class="p">][</span><span class="s1">&#39;action&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;delete&#39;</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">endpoint</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="nb">id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
         <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;partial_update&#39;</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="n">endpoint_scheme</span><span class="p">[</span><span class="n">action</span><span class="p">][</span><span class="s1">&#39;action&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;patch&#39;</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">endpoint</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="nb">id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="n">files</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;update&#39;</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="n">endpoint_scheme</span><span class="p">[</span><span class="n">action</span><span class="p">][</span><span class="s1">&#39;action&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;put&#39;</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">endpoint</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="nb">id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="n">files</span><span class="p">)</span></div>
 
 
     <span class="c1"># JSON field interface convenience methods</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_check_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># make sure the queried endpoint exists, if not throw an informative error</span>
-        <span class="k">if</span> <span class="n">endpoint</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest_schemes</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="n">av</span> <span class="o">=</span> <span class="p">(</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest_schemes</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">k</span><span class="p">)</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;REST endpoint &quot;&#39;</span> <span class="o">+</span> <span class="n">endpoint</span> <span class="o">+</span> <span class="s1">&#39;&quot; does not exist. Available &#39;</span> <span class="o">+</span>
-                             <span class="s1">&#39;endpoints are </span><span class="se">\n</span><span class="s1">       &#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">       &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">av</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">endpoint</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest_schemes</span><span class="o">.</span><span class="n">endpoints</span><span class="p">:</span>
+            <span class="n">av</span> <span class="o">=</span> <span class="p">(</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">rest_schemes</span><span class="o">.</span><span class="n">endpoints</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">k</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;REST endpoint &quot;&#39;</span>
+                <span class="o">+</span> <span class="n">endpoint</span>
+                <span class="o">+</span> <span class="s1">&#39;&quot; does not exist. Available &#39;</span>
+                <span class="o">+</span> <span class="s1">&#39;endpoints are </span><span class="se">\n</span><span class="s1">       &#39;</span>
+                <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">       &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">av</span><span class="p">)</span>
+            <span class="p">)</span>
         <span class="k">return</span>
 
 <div class="viewcode-block" id="AlyxClient.json_field_write">
 <a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.AlyxClient.json_field_write">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">json_field_write</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span>
-            <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">uuid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">field_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">uuid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">field_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Write data to JSON field.</span>
 
@@ -1405,11 +1790,7 @@
 <div class="viewcode-block" id="AlyxClient.json_field_update">
 <a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.AlyxClient.json_field_update">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">json_field_update</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span>
-            <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">uuid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">field_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;json&#39;</span><span class="p">,</span>
-            <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">uuid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">field_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;json&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Non-destructive update of JSON field of endpoint for object.</span>
 
@@ -1463,11 +1844,7 @@
 <div class="viewcode-block" id="AlyxClient.json_field_remove_key">
 <a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.AlyxClient.json_field_remove_key">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">json_field_remove_key</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span>
-            <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">uuid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">field_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;json&#39;</span><span class="p">,</span>
-            <span class="n">key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">uuid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">field_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;json&#39;</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove inputted key from JSON field dict and re-upload it to Alyx.</span>
 
@@ -1501,9 +1878,7 @@
             <span class="k">return</span> <span class="kc">None</span>
         <span class="c1"># If key not present in contents of json field cannot remove key, return contents</span>
         <span class="k">if</span> <span class="n">current</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">: Key not found in endpoint </span><span class="si">{</span><span class="n">endpoint</span><span class="si">}</span><span class="s1"> field </span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1">&#39;</span>
-            <span class="p">)</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">: Key not found in endpoint </span><span class="si">{</span><span class="n">endpoint</span><span class="si">}</span><span class="s1"> field </span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">current</span>
         <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Removing key from dict: &quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
         <span class="n">current</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
@@ -1517,7 +1892,7 @@
 <div class="viewcode-block" id="AlyxClient.json_field_delete">
 <a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.AlyxClient.json_field_delete">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">json_field_delete</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">uuid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">field_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">uuid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">field_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set an entire field to null.</span>
 

@@ -64,6 +64,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../notebooks/data_sharing.html">Releasing data with ONE</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../notebooks/recording_data_access.html">Recording data access</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/recording_data_access.html#Data-reproducibility">Data reproducibility</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">ALF</span></p>
 <ul>
@@ -135,6 +136,39 @@
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setUpClass</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">alyx</span> <span class="o">=</span> <span class="n">AlyxClient</span><span class="p">(</span><span class="o">**</span><span class="n">TEST_DB_1</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestREST.test_id_django_fields">
+<a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxrest.html#one.tests.test_alyxrest.TestREST.test_id_django_fields">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_id_django_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Test.</span>
+
+<span class="sd">        The id and django kwargs have a specific meaning when using the list actions</span>
+<span class="sd">        on endpoints that implement the Alyx base REST framework. On endpoints that</span>
+<span class="sd">        do not implement the base REST framework, such as dataset_types and revisions,</span>
+<span class="sd">        the id/django args should yield an error.</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;revisions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s1">&#39;boum&#39;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;revisions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="s1">&#39;boum&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestREST.test_validation_list_fields">
+<a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxrest.html#one.tests.test_alyxrest.TestREST.test_validation_list_fields">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_validation_list_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># test raising an error when specifying a non-existent action</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">cm</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;datasets&#39;</span><span class="p">,</span> <span class="s1">&#39;erase&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span>
+            <span class="s1">&#39;Action &quot;erase&quot; for REST endpoint &quot;datasets&quot; does not exist&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">cm</span><span class="o">.</span><span class="n">exception</span><span class="p">))</span>
+
+        <span class="c1"># test raising an error when specifying a non-existent field</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">cm</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;insertions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">djangodd</span><span class="o">=</span><span class="s1">&#39;boum&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;Unsupported fields &#39;{&#39;djangodd&#39;}&#39; in query parameters&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">cm</span><span class="o">.</span><span class="n">exception</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="TestREST.test_paginated_request">
@@ -246,8 +280,8 @@
         <span class="k">if</span> <span class="n">sub</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;delete&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">nickname</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;create&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">newsub</span><span class="p">)</span>
-        <span class="c1"># partial update and full update</span>
-        <span class="n">newsub</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;partial_update&#39;</span><span class="p">,</span>
+        <span class="c1"># partial update (with hyphen correction) and full update</span>
+        <span class="n">newsub</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;partial-update&#39;</span><span class="p">,</span>
                                 <span class="nb">id</span><span class="o">=</span><span class="n">nickname</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;hey&#39;</span><span class="p">})</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">newsub</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">],</span> <span class="s1">&#39;hey&#39;</span><span class="p">)</span>
         <span class="n">newsub</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;hoy&#39;</span>
@@ -276,7 +310,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">test_endpoints_docs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Test for AlyxClient.list_endpoints method and AlyxClient.rest.&quot;&quot;&quot;</span>
         <span class="c1"># Test endpoint documentation and validation</span>
-        <span class="n">endpoints</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">list_endpoints</span><span class="p">()</span>
+        <span class="n">endpoints</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest_schemes</span><span class="o">.</span><span class="n">endpoints</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="s1">&#39;auth-token&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">endpoints</span><span class="p">)</span>
         <span class="c1"># Check that calling rest method with no args prints endpoints</span>
         <span class="k">with</span> <span class="n">unittest</span><span class="o">.</span><span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;sys.stdout&#39;</span><span class="p">,</span> <span class="n">new_callable</span><span class="o">=</span><span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">)</span> <span class="k">as</span> <span class="n">stdout</span><span class="p">:</span>
@@ -285,9 +319,9 @@
         <span class="c1"># Same but with no action</span>
         <span class="k">with</span> <span class="n">unittest</span><span class="o">.</span><span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;sys.stdout&#39;</span><span class="p">,</span> <span class="n">new_callable</span><span class="o">=</span><span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">)</span> <span class="k">as</span> <span class="n">stdout</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">))</span>
-            <span class="n">actions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest_schemes</span><span class="p">[</span><span class="s1">&#39;sessions&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="n">actions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest_schemes</span><span class="o">.</span><span class="n">actions</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">all</span><span class="p">(</span><span class="n">k</span> <span class="ow">in</span> <span class="n">stdout</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">actions</span><span class="p">))</span>
-            <span class="n">expected</span> <span class="o">=</span> <span class="s2">&quot;[&#39;list&#39;, &#39;create&#39;, &#39;read&#39;, &#39;update&#39;, &#39;partial_update&#39;, &#39;delete&#39;]</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="n">expected</span> <span class="o">=</span> <span class="s2">&quot;[&#39;create&#39;, &#39;delete&#39;, &#39;list&#39;, &#39;partial_update&#39;, &#39;read&#39;, &#39;update&#39;]</span><span class="se">\n</span><span class="s2">&quot;</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">stdout</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()[:</span><span class="mi">65</span><span class="p">])</span>
         <span class="c1"># Check raises when endpoint invalid</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">,</span> <span class="s1">&#39;foobar&#39;</span><span class="p">)</span>
@@ -300,31 +334,6 @@
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">json_field_write</span><span class="p">(</span><span class="s1">&#39;foobar&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">k</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">exception</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">endpoints</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="TestREST.test_print_endpoint_info">
-<a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxrest.html#one.tests.test_alyxrest.TestREST.test_print_endpoint_info">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">test_print_endpoint_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test endpoint query params are printed when calling AlyxClient.rest without action.&quot;&quot;&quot;</span>
-        <span class="c1"># Check behaviour when endpoint invalid</span>
-        <span class="n">endpoint</span> <span class="o">=</span> <span class="s1">&#39;foobar&#39;</span>
-        <span class="k">with</span> <span class="n">unittest</span><span class="o">.</span><span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;sys.stdout&#39;</span><span class="p">,</span> <span class="n">new_callable</span><span class="o">=</span><span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">)</span> <span class="k">as</span> <span class="n">stdout</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">print_endpoint_info</span><span class="p">(</span><span class="n">endpoint</span><span class="p">))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertRegex</span><span class="p">(</span><span class="n">stdout</span><span class="o">.</span><span class="n">getvalue</span><span class="p">(),</span> <span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="n">endpoint</span><span class="si">}</span><span class="s1">&quot; does not exist&#39;</span><span class="p">)</span>
-        <span class="c1"># Check returns endpoint info as well as printing</span>
-        <span class="n">endpoint</span> <span class="o">=</span> <span class="s1">&#39;subjects&#39;</span>
-        <span class="k">with</span> <span class="n">unittest</span><span class="o">.</span><span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;sys.stdout&#39;</span><span class="p">,</span> <span class="n">new_callable</span><span class="o">=</span><span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">)</span> <span class="k">as</span> <span class="n">stdout</span><span class="p">:</span>
-            <span class="n">info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">print_endpoint_info</span><span class="p">(</span><span class="n">endpoint</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest_schemes</span><span class="p">[</span><span class="n">endpoint</span><span class="p">],</span> <span class="n">info</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest_schemes</span><span class="p">[</span><span class="n">endpoint</span><span class="p">],</span> <span class="n">info</span><span class="p">)</span>  <span class="c1"># Ensure copy returned</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">stdout</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="s1">&#39;failed to print endpoint info&#39;</span><span class="p">)</span>
-        <span class="c1"># Check action input</span>
-        <span class="k">with</span> <span class="n">unittest</span><span class="o">.</span><span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;sys.stdout&#39;</span><span class="p">,</span> <span class="n">new_callable</span><span class="o">=</span><span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">)</span> <span class="k">as</span> <span class="n">stdout</span><span class="p">:</span>
-            <span class="n">info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">print_endpoint_info</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="s1">&#39;create&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest_schemes</span><span class="p">[</span><span class="n">endpoint</span><span class="p">][</span><span class="s1">&#39;create&#39;</span><span class="p">],</span> <span class="n">info</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest_schemes</span><span class="p">[</span><span class="n">endpoint</span><span class="p">][</span><span class="s1">&#39;create&#39;</span><span class="p">],</span> <span class="n">info</span><span class="p">)</span>  <span class="c1"># Ensure copy</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">stdout</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="s1">&#39;failed to print endpoint info&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="s2">&quot;&#39;create&#39;</span><span class="se">\n\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">stdout</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()[:</span><span class="mi">10</span><span class="p">])</span></div>
 
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Specific Alyx REST endpoint tests&quot;&quot;&quot;</span>

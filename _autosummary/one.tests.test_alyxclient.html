@@ -67,6 +67,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../notebooks/data_sharing.html">Releasing data with ONE</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../notebooks/recording_data_access.html">Recording data access</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/recording_data_access.html#Data-reproducibility">Data reproducibility</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">ALF</span></p>
 <ul>
@@ -155,8 +156,48 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#one.tests.test_alyxclient.TestRestCache" title="one.tests.test_alyxclient.TestRestCache"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestRestCache</span></code></a></p></td>
 <td><p>Tests for REST caching system, the cache decorator and cache flags.</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.tests.test_alyxclient.TestRestDocumentation" title="one.tests.test_alyxclient.TestRestDocumentation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestRestDocumentation</span></code></a></p></td>
+<td><p>Tests for AlyxClient REST API schema parsing and printing.</p></td>
+</tr>
 </tbody>
 </table>
+<dl class="py class">
+<dt class="sig sig-object py" id="one.tests.test_alyxclient.TestRestDocumentation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestRestDocumentation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestRestDocumentation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestRestDocumentation" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
+<p>Tests for AlyxClient REST API schema parsing and printing.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_alyxclient.TestRestDocumentation.setUp">
+<span class="sig-name descname"><span class="pre">setUp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestRestDocumentation.setUp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestRestDocumentation.setUp" title="Link to this definition"></a></dt>
+<dd><p>Hook method for setting up the test fixture before exercising it.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_alyxclient.TestRestDocumentation.test_rest_schema_core_api">
+<span class="sig-name descname"><span class="pre">test_rest_schema_core_api</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestRestDocumentation.test_rest_schema_core_api"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestRestDocumentation.test_rest_schema_core_api" title="Link to this definition"></a></dt>
+<dd><p>Test parsing of coreapi REST schema.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_alyxclient.TestRestDocumentation.test_print_endpoint_info">
+<span class="sig-name descname"><span class="pre">test_print_endpoint_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestRestDocumentation.test_print_endpoint_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestRestDocumentation.test_print_endpoint_info" title="Link to this definition"></a></dt>
+<dd><p>Test endpoint query params are printed when calling AlyxClient.rest without action.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_alyxclient.TestRestDocumentation.test_alyx_client_methods">
+<span class="sig-name descname"><span class="pre">test_alyx_client_methods</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestRestDocumentation.test_alyx_client_methods"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestRestDocumentation.test_alyx_client_methods" title="Link to this definition"></a></dt>
+<dd><p>Test AlyxClient.list_endpoints and AlyxClient.print_endpoint_info.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_alyxclient.TestRestDocumentation.test_schema_support">
+<span class="sig-name descname"><span class="pre">test_schema_support</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestRestDocumentation.test_schema_support"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestRestDocumentation.test_schema_support" title="Link to this definition"></a></dt>
+<dd><p>Test that both coreapi and openapiv3 REST schemas are supported.</p>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="one.tests.test_alyxclient.TestAuthentication">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestAuthentication</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestAuthentication"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestAuthentication" title="Link to this definition"></a></dt>
