@@ -36,9 +36,9 @@ class TestREST(unittest.TestCase):
         the id/django args should yield an error.
         :return:
         """
-        with self.assertRaises(ValueError):
+        with self.assertWarns(UserWarning):
             self.alyx.rest('revisions', 'list', id='boum')
-        with self.assertRaises(ValueError):
+        with self.assertWarns(UserWarning):
             self.alyx.rest('revisions', 'list', django='boum')
 
     def test_validation_list_fields(self):
@@ -49,9 +49,9 @@ class TestREST(unittest.TestCase):
             'Action "erase" for REST endpoint "datasets" does not exist', str(cm.exception))
 
         # test raising an error when specifying a non-existent field
-        with self.assertRaises(ValueError) as cm:
+        with self.assertWarns(UserWarning) as cm:
             self.alyx.rest('insertions', 'list', djangodd='boum')
-        self.assertIn("Unsupported fields '{'djangodd'}' in query parameters", str(cm.exception))
+        self.assertIn("Unsupported fields '{'djangodd'}' in query parameters", str(cm.warning))
 
     def test_paginated_request(self):
         """Check that paginated response object is returned upon making large queries."""
