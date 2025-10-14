@@ -1506,7 +1506,9 @@ class AlyxClient:
                 if len(set(kwargs.keys()) - set(self.rest_schemes.field_names(endpoint, action))):
                     missing = set(kwargs.keys()) - set(
                         self.rest_schemes.field_names(endpoint, action))
-                    raise ValueError(f"Error: Unsupported fields '{missing}' in query parameters.")
+                    warnings.warn(
+                        f"Error: Unsupported fields '{missing}' in query parameters"
+                        f" for endpoint {endpoint}.")
                 query_params = {k: ','.join(map(str, ensure_list(v))) for k, v in kwargs.items()}
                 url = update_url_params(url, query_params)
             return self.get('/' + url, **cache_args)
