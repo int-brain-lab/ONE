@@ -653,6 +653,25 @@
             <span class="n">wrapped</span><span class="p">(</span><span class="n">ac</span><span class="p">,</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">,</span> <span class="n">clobber</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="TestRestCache.test_decode_error_cache">
+<a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestRestCache.test_decode_error_cache">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_decode_error_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test behaviour when cached file is corrupted.&quot;&quot;&quot;</span>
+        <span class="n">func</span> <span class="o">=</span> <span class="n">mock</span><span class="o">.</span><span class="n">Mock</span><span class="p">(</span><span class="n">return_value</span><span class="o">=</span><span class="s1">&#39;called&#39;</span><span class="p">)</span>
+        <span class="n">wrapped</span> <span class="o">=</span> <span class="n">wc</span><span class="o">.</span><span class="n">_cache_response</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+        <span class="c1"># Should not call wrapped function as cache valid</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">wrapped</span><span class="p">(</span><span class="n">ac</span><span class="p">,</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="s1">&#39;called&#39;</span><span class="p">,</span> <span class="n">res</span><span class="p">)</span>
+        <span class="c1"># Corrupt the cache file by adding a character</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;f530d6022f61cdc9e38cc66beb3cb71f3003c9a1&#39;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span> <span class="o">/</span> <span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">)</span>  <span class="c1"># Incomplete JSON</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertLogs</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;one.webclient&#39;</span><span class="p">),</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span> <span class="k">as</span> <span class="n">log</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">wrapped</span><span class="p">(</span><span class="n">ac</span><span class="p">,</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="s1">&#39;corrupted cache file&#39;</span> <span class="ow">in</span> <span class="n">log</span><span class="o">.</span><span class="n">output</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="s1">&#39;called&#39;</span><span class="p">,</span> <span class="n">res</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="TestRestCache.test_clear_cache">
 <a class="viewcode-back" href="../../../_autosummary/one.tests.test_alyxclient.html#one.tests.test_alyxclient.TestRestCache.test_clear_cache">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_clear_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
