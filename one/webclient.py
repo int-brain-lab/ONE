@@ -134,12 +134,16 @@ def _cache_response(method):
         # Reversible but length may exceed 255 chars
         # name = base64.urlsafe_b64encode(args[2].encode('UTF-8')).decode('UTF-8')
         files = list(rest_cache.glob(name))
-        cached = None
+        cached, when = None, None
         if len(files) == 1 and not clobber:
             _logger.debug('loading REST response from cache')
-            with open(files[0], 'r') as f:
-                cached, when = json.load(f)
-            if datetime.fromisoformat(when) > datetime.now():
+            try:
+                with open(files[0], 'r') as f:
+                    cached, when = json.load(f)
+            except json.JSONDecodeError as e:
+                _logger.debug(f'corrupted cache file {name}: {e}')
+                files[0].unlink()  # delete corrupted cache file
+            if cached and datetime.fromisoformat(when) > datetime.now():
                 return cached
         try:
             response = method(alyx_client, *args, **kwargs)
@@ -1502,7 +1506,9 @@ class AlyxClient:
                 if len(set(kwargs.keys()) - set(self.rest_schemes.field_names(endpoint, action))):
                     missing = set(kwargs.keys()) - set(
                         self.rest_schemes.field_names(endpoint, action))
-                    raise ValueError(f"Error: Unsupported fields '{missing}' in query parameters.")
+                    warnings.warn(
+                        f"Error: Unsupported fields '{missing}' in query parameters"
+                        f" for endpoint {endpoint}.")
                 query_params = {k: ','.join(map(str, ensure_list(v))) for k, v in kwargs.items()}
                 url = update_url_params(url, query_params)
             return self.get('/' + url, **cache_args)

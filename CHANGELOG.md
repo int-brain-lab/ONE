@@ -1,5 +1,13 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [3.4.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [3.4.1]
+This version fixes issues with corrupt REST cache and REST validation errors.
+
+### Modified
+
+- corrupt REST cache files are deleted and re-fetched
+- warning insteda of error when REST query param not in field names
+
+## [3.4.0]
 This version supports OpenAPI v3 REST endpoint documentation.
 
 ### Modified
