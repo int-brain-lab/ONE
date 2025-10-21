@@ -472,6 +472,22 @@ class TestRestCache(unittest.TestCase):
         with self.assertRaises(requests.ConnectionError):
             wrapped(ac, requests.get, self.query, clobber=True)
 
+    def test_decode_error_cache(self):
+        """Test behaviour when cached file is corrupted."""
+        func = mock.Mock(return_value='called')
+        wrapped = wc._cache_response(func)
+        # Should not call wrapped function as cache valid
+        res = wrapped(ac, requests.get, self.query)
+        self.assertNotEqual('called', res)
+        # Corrupt the cache file by adding a character
+        filename = 'f530d6022f61cdc9e38cc66beb3cb71f3003c9a1'
+        with open(self.cache_dir / filename, 'a') as f:
+            f.write('"')  # Incomplete JSON
+        with self.assertLogs(logging.getLogger('one.webclient'), logging.DEBUG) as log:
+            res = wrapped(ac, requests.get, self.query)
+            self.assertTrue('corrupted cache file' in log.output[1])
+            self.assertEqual('called', res)
+
     def test_clear_cache(self):
         """Test for AlyxClient.clear_rest_cache."""
         assert any(self.cache_dir.glob('*'))
