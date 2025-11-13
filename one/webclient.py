@@ -356,7 +356,7 @@ def http_download_file_list(links_to_file_list, **kwargs):
     ----------
     links_to_file_list : list
         List of http links to files.
-    **kwargs
+    kwargs
         Optional arguments to pass to http_download_file.
 
     Returns
@@ -1159,7 +1159,7 @@ class AlyxClient:
         ----------
         url : str, list
             Full url(s) of the file(s).
-        **kwargs
+        kwargs
             WebClient.http_download_file parameters.
 
         Returns
@@ -1174,12 +1174,32 @@ class AlyxClient:
         else:
             url = (self._validate_file_url(x) for x in url)
             download_fcn = http_download_file_list
+
+        # Precedence: kwargs > repo credentials > pars (may change)
+        defaults = (self._par.HTTP_DATA_SERVER_LOGIN, self._par.HTTP_DATA_SERVER_PWD)
+        if {'username', 'password'}.issubset(kwargs):
+            # Don't bother getting repo credentials if both username/password passed in kwargs
+            username = kwargs.pop('username')
+            password = kwargs.pop('password')
+        else:
+            try:
+                # Find repository matching the URL
+                repo = next(
+                    r for r in self.rest('data-repository', 'list')
+                    if r['data_url'] and url.startswith(r['data_url'])
+                )
+                username, password = repo['json'].get('credentials', defaults)
+            except (StopIteration, AssertionError):
+                username, password = defaults
+            username = kwargs.pop('username', username)
+            password = kwargs.pop('password', password)
+
         pars = dict(
             silent=kwargs.pop('silent', self.silent),
             target_dir=kwargs.pop('target_dir', self._par.CACHE_DIR),
-            username=self._par.HTTP_DATA_SERVER_LOGIN,
-            password=self._par.HTTP_DATA_SERVER_PWD,
-            **kwargs,
+            username=username,
+            password=password,
+            **kwargs
         )
         try:
             files = download_fcn(url, **pars)
@@ -1290,7 +1310,7 @@ class AlyxClient:
         ----------
         rest_query : str
             A REST URL path, e.g. '/sessions?user=Hamish'.
-        **kwargs
+        kwargs
             Optional arguments to pass to _generic_request and _cache_response decorator.
 
         Returns

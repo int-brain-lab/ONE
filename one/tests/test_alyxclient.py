@@ -602,6 +602,64 @@ class TestDownloadHTTP(unittest.TestCase):
         finally:
             self.ac._token = token
 
+    def test_download_file(self):
+        """Test for AlyxClient.download_file with authentication."""
+        ac = wc.AlyxClient(**TEST_DB_1)
+        ac._par = ac._par.set( 'HTTP_DATA_SERVER_LOGIN', 'foo').set('HTTP_DATA_SERVER_PWD', 'bar')
+
+         # Mock repository responses
+        repo_url = ac._par.HTTP_DATA_SERVER + '/lab/Subjects/'
+        rel_path = 'subject/2020-01-01/001/obj.attr.ext'
+        repos = [
+            {'data_url': None, 'json': {}},
+            {'data_url': repo_url + rel_path, 'json': {'credentials': ('baz', 'pw')}}
+        ]
+
+        # Patch http_download_file to check username and password passed
+        file = ac.cache_dir / rel_path
+        with mock.patch('one.webclient.http_download_file', return_value=file) as mock_download, \
+                mock.patch.object(ac, 'rest', return_value=repos) as mock_rest:
+            ret = ac.download_file(repo_url + rel_path)
+            mock_rest.assert_called_once_with('data-repository', 'list')
+            mock_download.assert_called_once()
+            args, kwargs = mock_download.call_args
+            self.assertEqual((repo_url + rel_path,), args)
+            self.assertEqual('baz', kwargs.get('username'))
+            self.assertEqual('pw', kwargs.get('password'))
+            self.assertEqual(file, ret)
+        # With kwargs passed should use those
+        with mock.patch('one.webclient.http_download_file', return_value=file) as mock_download, \
+                mock.patch.object(ac, 'rest', return_value=repos) as mock_rest:
+            mock_rest.assert_not_called()
+            ret = ac.download_file(repo_url + rel_path, username='usr', password='pass')
+            args, kwargs = mock_download.call_args
+            self.assertEqual((repo_url + rel_path,), args)
+            self.assertEqual('usr', kwargs.get('username'))
+            self.assertEqual('pass', kwargs.get('password'))
+        # Without repo entry should use AlyxClient pars
+        del repos[-1]['json']['credentials']
+        with mock.patch('one.webclient.http_download_file', return_value=file) as mock_download, \
+                mock.patch.object(ac, 'rest', return_value=repos) as mock_rest:
+            ret = ac.download_file(repo_url + rel_path)
+            mock_rest.assert_called_once_with('data-repository', 'list')
+            mock_download.assert_called_once()
+            args, kwargs = mock_download.call_args
+            self.assertEqual((repo_url + rel_path,), args)
+            self.assertEqual('foo', kwargs.get('username'))
+            self.assertEqual('bar', kwargs.get('password'))
+            self.assertEqual(file, ret)
+        # Likewise when no repo entry exists
+        repos[-1]['data_url'] = 'https://other.server.com/' + rel_path
+        with mock.patch('one.webclient.http_download_file', return_value=file) as mock_download, \
+                mock.patch.object(ac, 'rest', return_value=repos) as mock_rest:
+            ac.download_file(repo_url + rel_path)
+            mock_rest.assert_called_once_with('data-repository', 'list')
+            mock_download.assert_called_once()
+            args, kwargs = mock_download.call_args
+            self.assertEqual((repo_url + rel_path,), args)
+            self.assertEqual('foo', kwargs.get('username'))
+            self.assertEqual('bar', kwargs.get('password'))
+
 
 class TestMisc(unittest.TestCase):
     def test_update_url_params(self):
