@@ -84,6 +84,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#Example:">Example:</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#Guide-to-running-ONE-with-multi-processes-workflows.">Guide to running ONE with multi-processes workflows.</a></li>
 </ul>
 </li>
 </ul>
@@ -306,6 +307,58 @@ alf\probe00\pykilosort\drift.times.npy
 <p>If a dataset’s QC is set to CRITICAL it will no longer be loadable, even with the <code class="docutils literal notranslate"><span class="pre">ONE_REVISION_LAST_BEFORE</span></code>. Additionally, if a dataset is removed from the database it will be no longer loadable. In these cases, saving data access tables is more robust.</p>
 </div>
 </section>
+</section>
+<section id="Guide-to-running-ONE-with-multi-processes-workflows.">
+<h2>Guide to running ONE with multi-processes workflows.<a class="headerlink" href="#Guide-to-running-ONE-with-multi-processes-workflows." title="Link to this heading"></a></h2>
+<p>When using ONE with multiple processes and making simultaneous requests to the remote database, these requests can lead to connection errors like JSON.DecodeError and HTTPError.</p>
+<p>To get around these errors, it is very useful to generate the above mentioned parquet files containing the cache data. Then ONE can be initialized in local mode and the saved cache can be loaded. This ensures no additional database requests are made during the parallel run, and hence no connection errors.</p>
+<p>Below is an example, where all the probe-insertions for a project which have the spike sorting data are first queried and then the cache is saved. ## Example</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">batched</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">one.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">ONE</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">one.converters</span><span class="w"> </span><span class="kn">import</span> <span class="n">datasets2records</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">one.alf.cache</span><span class="w"> </span><span class="kn">import</span> <span class="n">merge_tables</span>
+
+<span class="c1"># To generate the cache, we need to use the remote mode of ONE</span>
+<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">()</span>
+<span class="c1">#Get the list of eids that have the spikes.times.npy dataset.</span>
+<span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">project</span><span class="o">=</span><span class="s1">&#39;u19_proj1_multiareacom&#39;</span><span class="p">,</span> <span class="n">datasets</span><span class="o">=</span><span class="s1">&#39;spikes.times.npy&#39;</span><span class="p">)</span>
+<span class="c1"># Update datasets</span>
+<span class="c1">#Batching is being done to avoid multiple requests to the database.</span>
+<span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">batched</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">eids</span><span class="p">),</span> <span class="mi">50</span><span class="p">):</span>
+    <span class="c1"># these rest queries update the one._cache object in memory</span>
+    <span class="n">dsets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;datasets&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;session__in,</span><span class="si">{</span><span class="n">batch</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">datasets2records</span><span class="p">(</span><span class="n">dsets</span><span class="p">)</span>
+    <span class="n">merge_tables</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">_cache</span><span class="p">,</span> <span class="n">datasets</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">base_url</span><span class="p">)</span>
+
+
+<span class="c1">#Provide the location of the directory where the cache will be saved.</span>
+<span class="n">one</span><span class="o">.</span><span class="n">save_cache</span><span class="p">(</span><span class="s2">&quot;mutli_area_cache&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>The above script will save <code class="docutils literal notranslate"><span class="pre">datasets.pqt</span></code> and <code class="docutils literal notranslate"><span class="pre">sessions.pqt</span></code> file in the directory <code class="docutils literal notranslate"><span class="pre">mutli_area_cache</span></code>.</p>
+<p>You can then initialize ONE in local mode within your parallelized scripts - whether using SLURM, joblib, or multiprocessing.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">one.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">ONE</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">joblib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Parallel</span><span class="p">,</span> <span class="n">delayed</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;local&#39;</span><span class="p">,</span> <span class="n">tables_dir</span><span class="o">=</span><span class="s2">&quot;/path/to/mutli_area_cache&quot;</span><span class="p">)</span>
+    <span class="n">eid_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;eid1&#39;</span><span class="p">,</span> <span class="s1">&#39;eid2&#39;</span><span class="p">,</span> <span class="s1">&#39;eid3&#39;</span><span class="p">]</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">Parallel</span><span class="p">(</span><span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">10</span><span class="p">)(</span><span class="n">delayed</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">list_collections</span><span class="p">)(</span><span class="n">eid</span><span class="p">)</span> <span class="k">for</span> <span class="n">eid</span> <span class="ow">in</span> <span class="n">eid_list</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
 </section>
 </section>
 
