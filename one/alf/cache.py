@@ -547,7 +547,8 @@ def merge_tables(cache, strict=False, origin=None, **kwargs):
             cache['_meta']['raw'][table] = table_meta
         # Makes sure that the `date_created` field exists for a new table
         if 'date_created' not in table_meta.keys():
-            table_meta['date_created'] = datetime.datetime.now().isoformat(sep=' ', timespec='minutes')
+            table_meta['date_created'] = datetime.datetime.now().isoformat(
+                sep=' ', timespec='minutes')
             cache['_meta']['raw'][table] = table_meta
     cache['_meta']['modified_time'] = updated
     return updated
