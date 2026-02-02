@@ -538,12 +538,16 @@ def merge_tables(cache, strict=False, origin=None, **kwargs):
         cache[table] = pd.concat(frames).sort_index()
         updated = datetime.datetime.now()
         # Update the table metadata with the origin
+        table_meta = cache['_meta']['raw'].get(table, {})
         if origin is not None:
-            table_meta = cache['_meta']['raw'].get(table, {})
             if 'origin' not in table_meta:
-                table_meta['origin'] = set(origin)
+                table_meta['origin'] = set(ensure_list(origin))
             else:
                 table_meta['origin'].add(origin)
+            cache['_meta']['raw'][table] = table_meta
+        # Makes sure that the `date_created` field exists for a new table
+        if 'date_created' not in table_meta.keys():
+            table_meta['date_created'] = datetime.datetime.now().isoformat(sep=' ', timespec='minutes')
             cache['_meta']['raw'][table] = table_meta
     cache['_meta']['modified_time'] = updated
     return updated

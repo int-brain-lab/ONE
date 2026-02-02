@@ -21,7 +21,7 @@ pip install ONE-api
 For using ONE with a local cache directory:
 ```python
 from one.api import One
-one = One(cache_dir='/home/user/downlaods/ONE/behavior_paper')
+one = One(cache_dir='/home/user/downloads/ONE/behavior_paper')
 ```
 
 To use the default setup settings that connect you to the [IBL public database](https://openalyx.internationalbrainlab.org):
