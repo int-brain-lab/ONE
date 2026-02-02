@@ -1,5 +1,13 @@
 # Changelog
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [3.4.1]
+
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [3.4.2]
+This version fixes the saving and loading of insertions parquet tables for offline processing
+
+### Fixed
+
+- the insertions table have the minimal meta-data to allow reloading after a cache dump.
+
+## [3.4.1]
 This version fixes issues with corrupt REST cache and REST validation errors.
 
 ### Modified
