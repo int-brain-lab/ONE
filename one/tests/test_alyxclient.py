@@ -3,6 +3,7 @@
 from pathlib import Path
 import unittest
 from unittest import mock
+import http.client
 import urllib.parse
 import random
 import weakref
@@ -601,6 +602,42 @@ class TestDownloadHTTP(unittest.TestCase):
                 mock_auth.assert_called_once()
         finally:
             self.ac._token = token
+
+    @mock.patch('one.webclient.urllib.request')
+    @mock.patch('builtins.open')
+    def test_http_server_auth(self, open_mock, urllib_mock):
+        """Test for http_download_file authentication and headers."""
+        url_response_mock = mock.MagicMock(spec_set=http.client.HTTPResponse)
+        # Simulate file content then end of file
+        url_response_mock.read.side_effect = [b'file content', None]
+        urllib_mock.urlopen.return_value = url_response_mock
+        # When a username and password are set in the parameters, should attempt to authenticate
+        with tempfile.TemporaryDirectory() as temp_dir:
+            file_name, md5 = wc.http_download_file(
+                'https://example.com/file.txt',
+                target_dir=temp_dir,
+                username='user',
+                password='pass',
+                return_md5=True,
+                chunks=(4, 12),
+                headers={'Custom-Header': 'value'}
+            )
+        expected = Path(temp_dir).joinpath('file.txt')
+        # Check file is written to expected location
+        self.assertEqual(expected, Path(file_name))
+        open_mock.assert_called_once_with(expected, 'wb')
+        fid_mock = open_mock()
+        fid_mock.write.assert_called_once_with(b'file content')
+        fid_mock.close.assert_called_once()
+        # Check urlopen called with correct auth header
+        urllib.request.HTTPPasswordMgrWithDefaultRealm.assert_called_once()
+        manager = urllib.request.HTTPPasswordMgrWithDefaultRealm()
+        manager.add_password.assert_called_once_with(None, 'https://example.com', 'user', 'pass')
+        # Check the request headers
+        urllib.request.urlopen.assert_called_once()
+        req, = urllib.request.urlopen.call_args[0]
+        req.add_header.assert_any_call('Custom-Header', 'value')
+        req.add_header.assert_any_call('Range', 'bytes=4-15')  # Chunks
 
 
 class TestMisc(unittest.TestCase):

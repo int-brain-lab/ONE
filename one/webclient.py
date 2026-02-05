@@ -413,7 +413,7 @@ def http_download_file(full_link_to_file, chunks=None, *, clobber=False, silent=
         Directory in which files are downloaded; defaults to user's Download directory
     return_md5 : bool
         If True an MD5 hash of the file is additionally returned
-    headers : list of dicts
+    headers : dict
         Additional headers to add to the request (auth tokens etc.)
 
     Returns
