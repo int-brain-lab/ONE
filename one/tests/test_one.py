@@ -1602,7 +1602,7 @@ class TestOneRemote(unittest.TestCase):
         self.one._cache['datasets'] = self.one._cache['datasets'].iloc[0:0].copy()
 
         dsets = self.one.list_datasets(self.eid, details=True, query_type='remote')
-        expected_n_datasets = 267  # this may change after a BWM release or patch
+        expected_n_datasets = 280  # this may change after a BWM release or patch
         self.assertEqual(expected_n_datasets, len(dsets))
         self.assertEqual(1, dsets.index.nlevels, 'details data frame should be without eid index')
 

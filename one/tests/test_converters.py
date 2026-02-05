@@ -346,6 +346,10 @@ class TestOnlineConverters(unittest.TestCase):
         # Check cache table updated
         self.assertIn('insertions', self.one._cache)
         self.assertIn(self.eid, self.one._cache['insertions'].index)
+        # Makes sure the meta data of the newly created insertion table is populated
+        meta_data = self.one._cache['_meta']['raw']['insertions']
+        self.assertIn('date_created', meta_data.keys())
+        self.assertEqual(meta_data['origin'], {'https://openalyx.internationalbrainlab.org'})
         # Local mode should now work
         self.assertEqual((self.eid, 'probe00'), self.one.pid2eid(self.pid, query_type='local'))
         # Test behaviour when pid not found
