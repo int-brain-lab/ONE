@@ -1,6 +1,12 @@
 # Changelog
 
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [3.4.2]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [3.5.0]
+
+### Fixed
+
+- registration.get_dataset_type now casts dtypes input to Bunch
+
+## [3.4.2]
 This version fixes the saving and loading of insertions parquet tables for offline processing.
 
 ### Fixed

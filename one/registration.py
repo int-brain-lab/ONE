@@ -63,7 +63,7 @@ def get_dataset_type(filename, dtypes):
     """
     dataset_types = []
     filename = ensure_alf_path(filename)
-    for dt in dtypes:
+    for dt in map(Bunch, dtypes):
         if not dt.filename_pattern.strip():
             # If the filename pattern is null, check whether the filename object.attribute matches
             # the dataset type name.
