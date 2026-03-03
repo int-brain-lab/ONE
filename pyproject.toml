@@ -4,13 +4,43 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ONE-api"
-dynamic = ["version", "readme", "dependencies"]
+dynamic = ["version", "readme"]
 description = "Open Neurophysiology Environment"
 authors = [
     {name = "IBL Staff"},
 ]
 requires-python = ">=3.10"
 license = {text = "MIT"}
+dependencies = [
+    "ruff",
+    # waiting for numba to support 2.4",
+    "numpy>=1.18, <2.4",
+    # pandas 3 regex on strings issue <one.tests.test_one.TestONECache testMethod=test_filter>
+    "pandas>=1.5.0, <3.0.0",
+    "tqdm>=4.32.1",
+    "requests>=2.22.0",
+    "iblutil>=1.14.0",
+    "packaging",
+    "boto3",
+    "pyyaml"
+]
+
+[project.optional-dependencies]
+docs = [
+    "sphinx_rtd_theme",
+    "nbsphinx",
+    "nbsphinx-link",
+    "myst_parser",
+    "sphinx>=3.1.2",
+    "sphinx-copybutton",
+    "sphinx-gallery",
+    "ipyevents",
+    "jupyter",
+    # Required to execute the data_sharing notebook
+    "matplotlib",
+    "globus_sdk"  # For Globus module
+]
+globus = ["globus_sdk>=4.4.0"]
 
 [project.urls]
 Homepage = "https://github.com/int-brain-lab/ONE"
@@ -22,7 +52,6 @@ Changelog = "https://github.com/int-brain-lab/ONE/blob/main/CHANGELOG.md"
 [tool.setuptools.dynamic]
 version = {attr = "one.__version__"}
 readme = {file = ["README.md"], content-type = "text/markdown"}
-dependencies = {file = ["requirements.txt"]}
 
 [tool.setuptools.packages.find]
 include = ["one*"]

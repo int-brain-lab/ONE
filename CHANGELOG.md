@@ -7,6 +7,7 @@ This version adds support for globus_sdk v4.4.0.
 ### Modified
 
 - support latest version of Globus SDK
+- requirements moved to pyproject.toml
 
 ### Fixed
 
