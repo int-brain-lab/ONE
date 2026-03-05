@@ -16,7 +16,7 @@ dependencies = [
     # waiting for numba to support 2.4",
     "numpy>=1.18, <2.4",
     # pandas 3 regex on strings issue <one.tests.test_one.TestONECache testMethod=test_filter>
-    "pandas>=1.5.0, <3.0.0",
+    "pandas>=1.5.0",
     "tqdm>=4.32.1",
     "requests>=2.22.0",
     "iblutil>=1.14.0",

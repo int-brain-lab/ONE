@@ -342,7 +342,7 @@ class TestONECache(unittest.TestCase):
         with self.assertRaises(alferr.ALFMultipleCollectionsFound):
             filter_datasets(datasets, None, 'raw.*', None, revision_last_before=False)
         # Test filter empty collection
-        datasets.rel_path[-1] = '_ibl_trials.rewardVolume.npy'
+        datasets.iloc[-1, 2] = '_ibl_trials.rewardVolume.npy'
         verifiable = filter_datasets(datasets, None, '', None, revision_last_before=False)
         self.assertTrue(len(verifiable), 1)
 
@@ -1474,7 +1474,7 @@ class TestOneAlyx(unittest.TestCase):
                                       region_name=None)
         ((bucket, path), _), *_ = boto3_mock().resource().Object.call_args_list
         self.assertEqual(bucket, 's3_bucket')
-        self.assertTrue(dsets['rel_path'][0].split('.')[0] in path)
+        self.assertTrue(dsets['rel_path'].iloc[0].split('.')[0] in path)
         self.assertTrue(str(dsets.index[0][1]) in path, 'Dataset UUID not in filepath')
 
         # Should fall back to usual method if any datasets do not exist on AWS
