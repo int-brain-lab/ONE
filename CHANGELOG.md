@@ -1,13 +1,14 @@
 # Changelog
 
 ## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [3.5.0]
-This version adds support for globus_sdk v4.4.0 and pandas v3.0.
+This version adds support for globus_sdk v4.4.0 and pandas v3.0, and gracefully handles Alyx request rate limits.
 
 ### Modified
 
 - support latest version of Globus SDK
 - requirements moved to pyproject.toml
 - support pandas 3.0
+- AlyxClient will now wait before retrying REST requests that return a 429 or 503 status
 
 ### Fixed
 

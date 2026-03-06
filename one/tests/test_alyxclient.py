@@ -17,7 +17,7 @@ import shutil
 import requests
 import json
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from iblutil.io import hashfile
 import iblutil.io.params as iopar
@@ -27,17 +27,12 @@ from one.tests import util
 
 par = one.params.get(silent=True)
 
-# Init connection to the database
-ac = wc.AlyxClient(**TEST_DB_1)
-# Remove /public from data server url
-if 'public' in ac._par.HTTP_DATA_SERVER:
-    ac._par = ac._par.set('HTTP_DATA_SERVER', ac._par.HTTP_DATA_SERVER.rsplit('/', 1)[0])
-
 
 class TestRestDocumentation(unittest.TestCase):
     """Tests for AlyxClient REST API schema parsing and printing."""
 
     def setUp(self) -> None:
+        self.ac = wc.AlyxClient()
         self.path_fixtures = Path(__file__).parent.joinpath('fixtures', 'rest_responses')
         with open(self.path_fixtures.joinpath('coreapi.json'), 'r') as f:
             rest_scheme = json.load(f)
@@ -97,43 +92,51 @@ class TestRestDocumentation(unittest.TestCase):
     def test_alyx_client_methods(self):
         """Test AlyxClient.list_endpoints and AlyxClient.print_endpoint_info."""
         with unittest.mock.patch('sys.stdout', new_callable=io.StringIO) as stdout:
-            self.assertTrue(len(ac.list_endpoints()) > 20)
+            self.assertTrue(len(self.ac.list_endpoints()) > 20)
             self.assertRegex(stdout.getvalue(), 'sessions')
 
         with unittest.mock.patch('sys.stdout', new_callable=io.StringIO) as stdout:
-            ac.print_endpoint_info('sessions')
+            self.ac.print_endpoint_info('sessions')
             self.assertRegex(stdout.getvalue(), 'partial_update')
 
     def test_schema_support(self):
         """Test that both coreapi and openapiv3 REST schemas are supported."""
-        ac = wc.AlyxClient(**TEST_DB_1)
         # The new alyx uses openapiv3 schema on the /api/schema endpoint
         output = self.scheme_openapi._rest_scheme
-        with mock.patch.object(ac, 'get', return_value=output) as mock_get:
-            assert ac._rest_schemes is None  # Ensure not cached
-            scheme = ac.rest_schemes
+        with mock.patch.object(self.ac, 'get', return_value=output) as mock_get:
+            assert self.ac._rest_schemes is None  # Ensure not cached
+            scheme = self.ac.rest_schemes
         self.assertIsInstance(scheme, wc.RestSchemeOpenApi)
         mock_get.assert_called_once_with('/api/schema', expires=mock.ANY)
-        ac._rest_schemes = None  # Reset cached scheme
+        self.ac._rest_schemes = None  # Reset cached scheme
         # Old alyx uses coreapi schema on the /docs endpoint
         err = requests.HTTPError()
         rep = requests.Response()
         rep.status_code = 404
         err.response = rep
         responses = (err, self.scheme_coreapi._rest_scheme)
-        with mock.patch.object(ac, 'get', side_effect=responses) as mock_get:
-            scheme = ac.rest_schemes
+        with mock.patch.object(self.ac, 'get', side_effect=responses) as mock_get:
+            scheme = self.ac.rest_schemes
         self.assertIsInstance(scheme, wc.RestSchemeCoreApi)
+        # Check the correct accept request header when querying the legacy
+        rep.status_code = 200
+        rep._content = json.dumps(self.scheme_coreapi._rest_scheme).encode()
+        get_mock = mock.MagicMock(return_value=rep)
+        self.ac._generic_request.__wrapped__(self.ac, get_mock, '/docs')
+        get_mock.assert_called_once()
+        expected = get_mock.call_args.kwargs['headers'] | {'Accept': 'application/coreapi+json'}
+        self.assertEqual(expected, get_mock.call_args.kwargs['headers'])
         # Should try new schema endpoint then fallback to old one
-        self.assertTrue(mock_get.call_count, 2)
+        self.assertEqual(mock_get.call_count, 2)
         endpoints = [x.args[0] for x in mock_get.call_args_list]
         expected = ['/api/schema', '/docs']
         self.assertEqual(endpoints, expected)
         # If the status code is not 404, should raise the error
         rep.status_code = 500
-        ac._rest_schemes = None  # Reset cached scheme
-        with mock.patch.object(ac, 'get', side_effect=err), self.assertRaises(requests.HTTPError):
-            scheme = ac.rest_schemes
+        self.ac._rest_schemes = None  # Reset cached scheme
+        with mock.patch.object(self.ac, 'get', side_effect=err), \
+                self.assertRaises(requests.HTTPError):
+            scheme = self.ac.rest_schemes
 
 
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
@@ -391,22 +394,20 @@ class TestRestCache(unittest.TestCase):
 
     def setUp(self):
         util.setup_test_params()  # Ensure test alyx set up
-        util.setup_rest_cache(ac.cache_dir)  # Copy rest cache fixtures
+        self.ac = wc.AlyxClient(**TEST_DB_1)
+        util.setup_rest_cache(self.ac.cache_dir)  # Copy rest cache fixtures
         self.query = '/insertions/b529f2d8-cdae-4d59-aba2-cbd1b5572e36'
         self.tempdir = util.set_up_env()
         self.addCleanup(self.tempdir.cleanup)
         one.webclient.datetime = _FakeDateTime
         _FakeDateTime._now = None
-        self.cache_dir = ac.cache_dir.joinpath('.rest')
-        self.default_expiry = ac.default_expiry
-        self.cache_mode = ac.cache_mode
+        self.cache_dir = self.ac.cache_dir.joinpath('.rest')
 
     def test_loads_cached(self):
         """Test for one.webclient._cache_response decorator, checks returns cached result."""
         # Check returns cache
         wrapped = wc._cache_response(lambda *args: self.assertTrue(False))
-        client = ac  # Bunch({'base_url': 'https://test.alyx.internationalbrainlab.org'})
-        res = wrapped(client, requests.get, self.query)
+        res = wrapped(self.ac, requests.get, self.query)
         self.assertEqual(res['id'], self.query.split('/')[-1])
 
     def test_expired_cache(self):
@@ -414,16 +415,16 @@ class TestRestCache(unittest.TestCase):
         # Checks expired
         wrapped = wc._cache_response(lambda *args: 'called')
         _FakeDateTime._now = datetime.fromisoformat('3001-01-01')
-        res = wrapped(ac, requests.get, self.query)
+        res = wrapped(self.ac, requests.get, self.query)
         self.assertTrue(res == 'called')
 
     def test_caches_response(self):
         """Test caches query response before returning."""
         # Default expiry time
-        ac.default_expiry = timedelta(minutes=1)
+        self.ac.default_expiry = timedelta(minutes=1)
         wrapped = wc._cache_response(lambda *args: 'called')
         _FakeDateTime._now = datetime(2021, 5, 13)  # Freeze time
-        res = wrapped(ac, requests.get, '/endpoint?id=5')
+        res = wrapped(self.ac, requests.get, '/endpoint?id=5')
         self.assertTrue(res == 'called')
 
         # Check cache file created
@@ -438,26 +439,26 @@ class TestRestCache(unittest.TestCase):
     def test_cache_mode(self):
         """Test for AlyxClient.cache_mode property."""
         # With cache mode off, wrapped method should be called even in presence of valid cache
-        ac.cache_mode = None  # cache nothing
+        self.ac.cache_mode = None  # cache nothing
         wrapped = wc._cache_response(lambda *args: 'called')
-        res = wrapped(ac, requests.get, self.query)
+        res = wrapped(self.ac, requests.get, self.query)
         self.assertTrue(res == 'called')
 
     def test_expiry_param(self):
         """Test for expires kwarg in one.webclient._cache_response decorator."""
         # Check expiry param
         wrapped = wc._cache_response(lambda *args: '123')
-        res = wrapped(ac, requests.get, '/endpoint?id=5', expires=True)
+        res = wrapped(self.ac, requests.get, '/endpoint?id=5', expires=True)
         self.assertTrue(res == '123')
 
         # A second call should yield a new response as cache immediately expired
         wrapped = wc._cache_response(lambda *args: '456')
-        res = wrapped(ac, requests.get, '/endpoint?id=5', expires=False)
+        res = wrapped(self.ac, requests.get, '/endpoint?id=5', expires=False)
         self.assertTrue(res == '456')
 
         # With clobber=True the cache should be overwritten
         wrapped = wc._cache_response(lambda *args: '789')
-        res = wrapped(ac, requests.get, '/endpoint?id=5', clobber=True)
+        res = wrapped(self.ac, requests.get, '/endpoint?id=5', clobber=True)
         self.assertTrue(res == '789')
 
     def test_cache_returned_on_error(self):
@@ -466,38 +467,130 @@ class TestRestCache(unittest.TestCase):
         wrapped = wc._cache_response(func)
         _FakeDateTime._now = datetime.fromisoformat('3001-01-01')  # Expired
         with self.assertWarns(RuntimeWarning):
-            res = wrapped(ac, requests.get, self.query)
+            res = wrapped(self.ac, requests.get, self.query)
         self.assertEqual(res['id'], self.query.split('/')[-1])
 
         # With clobber=True exception should be raised
         with self.assertRaises(requests.ConnectionError):
-            wrapped(ac, requests.get, self.query, clobber=True)
+            wrapped(self.ac, requests.get, self.query, clobber=True)
 
     def test_decode_error_cache(self):
         """Test behaviour when cached file is corrupted."""
         func = mock.Mock(return_value='called')
         wrapped = wc._cache_response(func)
         # Should not call wrapped function as cache valid
-        res = wrapped(ac, requests.get, self.query)
+        res = wrapped(self.ac, requests.get, self.query)
         self.assertNotEqual('called', res)
         # Corrupt the cache file by adding a character
         filename = 'f530d6022f61cdc9e38cc66beb3cb71f3003c9a1'
         with open(self.cache_dir / filename, 'a') as f:
             f.write('"')  # Incomplete JSON
         with self.assertLogs(logging.getLogger('one.webclient'), logging.DEBUG) as log:
-            res = wrapped(ac, requests.get, self.query)
+            res = wrapped(self.ac, requests.get, self.query)
             self.assertTrue('corrupted cache file' in log.output[1])
             self.assertEqual('called', res)
 
     def test_clear_cache(self):
         """Test for AlyxClient.clear_rest_cache."""
         assert any(self.cache_dir.glob('*'))
-        ac.clear_rest_cache()
+        self.ac.clear_rest_cache()
         self.assertFalse(any(self.cache_dir.glob('*')))
 
-    def tearDown(self) -> None:
-        ac.cache_mode = self.cache_mode
-        ac.default_expiry = self.default_expiry
+
+@unittest.skipIf(OFFLINE_ONLY, 'online only test')
+@mock.patch('one.webclient.sleep')
+class TestThrottleBackoff(unittest.TestCase):
+    """Test behaviour when AlyxClient receives a 429 Too Many Requests response."""
+
+    def setUp(self):
+        self.ac = wc.AlyxClient(**TEST_DB_1, cache_rest=None)
+        self.ac.max_retry_attempts = 1
+        self.retry_after = 5
+
+    def _get(self, *args, **kwargs):
+        """Mock request.get method that simulates a 429 response with Retry-After header."""
+        rep = requests.Response()
+        rep.status_code = 429
+        if self.retry_after:
+            rep._content = ('Request was throttled. Expected available in '
+                            f'{self.retry_after} seconds.').encode()
+            rep.headers = {'Retry-After': str(self.retry_after)}
+        else:
+            rep._content = b'Request was throttled.'
+            rep.headers = {}
+        return rep
+
+    def test_backoff_with_retry_after(self, sleep_mock):
+        """Test that AlyxClient respects Retry-After header."""
+        self.ac.max_retry_attempts = 1  # expected to wait once then raise
+        # Mock a 429 response with Retry-After header
+        with self.assertRaises(requests.HTTPError) as ex, \
+                self.assertLogs(wc.__name__, 30) as log:
+            self.ac._generic_request(self._get, '/sessions')
+        # Should raise with response message after max retry attempts
+        self.assertIn(ex.exception.response.text, str(ex.exception))
+        # Should log warning about throttling and retrying
+        pattern = \
+            r'Rate limited for query: /sessions. Retrying in \d+.\d+ seconds \(attempt 1/1\)\.'
+        self.assertRegex(log.records[0].message, pattern)
+        # Should wait once before retrying
+        sleep_mock.assert_called_once()
+        # Retry wait time should be at least as long as response header value
+        # For first attempt the extra jitter should be 1 second more
+        wait_time, = sleep_mock.call_args.args
+        self.assertTrue(
+            self.retry_after + 1 > wait_time >= self.retry_after,
+            f'wait time = {wait_time}, retry_after = {self.retry_after}'
+        )
+
+    def test_backoff_without_retry_after(self, sleep_mock):
+        """Test that AlyxClient uses exponential backoff when Retry-After header is missing."""
+        self.ac.max_retry_attempts = 10
+        self.retry_after = None  # Mock a 429 response without Retry-After header
+        with self.assertRaises(requests.HTTPError) as ex:
+            self.ac._generic_request(self._get, '/sessions')
+        self.assertIn(ex.exception.response.text, str(ex.exception))
+        self.assertEqual(self.ac.max_retry_attempts, sleep_mock.call_count)
+        self.assertEqual(
+            0, self.ac._attempt_counter, 'failed to reset attempt counter after max retries')
+        wait_times = [x.args[0] for x in sleep_mock.call_args_list]
+        # Wait times should generally increase but should never be greater than 60s
+        self.assertTrue(max(wait_times) <= 60, f'wait times > 60s, t = {wait_times}')
+
+    def test_maximum_thresholds(self, sleep_mock):
+        """Test that AlyxClient raises an error after maximum retry attempts."""
+        self.ac.max_retry_attempts = 0  # Should not retry, should raise immediately
+        with self.assertRaises(requests.HTTPError) as ex:
+            self.ac._generic_request(self._get, '/sessions')
+        self.assertIn(ex.exception.response.text, str(ex.exception))
+        sleep_mock.assert_not_called()
+        # When the retry delay is excessively long, should raise immediately without retrying
+        self.ac.max_retry_attempts = 10
+        self.retry_after = 60 * 60 * 24  # Mock a 429 response with long Retry-After header
+        with self.assertRaises(requests.HTTPError) as ex:
+            self.ac._generic_request(self._get, '/sessions')
+        self.assertIn(ex.exception.response.text, str(ex.exception))
+        sleep_mock.assert_not_called()
+
+    def test_retry_after_date(self, sleep_mock):
+        """Test that AlyxClient correctly parses Retry-After header when it is a date."""
+        self.ac.max_retry_attempts = 1
+        rep = requests.Response()
+        rep.status_code = 503  # Service Unavailable, can also include Retry-After header
+        rep._content = b'Service Unavailable.'
+        retry_after_date = datetime.now(tz=timezone.utc) + timedelta(seconds=self.retry_after)
+        rep.headers = {'Retry-After': retry_after_date.strftime('%a, %d %b %Y %H:%M:%S GMT')}
+        with self.assertRaises(requests.HTTPError) as ex:
+            self.ac._generic_request(lambda *args, **kwargs: rep, '/sessions')
+        self.assertIn(rep.text, str(ex.exception))
+        sleep_mock.assert_called_once()
+        # Retry wait time should be at least as long as response header value
+        # For first attempt the extra jitter should be 1 second more
+        wait_time, = sleep_mock.call_args.args
+        self.assertTrue(self.retry_after + 1 > wait_time, f'{wait_time} > {self.retry_after} + 1')
+        # Wait time may be slightly smaller than expected due to small timing
+        # differences parsing header, so we allow it to be up to 1 second less
+        self.assertTrue(wait_time >= self.retry_after - 1, f'{wait_time} < {self.retry_after}')
 
 
 class _FakeDateTime(datetime):
@@ -511,7 +604,12 @@ class _FakeDateTime(datetime):
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
 class TestDownloadHTTP(unittest.TestCase):
     def setUp(self):
-        self.ac = ac
+        # Init connection to the database
+        self.ac = wc.AlyxClient(**TEST_DB_1)
+        # Remove /public from data server url
+        if 'public' in self.ac._par.HTTP_DATA_SERVER:
+            self.ac._par = self.ac._par.set(
+                'HTTP_DATA_SERVER', self.ac._par.HTTP_DATA_SERVER.rsplit('/', 1)[0])
         self.test_data_uuid = '40af4a49-1b9d-45ec-b443-a151c010ea3c'  # OpenAlyx dataset
 
     def test_download_datasets_with_api(self):
@@ -536,13 +634,13 @@ class TestDownloadHTTP(unittest.TestCase):
         os.unlink(file_name)
 
         # Test 3: Log unauthorized error with url (using test alyx)
-        url = next(x['data_url'] for x in ac.get('/datasets?exists=True')[0]['file_records'])
-        old_par = ac._par
-        ac._par = ac._par.set('HTTP_DATA_SERVER_PWD', 'foobar')
+        url = next(x['data_url'] for x in self.ac.get('/datasets?exists=True')[0]['file_records'])
+        old_par = self.ac._par
+        self.ac._par = self.ac._par.set('HTTP_DATA_SERVER_PWD', 'foobar')
         with self.assertLogs(logging.getLogger('one.webclient'), logging.ERROR) as log:
             raised = False
             try:
-                ac.download_file(url, target_dir=cache_dir)
+                self.ac.download_file(url, target_dir=cache_dir)
                 self.assertTrue(url in log.output[-1])
             except Exception as ex:
                 # Check error message mentions the HTTP_DATA_SERVER params
@@ -550,7 +648,7 @@ class TestDownloadHTTP(unittest.TestCase):
                 raised = True
             finally:
                 self.assertTrue(raised)
-                ac._par = old_par
+                self.ac._par = old_par
 
     def test_download_datasets(self):
         # test downloading a single file
@@ -585,7 +683,7 @@ class TestDownloadHTTP(unittest.TestCase):
     def test_download_cache_tables_auth(self, download_file_mock, zipfile_mock):
         """Test for AlyxClient.download_cache_tables with authentication.
 
-        NB: This test simply checks that alex is authenticated automatically before
+        NB: This test simply checks that alyx is authenticated automatically before
         downloading the tables.
         """
         try:
@@ -641,6 +739,11 @@ class TestDownloadHTTP(unittest.TestCase):
 
 
 class TestMisc(unittest.TestCase):
+
+    def setUp(self):
+        # Init connection to the database
+        self.ac = wc.AlyxClient(**TEST_DB_1)
+
     def test_update_url_params(self):
         """Test for one.webclient.update_url_params."""
         url = wc.update_url_params('website.com/?q=', {'pg': 5})
@@ -664,35 +767,35 @@ class TestMisc(unittest.TestCase):
         """Test for AlyxClient._validate_file_url."""
         # Should assert that domain matches data server parameter
         with self.assertRaises(AssertionError):
-            ac._validate_file_url('https://webserver.net/path/to/file')
+            self.ac._validate_file_url('https://webserver.net/path/to/file')
         # Should check that the domain is equal and return same URL
-        expected = ac._par.HTTP_DATA_SERVER + '/path/to/file.ext'
-        self.assertEqual(ac._validate_file_url(expected), expected)
+        expected = self.ac._par.HTTP_DATA_SERVER + '/path/to/file.ext'
+        self.assertEqual(self.ac._validate_file_url(expected), expected)
         # Should prepend data server URL
-        self.assertEqual(ac._validate_file_url('/path/to/file.ext'), expected)
+        self.assertEqual(self.ac._validate_file_url('/path/to/file.ext'), expected)
 
     def test_no_cache_context_manager(self):
         """Test for one.webclient.no_cache function."""
-        assert ac.cache_mode is not None
-        with wc.no_cache(ac):
-            self.assertIsNone(ac.cache_mode)
-        self.assertIsNotNone(ac.cache_mode)
+        assert self.ac.cache_mode is not None
+        with wc.no_cache(self.ac):
+            self.assertIsNone(self.ac.cache_mode)
+        self.assertIsNotNone(self.ac.cache_mode)
 
     def test_cache_dir_setter(self):
         """Tests setter for AlyxClient.cache_dir attribute."""
-        prev_path = ac.cache_dir
+        prev_path = self.ac.cache_dir
         try:
-            ac.cache_dir = prev_path / 'foobar'
-            self.assertEqual(ac.cache_dir, ac._par.CACHE_DIR)
-            self.assertTrue(str(ac.cache_dir).endswith('foobar'))
+            self.ac.cache_dir = prev_path / 'foobar'
+            self.assertEqual(self.ac.cache_dir, self.ac._par.CACHE_DIR)
+            self.assertTrue(str(self.ac.cache_dir).endswith('foobar'))
         finally:
-            ac._par = ac._par.set('CACHE_DIR', prev_path)
+            self.ac._par = self.ac._par.set('CACHE_DIR', prev_path)
 
     def test_paginated_response(self):
         """Test the _PaginatedResponse class."""
-        alyx = mock.Mock(spec_set=ac)
+        alyx = mock.Mock(spec_set=self.ac)
         N, lim = 2000, 250  # 2000 results, 250 records per page
-        url = ac.base_url + f'/?foo=bar&offset={lim}&limit={lim}'
+        url = self.ac.base_url + f'/?foo=bar&offset={lim}&limit={lim}'
         res = {'count': N, 'next': url, 'previous': None, 'results': []}
         res['results'] = [{'id': i} for i in range(lim)]
         alyx._generic_request.return_value = res
@@ -780,7 +883,7 @@ class TestMisc(unittest.TestCase):
     def _check_get_query(self, call_args, limit, offset):
         """Check URL get query contains the expected limit and offset params."""
         (_, url), _ = call_args
-        self.assertTrue(url.startswith(ac.base_url))
+        self.assertTrue(url.startswith(self.ac.base_url))
         query = urllib.parse.parse_qs(urllib.parse.urlparse(url).query)
         expected = {'foo': ['bar'], 'offset': [str(offset)], 'limit': [str(limit)]}
         self.assertDictEqual(query, expected)
