@@ -218,6 +218,9 @@ class TestConverters(unittest.TestCase):
             {'subject': 'CSHL046', 'date': datetime.date(2020, 6, 20), 'sequence': 2}
         ]
         self.assertCountEqual(expected, refs)
+        refs = self.one.path2ref([path_str, path_str2], as_dict=False)
+        expected = ['2018-07-13_001_flowers', '2020-06-20_002_CSHL046']
+        self.assertCountEqual(expected, refs)
         # Check support of non-zero-padded sequences
         ref = self.one.path2ref(path_str.with_name('1'), as_dict=False)
         self.assertEqual('2018-07-13_1_flowers', ref)

@@ -12,7 +12,8 @@ This version adds support for globus_sdk v4.4.0 and pandas v3.0, and gracefully 
 
 ### Fixed
 
-- registration.get_dataset_type now casts dtypes input to Bunch
+- registration.get_dataset_type now casts dtypes input to 
+- as_dict=False no longer ignored for list inputs to ConversionMixin.path2ref
 
 ## [3.4.2]
 This version fixes the saving and loading of insertions parquet tables for offline processing.
