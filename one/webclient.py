@@ -44,6 +44,7 @@ from urllib.error import HTTPError
 import urllib.parse
 from collections.abc import Mapping
 from typing import Optional, List
+from inspect import unwrap
 from datetime import datetime, timedelta
 from pathlib import Path
 from weakref import ReferenceType
@@ -53,6 +54,9 @@ import zipfile
 import tempfile
 from getpass import getpass
 from contextlib import contextmanager
+from random import uniform
+from time import sleep
+from email.utils import parsedate_to_datetime
 
 import requests
 from tqdm import tqdm
@@ -863,6 +867,10 @@ class AlyxClient:
     """str: The Alyx username."""
     base_url = None
     """str: The Alyx database URL."""
+    max_retry_attempts = 8
+    """int: The maximum number of retry attempts for REST requests in case of throttling."""
+    max_retry_wait_seconds = 300.  # 5 minutes
+    """float: The maximum number of seconds to wait between retry attempts for REST requests."""
 
     def __init__(
         self,
@@ -914,7 +922,8 @@ class AlyxClient:
         self.rest_cache_dir = self.cache_dir.joinpath('.rest')
         self.cache_mode = cache_rest
         self._obj_id = id(self)
-
+        # Used to track number of attempts for a given request, for retry logic in _generic_request
+        self._attempt_counter = 0
 
     @property
     def cache_dir(self):
@@ -980,29 +989,62 @@ class AlyxClient:
         r = reqfunction(
             self.base_url + rest_query, stream=True, headers=headers, data=data, files=files
         )
-        if r and r.status_code in (200, 201):
-            return json.loads(r.text)
-        elif r and r.status_code == 204:
-            return
+        if r and r.status_code in (200, 201, 204):
+            self._attempt_counter = 0  # reset attempt counter on successful request
+            return None if r.status_code == 204 else json.loads(r.text)
         if r.status_code == 403 and '"Invalid token."' in r.text:
-            _logger.debug('Token invalid; Attempting to re-authenticate...')
+            _logger.info('Token invalid; Attempting to re-authenticate...')
             # Log out in order to flush stale token.  At this point we no longer have the password
             # but if the user re-instantiates with a password arg it will request a new token.
             username = self.user
             if self.silent:  # no need to log out otherwise; user will be prompted for password
                 self.logout()
             self.authenticate(username=username, force=True)
-            return self._generic_request(reqfunction, rest_query, data=data, files=files)
-        else:
-            _logger.debug('Response text raw: ' + r.text)
-            try:
-                message = json.loads(r.text)
-                message.pop('status_code', None)  # Get status code from response object instead
-                message = message.get('detail') or message  # Get details if available
-                _logger.debug(message)
-            except json.decoder.JSONDecodeError:  #nocov
-                message = r.text
-            raise requests.HTTPError(r.status_code, rest_query, message, response=r)
+            return unwrap(self._generic_request)(
+                self, reqfunction, rest_query, data=data, files=files)
+        if r.status_code in (429, 503) and self._attempt_counter < self.max_retry_attempts:
+            # 429 - Too Many Requests
+            # 503 - Service Unavailable
+            MAX_JITTER_SECONDS = 60.0
+            retry_after_seconds = 0.0
+            if retry_after := r.headers.get('Retry-After'):
+                # Usually Retry-After is an integer number of seconds
+                # but theoretically may be an HTTP date
+                try:
+                    retry_after_seconds = max(0.0, float(retry_after))
+                except ValueError:
+                    dt = parsedate_to_datetime(retry_after)
+                    retry_after_seconds = max(
+                        0.0, (dt - datetime.now(dt.tzinfo)).total_seconds())
+            # Add jitter to avoid synchronized retries across clients
+            # Jitter window grows exponentially with each retry attempt, up to a maximum
+            jitter_window = min(MAX_JITTER_SECONDS, 2 ** self._attempt_counter)
+            delay_seconds = retry_after_seconds + uniform(0, jitter_window)
+            # If server returns an excessive retry-after, simply raise an error instead of waiting
+            if delay_seconds < self.max_retry_wait_seconds:
+                _msg = 'Rate limited' if r.status_code == 429 else 'Service unavailable'
+                n_attempts = self._attempt_counter + 1
+                _logger.warning(
+                    '%s for query: %s. Retrying in %.2f seconds (attempt %d/%d).',
+                    _msg, rest_query, delay_seconds, n_attempts, self.max_retry_attempts
+                )
+                sleep(delay_seconds)
+                self._attempt_counter += 1
+                return unwrap(self._generic_request)(
+                    self, reqfunction, rest_query, data=data, files=files)
+
+        # If we exhausted our retries, or if the error is not a 403 or 429,
+        # raise an HTTPError with details from the response
+        self._attempt_counter = 0  # reset attempt counter after exhausting retries
+        _logger.debug('Response text raw: ' + r.text)
+        try:
+            message = json.loads(r.text)
+            message.pop('status_code', None)  # Get status code from response object instead
+            message = message.get('detail') or message  # Get details if available
+            _logger.debug(message)
+        except json.decoder.JSONDecodeError:
+            message = r.text
+        raise requests.HTTPError(r.status_code, rest_query, message, response=r)
 
     def authenticate(self, username=None, password=None, cache_token=True, force=False):
         """Fetch token from the Alyx REST API for authenticating request headers.

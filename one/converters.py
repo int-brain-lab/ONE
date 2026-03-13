@@ -80,7 +80,7 @@ def parse_values(func):
 
     @functools.wraps(func)
     def wrapper_decorator(*args, **kwargs):
-        parse = kwargs.pop('parse', True)
+        parse = kwargs.get('as_dict', True) and kwargs.pop('parse', True)
         ref = func(*args, **kwargs)
         if not parse or isinstance(ref, str):
             return ref
@@ -516,7 +516,7 @@ class ConversionMixin:
 
         """
         if isinstance(path_str, (list, tuple)):
-            return [unwrap(ConversionMixin.path2ref)(x) for x in path_str]
+            return [unwrap(ConversionMixin.path2ref)(x, as_dict=as_dict) for x in path_str]
         pattern = r'(?P<subject>[\w-]+)([\\/])(?P<date>\d{4}-\d{2}-\d{2})(\2)(?P<sequence>\d{1,3})'
         match = re.search(pattern, str(path_str))
         if match and not re.match(r'^0\d$', match.groups()[-1]):  # e.g. '02' not valid

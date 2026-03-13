@@ -201,7 +201,8 @@ class TestGlobus(unittest.TestCase):
         with mock.patch('builtins.input', return_value=auth_code), \
                 mock.patch('one.remote.globus.globus_sdk.NativeAppAuthClient') as client:
             token = globus.get_token(str(ENDPOINT_ID), refresh_tokens=False)
-            client().oauth2_start_flow.assert_called_with(refresh_tokens=False)
+            client().oauth2_start_flow.assert_called_with(
+                requested_scopes=globus.GLOBUS_TRANSFER_SCOPE, refresh_tokens=False)
             client().oauth2_exchange_code_for_tokens.assert_called_with('a1b2c3d4e5f6g7h8')
             self.assertIsInstance(token, dict)
             expected = ('refresh_token', 'access_token', 'expires_at_seconds')
@@ -211,7 +212,8 @@ class TestGlobus(unittest.TestCase):
         with mock.patch('builtins.input', return_value=auth_code), \
                 mock.patch('one.remote.globus.globus_sdk.NativeAppAuthClient') as client:
             token = globus.get_token(str(ENDPOINT_ID), refresh_tokens=True)
-            client().oauth2_start_flow.assert_called_with(refresh_tokens=True)
+            client().oauth2_start_flow.assert_called_with(
+                requested_scopes=globus.GLOBUS_TRANSFER_SCOPE, refresh_tokens=True)
 
         # Test cancel
         with mock.patch('builtins.input', return_value='c '), \
@@ -457,8 +459,7 @@ class TestGlobusClient(_GlobusClientTest):
         out = self.globus.transfer_data('path/to/file', 'repo_00', 'repo_01', foo='bar')
 
         # SDK should be called with endpoint IDs and optional kwargs
-        sdk_mock.TransferData.assert_called_once_with(
-            self.globus.client, foo='bar', source_endpoint=src_id, destination_endpoint=dst_id)
+        sdk_mock.TransferData.assert_called_once_with(src_id, dst_id, foo='bar')
         sdk_mock.TransferData().add_item.assert_called_once_with(
             '/mnt/h0/Data/path/to/file', '/mnt/s0/path/to/file', recursive=False)
         self.globus.client.submit_transfer.assert_called_once()

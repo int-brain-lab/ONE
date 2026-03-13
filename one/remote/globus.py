@@ -119,6 +119,8 @@ STATUS_MAP = {
     'INACTIVE': 'PAUSED_BY_ADMIN'}
 """dict: A map of Globus status to "nice" status"""
 
+GLOBUS_TRANSFER_SCOPE = 'urn:globus:auth:scope:transfer.api.globus.org:all'
+"""str: The scope requested when starting a Native App OAuth flow for transfers."""
 
 def ensure_logged_in(func):
     """Decorator for the Globus methods.
@@ -236,7 +238,8 @@ def get_token(client_id, refresh_tokens=True):
 
     """
     client = globus_sdk.NativeAppAuthClient(client_id)
-    client.oauth2_start_flow(refresh_tokens=bool(refresh_tokens))
+    client.oauth2_start_flow(
+        requested_scopes=GLOBUS_TRANSFER_SCOPE, refresh_tokens=bool(refresh_tokens))
     authorize_url = client.oauth2_get_authorize_url()
     fields = ('refresh_token', 'access_token', 'expires_at_seconds')
     print('To get a new token, go to this URL and login: {0}'.format(authorize_url))
@@ -545,7 +548,8 @@ class Globus(DownloadClient):
         """Authenticate and instantiate Globus SDK client."""
         if self._pars.as_dict().get('refresh_token') and stay_logged_in is not False:
             client = globus_sdk.NativeAppAuthClient(self._pars.GLOBUS_CLIENT_ID)
-            client.oauth2_start_flow(refresh_tokens=True)
+            client.oauth2_start_flow(
+                requested_scopes=GLOBUS_TRANSFER_SCOPE, refresh_tokens=True)
             authorizer = globus_sdk.RefreshTokenAuthorizer(
                 self._pars.refresh_token, client, on_refresh=self._save_refresh_token_callback)
         else:
@@ -964,13 +968,14 @@ class Globus(DownloadClient):
         ...    folder, 'source_endpoint', 'destination_endpoint', recursive=True)
 
         """
-        kwargs['source_endpoint'] = (source_endpoint
-                                     if is_uuid(source_endpoint, versions=(1,))
-                                     else self.endpoints.get(source_endpoint)['id'])
-        kwargs['destination_endpoint'] = (destination_endpoint
-                                          if is_uuid(destination_endpoint, versions=(1,))
-                                          else self.endpoints.get(destination_endpoint)['id'])
-        transfer_object = globus_sdk.TransferData(self.client, **kwargs)
+        source_endpoint_id = (source_endpoint
+                              if is_uuid(source_endpoint, versions=(1,))
+                              else self.endpoints.get(source_endpoint)['id'])
+        destination_endpoint_id = (destination_endpoint
+                                   if is_uuid(destination_endpoint, versions=(1,))
+                                   else self.endpoints.get(destination_endpoint)['id'])
+        transfer_object = globus_sdk.TransferData(
+            source_endpoint_id, destination_endpoint_id, **kwargs)
 
         # add any number of items to the submission data
         for path in ensure_list(data_path):
@@ -1122,7 +1127,7 @@ class Globus(DownloadClient):
         source_paths = [str(self._endpoint_path(path, source_root)) for path in source_paths]
         target_paths = [str(self._endpoint_path(path, target_root)) for path in target_paths]
 
-        tdata = globus_sdk.TransferData(self.client, source_endpoint, target_endpoint,
+        tdata = globus_sdk.TransferData(source_endpoint, target_endpoint,
                                         verify_checksum=True, sync_level='checksum',
                                         label='ONE globus', **kwargs)
         for source_path, target_path in zip(source_paths, target_paths):

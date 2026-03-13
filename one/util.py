@@ -10,6 +10,7 @@ from collections.abc import Mapping
 
 import pandas as pd
 import numpy as np
+from pyarrow.lib import ArrowInvalid
 from iblutil.util import ensure_list
 
 import one.alf.exceptions as alferr
@@ -17,6 +18,33 @@ from one.alf.path import rel_path_parts
 from one.alf.spec import QC, FILE_SPEC, regex as alf_regex
 
 logger = logging.getLogger(__name__)
+
+
+def _match_path_pattern(series, pattern):
+    """Match a pandas string series against a regex with pyarrow-compatible fallback.
+
+    In pandas 3.0 the pyarrow engine is often used for string operations, which does not support
+    all regex patterns.  This function catches ArrowInvalid errors and falls back to using the
+    Python regex engine.  Future versions of pandas may implement automatic fallback behaviours.
+
+    Parameters
+    ----------
+    series : pd.Series
+        A pandas Series of strings to match against the pattern.
+    pattern : str or re.Pattern
+        The regex pattern to match.
+
+    Returns
+    -------
+    pd.Series
+        A boolean Series indicating which elements match the pattern.
+    """
+    try:
+        return series.str.match(pattern)
+    except ArrowInvalid:
+        logger.debug('Falling back to Python regex matching for pyarrow-incompatible pattern')
+        compiled = re.compile(pattern)  # ensure compiled
+        return series.map(compiled.match).astype(bool)
 
 
 def parse_id(method):
@@ -301,7 +329,7 @@ def filter_datasets(
 
     # Build regex string
     pattern = alf_regex('^' + spec_str, **regex_args)
-    path_match = all_datasets['rel_path'].str.match(pattern)
+    path_match = _match_path_pattern(all_datasets['rel_path'], pattern)
 
     # Test on QC outcome
     qc = QC.validate(qc)
