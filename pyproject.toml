@@ -29,7 +29,6 @@ dependencies = [
 docs = [
     "sphinx_rtd_theme",
     "nbsphinx",
-    "nbsphinx-link",
     "myst_parser",
     "sphinx>=3.1.2",
     "sphinx-copybutton",
