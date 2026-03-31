@@ -53,7 +53,6 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.githubpages',
               'sphinx_copybutton',
               'nbsphinx',
-              'nbsphinx_link',
               'myst_parser',
               'sphinx.ext.napoleon',
               'sphinx.ext.viewcode']
