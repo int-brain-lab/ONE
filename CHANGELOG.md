@@ -1,6 +1,13 @@
 # Changelog
 
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [3.5.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [3.5.1]
+This version allows DatasetType QuerySet objects to be passed to get_dataset_type.
+
+### Fixed
+
+- registration.get_dataset_type now only casts dicts to Bunch, permitting Django objects to be passed 
+
+## [3.5.0]
 This version adds support for globus_sdk v4.4.0 and pandas v3.0, and gracefully handles Alyx request rate limits.
 
 ### Modified

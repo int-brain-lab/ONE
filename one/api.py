@@ -2021,7 +2021,7 @@ class OneAlyx(One):
         pid : str, UUID
             A probe UUID.
         query_type : str
-            Query mode - options include 'remote', and 'refresh'.
+            Query mode - options include 'remote', and 'local'.
 
         Returns
         -------
@@ -2065,7 +2065,7 @@ class OneAlyx(One):
             Experiment session identifier; may be a UUID, URL, experiment reference string
             details dict or Path.
         query_type : str
-            Query mode - options include 'remote', and 'refresh'.
+            Query mode - options include 'remote', and 'local'.
         details : bool
             Additionally return the complete Alyx records from insertions endpoint.
         kwargs
