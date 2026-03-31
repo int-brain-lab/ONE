@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>one.util &mdash; ONE  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/style.css" />
 
@@ -15,8 +15,8 @@
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
       <script src="../../_static/copybutton.js?v=f281be69"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -117,6 +117,7 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyarrow.lib</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArrowInvalid</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">iblutil.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">ensure_list</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">one.alf.exceptions</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">alferr</span>
@@ -124,6 +125,33 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">one.alf.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">QC</span><span class="p">,</span> <span class="n">FILE_SPEC</span><span class="p">,</span> <span class="n">regex</span> <span class="k">as</span> <span class="n">alf_regex</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_match_path_pattern</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">pattern</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Match a pandas string series against a regex with pyarrow-compatible fallback.</span>
+
+<span class="sd">    In pandas 3.0 the pyarrow engine is often used for string operations, which does not support</span>
+<span class="sd">    all regex patterns.  This function catches ArrowInvalid errors and falls back to using the</span>
+<span class="sd">    Python regex engine.  Future versions of pandas may implement automatic fallback behaviours.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    series : pd.Series</span>
+<span class="sd">        A pandas Series of strings to match against the pattern.</span>
+<span class="sd">    pattern : str or re.Pattern</span>
+<span class="sd">        The regex pattern to match.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.Series</span>
+<span class="sd">        A boolean Series indicating which elements match the pattern.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">series</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">pattern</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">ArrowInvalid</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Falling back to Python regex matching for pyarrow-incompatible pattern&#39;</span><span class="p">)</span>
+        <span class="n">compiled</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">pattern</span><span class="p">)</span>  <span class="c1"># ensure compiled</span>
+        <span class="k">return</span> <span class="n">series</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">compiled</span><span class="o">.</span><span class="n">match</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="parse_id">
@@ -416,7 +444,7 @@
 
     <span class="c1"># Build regex string</span>
     <span class="n">pattern</span> <span class="o">=</span> <span class="n">alf_regex</span><span class="p">(</span><span class="s1">&#39;^&#39;</span> <span class="o">+</span> <span class="n">spec_str</span><span class="p">,</span> <span class="o">**</span><span class="n">regex_args</span><span class="p">)</span>
-    <span class="n">path_match</span> <span class="o">=</span> <span class="n">all_datasets</span><span class="p">[</span><span class="s1">&#39;rel_path&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">pattern</span><span class="p">)</span>
+    <span class="n">path_match</span> <span class="o">=</span> <span class="n">_match_path_pattern</span><span class="p">(</span><span class="n">all_datasets</span><span class="p">[</span><span class="s1">&#39;rel_path&#39;</span><span class="p">],</span> <span class="n">pattern</span><span class="p">)</span>
 
     <span class="c1"># Test on QC outcome</span>
     <span class="n">qc</span> <span class="o">=</span> <span class="n">QC</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">qc</span><span class="p">)</span>

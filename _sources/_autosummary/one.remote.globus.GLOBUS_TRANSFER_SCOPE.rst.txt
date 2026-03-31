@@ -1,0 +1,6 @@
+one.remote.globus.GLOBUS\_TRANSFER\_SCOPE
+=========================================
+
+.. currentmodule:: one.remote.globus
+
+.. autodata:: GLOBUS_TRANSFER_SCOPE

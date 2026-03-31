@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>one.tests.remote.test_globus &mdash; ONE  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/style.css" />
 
@@ -15,8 +15,8 @@
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
       <script src="../../../../_static/copybutton.js?v=f281be69"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -336,7 +336,8 @@
         <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;builtins.input&#39;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="n">auth_code</span><span class="p">),</span> \
                 <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;one.remote.globus.globus_sdk.NativeAppAuthClient&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
             <span class="n">token</span> <span class="o">=</span> <span class="n">globus</span><span class="o">.</span><span class="n">get_token</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">ENDPOINT_ID</span><span class="p">),</span> <span class="n">refresh_tokens</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-            <span class="n">client</span><span class="p">()</span><span class="o">.</span><span class="n">oauth2_start_flow</span><span class="o">.</span><span class="n">assert_called_with</span><span class="p">(</span><span class="n">refresh_tokens</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">client</span><span class="p">()</span><span class="o">.</span><span class="n">oauth2_start_flow</span><span class="o">.</span><span class="n">assert_called_with</span><span class="p">(</span>
+                <span class="n">requested_scopes</span><span class="o">=</span><span class="n">globus</span><span class="o">.</span><span class="n">GLOBUS_TRANSFER_SCOPE</span><span class="p">,</span> <span class="n">refresh_tokens</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
             <span class="n">client</span><span class="p">()</span><span class="o">.</span><span class="n">oauth2_exchange_code_for_tokens</span><span class="o">.</span><span class="n">assert_called_with</span><span class="p">(</span><span class="s1">&#39;a1b2c3d4e5f6g7h8&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">token</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
             <span class="n">expected</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;refresh_token&#39;</span><span class="p">,</span> <span class="s1">&#39;access_token&#39;</span><span class="p">,</span> <span class="s1">&#39;expires_at_seconds&#39;</span><span class="p">)</span>
@@ -346,7 +347,8 @@
         <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;builtins.input&#39;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="n">auth_code</span><span class="p">),</span> \
                 <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;one.remote.globus.globus_sdk.NativeAppAuthClient&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
             <span class="n">token</span> <span class="o">=</span> <span class="n">globus</span><span class="o">.</span><span class="n">get_token</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">ENDPOINT_ID</span><span class="p">),</span> <span class="n">refresh_tokens</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="n">client</span><span class="p">()</span><span class="o">.</span><span class="n">oauth2_start_flow</span><span class="o">.</span><span class="n">assert_called_with</span><span class="p">(</span><span class="n">refresh_tokens</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">client</span><span class="p">()</span><span class="o">.</span><span class="n">oauth2_start_flow</span><span class="o">.</span><span class="n">assert_called_with</span><span class="p">(</span>
+                <span class="n">requested_scopes</span><span class="o">=</span><span class="n">globus</span><span class="o">.</span><span class="n">GLOBUS_TRANSFER_SCOPE</span><span class="p">,</span> <span class="n">refresh_tokens</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="c1"># Test cancel</span>
         <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;builtins.input&#39;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="s1">&#39;c &#39;</span><span class="p">),</span> \
@@ -631,8 +633,7 @@
         <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">transfer_data</span><span class="p">(</span><span class="s1">&#39;path/to/file&#39;</span><span class="p">,</span> <span class="s1">&#39;repo_00&#39;</span><span class="p">,</span> <span class="s1">&#39;repo_01&#39;</span><span class="p">,</span> <span class="n">foo</span><span class="o">=</span><span class="s1">&#39;bar&#39;</span><span class="p">)</span>
 
         <span class="c1"># SDK should be called with endpoint IDs and optional kwargs</span>
-        <span class="n">sdk_mock</span><span class="o">.</span><span class="n">TransferData</span><span class="o">.</span><span class="n">assert_called_once_with</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">client</span><span class="p">,</span> <span class="n">foo</span><span class="o">=</span><span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="n">source_endpoint</span><span class="o">=</span><span class="n">src_id</span><span class="p">,</span> <span class="n">destination_endpoint</span><span class="o">=</span><span class="n">dst_id</span><span class="p">)</span>
+        <span class="n">sdk_mock</span><span class="o">.</span><span class="n">TransferData</span><span class="o">.</span><span class="n">assert_called_once_with</span><span class="p">(</span><span class="n">src_id</span><span class="p">,</span> <span class="n">dst_id</span><span class="p">,</span> <span class="n">foo</span><span class="o">=</span><span class="s1">&#39;bar&#39;</span><span class="p">)</span>
         <span class="n">sdk_mock</span><span class="o">.</span><span class="n">TransferData</span><span class="p">()</span><span class="o">.</span><span class="n">add_item</span><span class="o">.</span><span class="n">assert_called_once_with</span><span class="p">(</span>
             <span class="s1">&#39;/mnt/h0/Data/path/to/file&#39;</span><span class="p">,</span> <span class="s1">&#39;/mnt/s0/path/to/file&#39;</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">globus</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">submit_transfer</span><span class="o">.</span><span class="n">assert_called_once</span><span class="p">()</span>

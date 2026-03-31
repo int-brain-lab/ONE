@@ -13,6 +13,7 @@ one.remote.globus
       CLIENT_KEY
       DEFAULT_PAR
       STATUS_MAP
+      GLOBUS_TRANSFER_SCOPE
    
    
 

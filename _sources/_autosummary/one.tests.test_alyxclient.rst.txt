@@ -24,6 +24,7 @@ one.tests.test\_alyxclient
       TestMisc
       TestRestCache
       TestRestDocumentation
+      TestThrottleBackoff
    
    
 

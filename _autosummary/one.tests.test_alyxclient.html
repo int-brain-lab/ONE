@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>one.tests.test_alyxclient &mdash; ONE  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../_static/css/style.css" />
 
@@ -16,8 +16,8 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
       <script src="../_static/copybutton.js?v=f281be69"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -159,11 +159,14 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#one.tests.test_alyxclient.TestRestDocumentation" title="one.tests.test_alyxclient.TestRestDocumentation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestRestDocumentation</span></code></a></p></td>
 <td><p>Tests for AlyxClient REST API schema parsing and printing.</p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.tests.test_alyxclient.TestThrottleBackoff" title="one.tests.test_alyxclient.TestThrottleBackoff"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestThrottleBackoff</span></code></a></p></td>
+<td><p>Test behaviour when AlyxClient receives a 429 Too Many Requests response.</p></td>
+</tr>
 </tbody>
 </table>
 <dl class="py class">
 <dt class="sig sig-object py" id="one.tests.test_alyxclient.TestRestDocumentation">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestRestDocumentation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestRestDocumentation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestRestDocumentation" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">TestRestDocumentation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestRestDocumentation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestRestDocumentation" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
 <p>Tests for AlyxClient REST API schema parsing and printing.</p>
 <dl class="py method">
@@ -200,7 +203,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="one.tests.test_alyxclient.TestAuthentication">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestAuthentication</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestAuthentication"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestAuthentication" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">TestAuthentication</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestAuthentication"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestAuthentication" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
 <p>Tests for AlyxClient authentication, token storage, login/out methods and user prompts.</p>
 <dl class="py method">
@@ -231,7 +234,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="one.tests.test_alyxclient.TestJsonFieldMethods">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestJsonFieldMethods</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestJsonFieldMethods"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestJsonFieldMethods" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">TestJsonFieldMethods</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestJsonFieldMethods"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestJsonFieldMethods" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
 <p>Tests for AlyxClient methods that modify the JSON field of a REST endpoint.</p>
 <p>These tests are over-engineered in order to test Alyx Django queries with JSON fields.
@@ -270,7 +273,7 @@ Django queries are also tested in TestRemote.test_search.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="one.tests.test_alyxclient.TestRestCache">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestRestCache</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestRestCache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestRestCache" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">TestRestCache</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestRestCache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestRestCache" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
 <p>Tests for REST caching system, the cache decorator and cache flags.</p>
 <dl class="py method">
@@ -327,17 +330,48 @@ Django queries are also tested in TestRemote.test_search.</p>
 <dd><p>Test for AlyxClient.clear_rest_cache.</p>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="one.tests.test_alyxclient.TestThrottleBackoff">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">TestThrottleBackoff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestThrottleBackoff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestThrottleBackoff" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
+<p>Test behaviour when AlyxClient receives a 429 Too Many Requests response.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="one.tests.test_alyxclient.TestRestCache.tearDown">
-<span class="sig-name descname"><span class="pre">tearDown</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestRestCache.tearDown"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestRestCache.tearDown" title="Link to this definition"></a></dt>
-<dd><p>Hook method for deconstructing the test fixture after testing it.</p>
+<dt class="sig sig-object py" id="one.tests.test_alyxclient.TestThrottleBackoff.setUp">
+<span class="sig-name descname"><span class="pre">setUp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestThrottleBackoff.setUp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestThrottleBackoff.setUp" title="Link to this definition"></a></dt>
+<dd><p>Hook method for setting up the test fixture before exercising it.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_alyxclient.TestThrottleBackoff.test_backoff_with_retry_after">
+<span class="sig-name descname"><span class="pre">test_backoff_with_retry_after</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sleep_mock</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestThrottleBackoff.test_backoff_with_retry_after"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestThrottleBackoff.test_backoff_with_retry_after" title="Link to this definition"></a></dt>
+<dd><p>Test that AlyxClient respects Retry-After header.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_alyxclient.TestThrottleBackoff.test_backoff_without_retry_after">
+<span class="sig-name descname"><span class="pre">test_backoff_without_retry_after</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sleep_mock</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestThrottleBackoff.test_backoff_without_retry_after"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestThrottleBackoff.test_backoff_without_retry_after" title="Link to this definition"></a></dt>
+<dd><p>Test that AlyxClient uses exponential backoff when Retry-After header is missing.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_alyxclient.TestThrottleBackoff.test_maximum_thresholds">
+<span class="sig-name descname"><span class="pre">test_maximum_thresholds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sleep_mock</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestThrottleBackoff.test_maximum_thresholds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestThrottleBackoff.test_maximum_thresholds" title="Link to this definition"></a></dt>
+<dd><p>Test that AlyxClient raises an error after maximum retry attempts.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_alyxclient.TestThrottleBackoff.test_retry_after_date">
+<span class="sig-name descname"><span class="pre">test_retry_after_date</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sleep_mock</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestThrottleBackoff.test_retry_after_date"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestThrottleBackoff.test_retry_after_date" title="Link to this definition"></a></dt>
+<dd><p>Test that AlyxClient correctly parses Retry-After header when it is a date.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="one.tests.test_alyxclient.TestDownloadHTTP">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestDownloadHTTP</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestDownloadHTTP"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestDownloadHTTP" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">TestDownloadHTTP</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestDownloadHTTP"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestDownloadHTTP" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_alyxclient.TestDownloadHTTP.setUp">
@@ -359,16 +393,28 @@ Django queries are also tested in TestRemote.test_search.</p>
 <dt class="sig sig-object py" id="one.tests.test_alyxclient.TestDownloadHTTP.test_download_cache_tables_auth">
 <span class="sig-name descname"><span class="pre">test_download_cache_tables_auth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">download_file_mock</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zipfile_mock</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestDownloadHTTP.test_download_cache_tables_auth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestDownloadHTTP.test_download_cache_tables_auth" title="Link to this definition"></a></dt>
 <dd><p>Test for AlyxClient.download_cache_tables with authentication.</p>
-<p>NB: This test simply checks that alex is authenticated automatically before
+<p>NB: This test simply checks that alyx is authenticated automatically before
 downloading the tables.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_alyxclient.TestDownloadHTTP.test_http_server_auth">
+<span class="sig-name descname"><span class="pre">test_http_server_auth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">open_mock</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">urllib_mock</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestDownloadHTTP.test_http_server_auth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestDownloadHTTP.test_http_server_auth" title="Link to this definition"></a></dt>
+<dd><p>Test for http_download_file authentication and headers.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="one.tests.test_alyxclient.TestMisc">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TestMisc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestMisc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestMisc" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">TestMisc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestMisc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestMisc" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_alyxclient.TestMisc.setUp">
+<span class="sig-name descname"><span class="pre">setUp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestMisc.setUp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestMisc.setUp" title="Link to this definition"></a></dt>
+<dd><p>Hook method for setting up the test fixture before exercising it.</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_alyxclient.TestMisc.test_update_url_params">
 <span class="sig-name descname"><span class="pre">test_update_url_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestMisc.test_update_url_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestMisc.test_update_url_params" title="Link to this definition"></a></dt>

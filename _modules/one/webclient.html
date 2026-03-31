@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>one.webclient &mdash; ONE  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/style.css" />
 
@@ -15,8 +15,8 @@
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
       <script src="../../_static/copybutton.js?v=f281be69"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -151,6 +151,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">urllib.parse</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mapping</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">inspect</span><span class="w"> </span><span class="kn">import</span> <span class="n">unwrap</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">weakref</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReferenceType</span>
@@ -160,6 +161,9 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">getpass</span><span class="w"> </span><span class="kn">import</span> <span class="n">getpass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">contextmanager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">random</span><span class="w"> </span><span class="kn">import</span> <span class="n">uniform</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">time</span><span class="w"> </span><span class="kn">import</span> <span class="n">sleep</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">email.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">parsedate_to_datetime</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
@@ -531,7 +535,7 @@
 <span class="sd">        Directory in which files are downloaded; defaults to user&#39;s Download directory</span>
 <span class="sd">    return_md5 : bool</span>
 <span class="sd">        If True an MD5 hash of the file is additionally returned</span>
-<span class="sd">    headers : list of dicts</span>
+<span class="sd">    headers : dict</span>
 <span class="sd">        Additional headers to add to the request (auth tokens etc.)</span>
 
 <span class="sd">    Returns</span>
@@ -1044,6 +1048,10 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;str: The Alyx username.&quot;&quot;&quot;</span>
     <span class="n">base_url</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;str: The Alyx database URL.&quot;&quot;&quot;</span>
+    <span class="n">max_retry_attempts</span> <span class="o">=</span> <span class="mi">8</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;int: The maximum number of retry attempts for REST requests in case of throttling.&quot;&quot;&quot;</span>
+    <span class="n">max_retry_wait_seconds</span> <span class="o">=</span> <span class="mf">300.</span>  <span class="c1"># 5 minutes</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;float: The maximum number of seconds to wait between retry attempts for REST requests.&quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1095,7 +1103,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">rest_cache_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;.rest&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cache_mode</span> <span class="o">=</span> <span class="n">cache_rest</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_obj_id</span> <span class="o">=</span> <span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-
+        <span class="c1"># Used to track number of attempts for a given request, for retry logic in _generic_request</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_attempt_counter</span> <span class="o">=</span> <span class="mi">0</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">cache_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1167,29 +1176,62 @@
         <span class="n">r</span> <span class="o">=</span> <span class="n">reqfunction</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">base_url</span> <span class="o">+</span> <span class="n">rest_query</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="n">files</span>
         <span class="p">)</span>
-        <span class="k">if</span> <span class="n">r</span> <span class="ow">and</span> <span class="n">r</span><span class="o">.</span><span class="n">status_code</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">201</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">r</span> <span class="ow">and</span> <span class="n">r</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">204</span><span class="p">:</span>
-            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">r</span> <span class="ow">and</span> <span class="n">r</span><span class="o">.</span><span class="n">status_code</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">201</span><span class="p">,</span> <span class="mi">204</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_attempt_counter</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># reset attempt counter on successful request</span>
+            <span class="k">return</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">204</span> <span class="k">else</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">403</span> <span class="ow">and</span> <span class="s1">&#39;&quot;Invalid token.&quot;&#39;</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">:</span>
-            <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Token invalid; Attempting to re-authenticate...&#39;</span><span class="p">)</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Token invalid; Attempting to re-authenticate...&#39;</span><span class="p">)</span>
             <span class="c1"># Log out in order to flush stale token.  At this point we no longer have the password</span>
             <span class="c1"># but if the user re-instantiates with a password arg it will request a new token.</span>
             <span class="n">username</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">user</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">silent</span><span class="p">:</span>  <span class="c1"># no need to log out otherwise; user will be prompted for password</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logout</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generic_request</span><span class="p">(</span><span class="n">reqfunction</span><span class="p">,</span> <span class="n">rest_query</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="n">files</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Response text raw: &#39;</span> <span class="o">+</span> <span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">message</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
-                <span class="n">message</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;status_code&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># Get status code from response object instead</span>
-                <span class="n">message</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;detail&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">message</span>  <span class="c1"># Get details if available</span>
-                <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
-            <span class="k">except</span> <span class="n">json</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">:</span>  <span class="c1">#nocov</span>
-                <span class="n">message</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">text</span>
-            <span class="k">raise</span> <span class="n">requests</span><span class="o">.</span><span class="n">HTTPError</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span> <span class="n">rest_query</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">response</span><span class="o">=</span><span class="n">r</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">unwrap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_generic_request</span><span class="p">)(</span>
+                <span class="bp">self</span><span class="p">,</span> <span class="n">reqfunction</span><span class="p">,</span> <span class="n">rest_query</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="n">files</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">status_code</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">429</span><span class="p">,</span> <span class="mi">503</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attempt_counter</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_retry_attempts</span><span class="p">:</span>
+            <span class="c1"># 429 - Too Many Requests</span>
+            <span class="c1"># 503 - Service Unavailable</span>
+            <span class="n">MAX_JITTER_SECONDS</span> <span class="o">=</span> <span class="mf">60.0</span>
+            <span class="n">retry_after_seconds</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="k">if</span> <span class="n">retry_after</span> <span class="o">:=</span> <span class="n">r</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Retry-After&#39;</span><span class="p">):</span>
+                <span class="c1"># Usually Retry-After is an integer number of seconds</span>
+                <span class="c1"># but theoretically may be an HTTP date</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">retry_after_seconds</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">retry_after</span><span class="p">))</span>
+                <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                    <span class="n">dt</span> <span class="o">=</span> <span class="n">parsedate_to_datetime</span><span class="p">(</span><span class="n">retry_after</span><span class="p">)</span>
+                    <span class="n">retry_after_seconds</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
+                        <span class="mf">0.0</span><span class="p">,</span> <span class="p">(</span><span class="n">dt</span> <span class="o">-</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">dt</span><span class="o">.</span><span class="n">tzinfo</span><span class="p">))</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">())</span>
+            <span class="c1"># Add jitter to avoid synchronized retries across clients</span>
+            <span class="c1"># Jitter window grows exponentially with each retry attempt, up to a maximum</span>
+            <span class="n">jitter_window</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">MAX_JITTER_SECONDS</span><span class="p">,</span> <span class="mi">2</span> <span class="o">**</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attempt_counter</span><span class="p">)</span>
+            <span class="n">delay_seconds</span> <span class="o">=</span> <span class="n">retry_after_seconds</span> <span class="o">+</span> <span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">jitter_window</span><span class="p">)</span>
+            <span class="c1"># If server returns an excessive retry-after, simply raise an error instead of waiting</span>
+            <span class="k">if</span> <span class="n">delay_seconds</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_retry_wait_seconds</span><span class="p">:</span>
+                <span class="n">_msg</span> <span class="o">=</span> <span class="s1">&#39;Rate limited&#39;</span> <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">429</span> <span class="k">else</span> <span class="s1">&#39;Service unavailable&#39;</span>
+                <span class="n">n_attempts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attempt_counter</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> for query: </span><span class="si">%s</span><span class="s1">. Retrying in </span><span class="si">%.2f</span><span class="s1"> seconds (attempt </span><span class="si">%d</span><span class="s1">/</span><span class="si">%d</span><span class="s1">).&#39;</span><span class="p">,</span>
+                    <span class="n">_msg</span><span class="p">,</span> <span class="n">rest_query</span><span class="p">,</span> <span class="n">delay_seconds</span><span class="p">,</span> <span class="n">n_attempts</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_retry_attempts</span>
+                <span class="p">)</span>
+                <span class="n">sleep</span><span class="p">(</span><span class="n">delay_seconds</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_attempt_counter</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">return</span> <span class="n">unwrap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_generic_request</span><span class="p">)(</span>
+                    <span class="bp">self</span><span class="p">,</span> <span class="n">reqfunction</span><span class="p">,</span> <span class="n">rest_query</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="n">files</span><span class="p">)</span>
+
+        <span class="c1"># If we exhausted our retries, or if the error is not a 403 or 429,</span>
+        <span class="c1"># raise an HTTPError with details from the response</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_attempt_counter</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># reset attempt counter after exhausting retries</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Response text raw: &#39;</span> <span class="o">+</span> <span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+            <span class="n">message</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;status_code&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># Get status code from response object instead</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;detail&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">message</span>  <span class="c1"># Get details if available</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">json</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">:</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">text</span>
+        <span class="k">raise</span> <span class="n">requests</span><span class="o">.</span><span class="n">HTTPError</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span> <span class="n">rest_query</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">response</span><span class="o">=</span><span class="n">r</span><span class="p">)</span>
 
 <div class="viewcode-block" id="AlyxClient.authenticate">
 <a class="viewcode-back" href="../../_autosummary/one.webclient.html#one.webclient.AlyxClient.authenticate">[docs]</a>
