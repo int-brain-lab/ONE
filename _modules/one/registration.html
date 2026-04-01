@@ -172,7 +172,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">dataset_types</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">filename</span> <span class="o">=</span> <span class="n">ensure_alf_path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">dt</span> <span class="ow">in</span> <span class="nb">map</span><span class="p">(</span><span class="n">Bunch</span><span class="p">,</span> <span class="n">dtypes</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">dt</span> <span class="ow">in</span> <span class="p">(</span><span class="n">Bunch</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">dtypes</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">dt</span><span class="o">.</span><span class="n">filename_pattern</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
             <span class="c1"># If the filename pattern is null, check whether the filename object.attribute matches</span>
             <span class="c1"># the dataset type name.</span>

@@ -1088,7 +1088,7 @@ Supports asterisks as wildcards.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pid</strong> (<em>str</em><em>, </em><em>UUID</em>) – A probe UUID.</p></li>
-<li><p><strong>query_type</strong> (<em>str</em>) – Query mode - options include ‘remote’, and ‘refresh’.</p></li>
+<li><p><strong>query_type</strong> (<em>str</em>) – Query mode - options include ‘remote’, and ‘local’.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1111,7 +1111,7 @@ Supports asterisks as wildcards.</p></li>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>eid</strong> (<em>str</em><em>, </em><em>UUID</em><em>, </em><em>pathlib.Path</em><em>, </em><em>dict</em>) – Experiment session identifier; may be a UUID, URL, experiment reference string
 details dict or Path.</p></li>
-<li><p><strong>query_type</strong> (<em>str</em>) – Query mode - options include ‘remote’, and ‘refresh’.</p></li>
+<li><p><strong>query_type</strong> (<em>str</em>) – Query mode - options include ‘remote’, and ‘local’.</p></li>
 <li><p><strong>details</strong> (<em>bool</em>) – Additionally return the complete Alyx records from insertions endpoint.</p></li>
 <li><p><strong>kwargs</strong> – Additional parameters to filter insertions Alyx endpoint.</p></li>
 </ul>
