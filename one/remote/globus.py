@@ -29,7 +29,7 @@ The endpoints are stored in the `endpoints` property
 >>> print(globus.endpoints.keys())
 >>> print(globus.endpoints['local'])
 
-.. _see this tutorial: https://globus-sdk-python.readthedocs.io/en/stable/tutorial.html
+.. _see this tutorial: https://globus-sdk-python.readthedocs.io/en/stable/user_guide/getting_started/index.html
 .. _Global Connect: https://www.globus.org/globus-connect-personal
 .. _endpoint: https://app.globus.org/
 
@@ -204,7 +204,14 @@ def _setup(par_id=None, login=True, refresh_tokens=True):
 
     # Check for local path
     message = 'Please enter the local endpoint path'
-    local_path = pars['local_path'] or one.params.get(silent=True).CACHE_DIR
+    if pars['local_path']:
+        local_path = pars['local_path']
+    else:
+        local_path = get_local_endpoint_paths()
+        if local_path:
+            local_path = local_path[0].as_posix()  # Use first path if multiple found
+        else:
+            local_path = one.params.get(silent=True).CACHE_DIR
     message += f' (default: {local_path})'
     pars['local_path'] = input(message + ':').strip() or local_path
 
@@ -288,6 +295,21 @@ def _save_globus_params(pars, client_name):
     save_client_params(globus_pars, CLIENT_KEY)
 
 
+def _get_globus_connect_path():
+    """Get the path to the local Globus Connect configuration directory.
+
+    Returns
+    -------
+    pathlib.Path
+        The path to the local Globus Connect configuration directory.
+
+    """
+    if sys.platform in ('win32', 'cygwin'):
+        return Path(os.environ['LOCALAPPDATA']).joinpath('Globus Connect')
+    else:
+        return Path.home().joinpath('.globusonline', 'lta')
+
+
 def get_local_endpoint_id():
     """Extracts the ID of the local Globus Connect endpoint.
 
@@ -299,12 +321,8 @@ def get_local_endpoint_id():
     """
     msg = ('Cannot find local endpoint ID, check if Globus Connect is set up correctly, '
            '{} exists and contains a UUID.')
-    if sys.platform in ('win32', 'cygwin'):
-        id_path = Path(os.environ['LOCALAPPDATA']).joinpath('Globus Connect')
-    else:
-        id_path = Path.home().joinpath('.globusonline', 'lta')
 
-    id_file = id_path.joinpath('client-id.txt')
+    id_file = _get_globus_connect_path().joinpath('client-id.txt')
     assert id_file.exists(), msg.format(id_file)
     local_id = id_file.read_text().strip()
     assert isinstance(local_id, str), msg.format(id_file)
@@ -327,7 +345,7 @@ def get_local_endpoint_paths():
         print('On windows the local Globus path needs to be entered manually')
         return []
     else:
-        path_file = Path.home().joinpath('.globusonline', 'lta', 'config-paths')
+        path_file = _get_globus_connect_path().joinpath('config-paths')
         if path_file.exists():
             local_paths = map(Path, filter(None, path_file.read_text().strip().split(',')))
             _logger.debug('Found local endpoint paths in Globus Connect settings')
@@ -470,7 +488,8 @@ class Globus(DownloadClient):
             self.login()
 
         # Try adding local endpoint
-        self.endpoints = {'local': {'id': UUID(self._pars.local_endpoint)}}
+        local_id = self._pars.local_endpoint
+        self.endpoints = {'local': {'id': UUID(local_id) if local_id else None}}
         _logger.info('Adding local endpoint.')
         self.endpoints['local']['root_path'] = self._pars.local_path
 

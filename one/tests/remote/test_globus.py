@@ -62,6 +62,16 @@ class TestGlobus(unittest.TestCase):
         }
         self.assertDictEqual(p, expected)
 
+        # Check for local path default with GlobusConnect
+        ans = (gc_id, '', '', 'c')
+        local = Path('mock', 'path')
+        with mock.patch('builtins.input', side_effect=ans), \
+                mock.patch('one.remote.globus.get_local_endpoint_id', return_value=local_id), \
+                mock.patch('one.remote.globus.get_local_endpoint_paths', return_value=[local]):
+            globus._setup('bar', login=False)
+        p = globus.load_client_params('globus.bar').as_dict()
+        self.assertDictEqual(p, expected | {'local_path': local.as_posix()})
+
         # Set up again with globus login
         ans = ('', '', '', '', 'abc')
         d = dict(refresh_token=1, access_token=2, expires_at_seconds=3)
