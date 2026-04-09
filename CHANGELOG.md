@@ -1,6 +1,17 @@
 # Changelog
 
 ## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [3.5.1]
+This version allows Globus to be configured without a local endpoint.
+
+### Fixed
+
+- Globus class gracefully handles None type local endpoint ID
+
+### Modified
+
+- Globus setup defaults to first GlobusConnect path if available
+
+## [3.5.1]
 This version allows DatasetType QuerySet objects to be passed to get_dataset_type.
 
 ### Fixed
