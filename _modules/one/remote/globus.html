@@ -136,7 +136,7 @@
 <span class="sd">&gt;&gt;&gt; print(globus.endpoints.keys())</span>
 <span class="sd">&gt;&gt;&gt; print(globus.endpoints[&#39;local&#39;])</span>
 
-<span class="sd">.. _see this tutorial: https://globus-sdk-python.readthedocs.io/en/stable/tutorial.html</span>
+<span class="sd">.. _see this tutorial: https://globus-sdk-python.readthedocs.io/en/stable/user_guide/getting_started/index.html</span>
 <span class="sd">.. _Global Connect: https://www.globus.org/globus-connect-personal</span>
 <span class="sd">.. _endpoint: https://app.globus.org/</span>
 
@@ -311,7 +311,14 @@
 
     <span class="c1"># Check for local path</span>
     <span class="n">message</span> <span class="o">=</span> <span class="s1">&#39;Please enter the local endpoint path&#39;</span>
-    <span class="n">local_path</span> <span class="o">=</span> <span class="n">pars</span><span class="p">[</span><span class="s1">&#39;local_path&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">one</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">silent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">CACHE_DIR</span>
+    <span class="k">if</span> <span class="n">pars</span><span class="p">[</span><span class="s1">&#39;local_path&#39;</span><span class="p">]:</span>
+        <span class="n">local_path</span> <span class="o">=</span> <span class="n">pars</span><span class="p">[</span><span class="s1">&#39;local_path&#39;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">local_path</span> <span class="o">=</span> <span class="n">get_local_endpoint_paths</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">local_path</span><span class="p">:</span>
+            <span class="n">local_path</span> <span class="o">=</span> <span class="n">local_path</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>  <span class="c1"># Use first path if multiple found</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">local_path</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">silent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">CACHE_DIR</span>
     <span class="n">message</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39; (default: </span><span class="si">{</span><span class="n">local_path</span><span class="si">}</span><span class="s1">)&#39;</span>
     <span class="n">pars</span><span class="p">[</span><span class="s1">&#39;local_path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="n">message</span> <span class="o">+</span> <span class="s1">&#39;:&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="ow">or</span> <span class="n">local_path</span>
 
@@ -395,6 +402,21 @@
     <span class="n">save_client_params</span><span class="p">(</span><span class="n">globus_pars</span><span class="p">,</span> <span class="n">CLIENT_KEY</span><span class="p">)</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_globus_connect_path</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the path to the local Globus Connect configuration directory.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pathlib.Path</span>
+<span class="sd">        The path to the local Globus Connect configuration directory.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;win32&#39;</span><span class="p">,</span> <span class="s1">&#39;cygwin&#39;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;LOCALAPPDATA&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;Globus Connect&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;.globusonline&#39;</span><span class="p">,</span> <span class="s1">&#39;lta&#39;</span><span class="p">)</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">get_local_endpoint_id</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Extracts the ID of the local Globus Connect endpoint.</span>
 
@@ -406,12 +428,8 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Cannot find local endpoint ID, check if Globus Connect is set up correctly, &#39;</span>
            <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> exists and contains a UUID.&#39;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;win32&#39;</span><span class="p">,</span> <span class="s1">&#39;cygwin&#39;</span><span class="p">):</span>
-        <span class="n">id_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;LOCALAPPDATA&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;Globus Connect&#39;</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">id_path</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;.globusonline&#39;</span><span class="p">,</span> <span class="s1">&#39;lta&#39;</span><span class="p">)</span>
 
-    <span class="n">id_file</span> <span class="o">=</span> <span class="n">id_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;client-id.txt&#39;</span><span class="p">)</span>
+    <span class="n">id_file</span> <span class="o">=</span> <span class="n">_get_globus_connect_path</span><span class="p">()</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;client-id.txt&#39;</span><span class="p">)</span>
     <span class="k">assert</span> <span class="n">id_file</span><span class="o">.</span><span class="n">exists</span><span class="p">(),</span> <span class="n">msg</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">id_file</span><span class="p">)</span>
     <span class="n">local_id</span> <span class="o">=</span> <span class="n">id_file</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
     <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">local_id</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="n">msg</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">id_file</span><span class="p">)</span>
@@ -434,7 +452,7 @@
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;On windows the local Globus path needs to be entered manually&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">[]</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">path_file</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;.globusonline&#39;</span><span class="p">,</span> <span class="s1">&#39;lta&#39;</span><span class="p">,</span> <span class="s1">&#39;config-paths&#39;</span><span class="p">)</span>
+        <span class="n">path_file</span> <span class="o">=</span> <span class="n">_get_globus_connect_path</span><span class="p">()</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;config-paths&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">path_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
             <span class="n">local_paths</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="n">Path</span><span class="p">,</span> <span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">path_file</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)))</span>
             <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Found local endpoint paths in Globus Connect settings&#39;</span><span class="p">)</span>
@@ -585,7 +603,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">login</span><span class="p">()</span>
 
         <span class="c1"># Try adding local endpoint</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">endpoints</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;local&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="n">UUID</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pars</span><span class="o">.</span><span class="n">local_endpoint</span><span class="p">)}}</span>
+        <span class="n">local_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pars</span><span class="o">.</span><span class="n">local_endpoint</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">endpoints</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;local&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="n">UUID</span><span class="p">(</span><span class="n">local_id</span><span class="p">)</span> <span class="k">if</span> <span class="n">local_id</span> <span class="k">else</span> <span class="kc">None</span><span class="p">}}</span>
         <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Adding local endpoint.&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">endpoints</span><span class="p">[</span><span class="s1">&#39;local&#39;</span><span class="p">][</span><span class="s1">&#39;root_path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pars</span><span class="o">.</span><span class="n">local_path</span>
 
