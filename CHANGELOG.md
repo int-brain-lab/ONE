@@ -3,6 +3,10 @@
 ## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [3.6.0]
 This version allows users to register files not associated with a single session.
 
+### Modified
+
+- RegistrationClient now allows registration of datasets outside of an ALF session path
+
 ### Fixed
 
 - AlyxClient now handles basic HTTP error strings returned by Alyx
