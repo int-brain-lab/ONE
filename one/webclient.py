@@ -1039,8 +1039,9 @@ class AlyxClient:
         _logger.debug('Response text raw: ' + r.text)
         try:
             message = json.loads(r.text)
-            message.pop('status_code', None)  # Get status code from response object instead
-            message = message.get('detail') or message  # Get details if available
+            if isinstance(message, dict):
+                message.pop('status_code', None)  # Get status code from response object instead
+                message = message.get('detail') or message  # Get details if available
             _logger.debug(message)
         except json.decoder.JSONDecodeError:
             message = r.text
