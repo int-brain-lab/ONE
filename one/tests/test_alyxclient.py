@@ -277,8 +277,9 @@ class TestJsonFieldMethods(unittest.TestCase):
         self.ac = wc.AlyxClient(**TEST_DB_1, cache_rest=None)
 
         # Create new subject and two new sessions
-        name = '0A' + str(random.randint(0, 10000))
+        name = '0A' + uuid.uuid4().hex[:8]
         self.subj = self.ac.rest('subjects', 'create', data={'nickname': name, 'lab': 'cortexlab'})
+        self.addCleanup(self.ac.rest, 'subjects', 'delete', id=self.subj['nickname'])
         sessions = [
             self.ac.rest(
                 'sessions',
@@ -384,9 +385,6 @@ class TestJsonFieldMethods(unittest.TestCase):
         self.assertIsInstance(written, dict)
         # Encoder should have cast uuid to str
         self.assertEqual(str(self.eids[-1]), written.get('uid'))
-
-    def tearDown(self):
-        self.ac.rest('subjects', 'delete', id=self.subj['nickname'])
 
 
 class TestRestCache(unittest.TestCase):

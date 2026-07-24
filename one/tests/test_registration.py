@@ -7,6 +7,7 @@ import string
 import random
 import datetime
 import fnmatch
+import tempfile
 from io import StringIO
 from pathlib import Path
 
@@ -237,11 +238,11 @@ class TestRegistrationClient(unittest.TestCase):
 
         # Test with file list and version is None
         F, V, _, _ = self.client.prepare_files(file_list)
-        self.assertTrue(len(F), 2)
+        self.assertEqual(len(F), 2)
         self.assertListEqual(sorted(list(F.keys())), sorted([session_path, session_path_2]))
         for sess, n in zip([session_path, session_path_2], [2, 1]):
-            self.assertTrue(len(F[sess]), n)
-            self.assertTrue(len(V[sess]), n)
+            self.assertEqual(len(F[sess]), n)
+            self.assertEqual(len(V[sess]), n)
             self.assertIsNone(V[session_path][0])
 
         # Test with specifying version
@@ -322,6 +323,8 @@ class TestRegistrationClient(unittest.TestCase):
         self.assertEqual(r['revision'], rev['name'])
         self.assertTrue(r['default'])
         self.assertEqual('', r['collection'])
+        file_record_paths = {x['relative_path'] for x in r['file_records']}
+        self.assertEqual(file_record_paths, {file.relative_to(self.temp_dir.name).as_posix()})
 
         # Register exact dataset revision again - it should append an 'a'
         # When we re-register the original it should move them into revision with today's date
@@ -442,6 +445,138 @@ class TestRegistrationClient(unittest.TestCase):
         cls.one.alyx.rest('subjects', 'delete', id=cls.subject)
         cls.one.alyx.rest('tags', 'delete', id=cls.tag['name'])
         cls.temp_dir.cleanup()
+
+
+@unittest.skipIf(OFFLINE_ONLY, 'online only test')
+class TestRegistrationClientNonSession(unittest.TestCase):
+    """Tests for RegistrationClient handling non-session files."""
+
+    one = None
+    subject = None
+    tag = None
+    temp_dir = None
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.one = ONE(**TEST_DB_1, cache_rest=False)
+        cls.subject = ''.join(random.choices(string.ascii_letters, k=10))
+        r = cls.one.alyx.rest(
+            'subjects', 'create', data={'lab': 'mainenlab', 'nickname': cls.subject})
+        cls.subject_id = r['id']
+
+    def setUp(self) -> None:
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.client = registration.RegistrationClient(one=self.one)
+        # Create some subject aggregate datasets
+        self.subject_path = Path(self.temp_dir.name).joinpath('Subjects', self.subject)
+        (revision_path := self.subject_path.joinpath('#2026-01-01#')).mkdir(parents=True)
+        self.dataset = '_test_wheel.timestamps.npy'
+        self.file_list = [self.subject_path.joinpath(self.dataset),
+                          revision_path.joinpath(self.dataset)]
+        for f in self.file_list:
+            f.touch()
+
+    def test_register_files(self):
+        """Test for RegistrationClient.register_files with non-session files."""
+        # Create some files for this subject
+        kwargs = dict(
+            repository='aws_aggregates', content_type='subject', object_id=self.subject_id)
+        # Test full registration
+        records = self.client.register_files(self.file_list, **kwargs)
+        self.assertEqual(len(records), 2)
+        self.assertEqual({(r or {}).get('name') for r in records}, {self.dataset})
+        self.assertEqual([r['revision'] for r in records], ['', '2026-01-01'])
+        file_records = [r['file_records'][0] for r in records]
+        expected = [f.relative_to(self.temp_dir.name).as_posix() for f in self.file_list]
+        self.assertEqual([f['relative_path'] for f in file_records], expected)
+        self.assertEqual({r['collection'] for r in records}, {f'Subjects/{self.subject}'})
+        # Test dry
+        records = self.client.register_files(self.file_list, dry=True, **kwargs)
+        self.assertEqual(len(records), 1)
+        expected = [f.relative_to(self.subject_path).as_posix() for f in self.file_list]
+        self.assertEqual(records[0]['filenames'], expected)
+        self.assertEqual(records[0]['path'], f'Subjects/{self.subject}')
+        self.assertEqual(sum(map(bool, records[0]['hashes'])), 2)
+        self.assertEqual(records[0]['name'], kwargs['repository'])
+
+    def test_check_protected_files(self):
+        """Test for RegistrationClient.check_protected_files for non-session files."""
+        # Create a couple of datasets
+        kwargs = dict(content_type='subject', object_id=self.subject_id)
+
+        r_ = {
+            'created_by': self.one.alyx.user,
+            'path': f'Subjects/{self.subject}',
+            'filenames': [x.relative_to(self.subject_path).as_posix() for x in self.file_list],
+            'exists': True,
+            'server_only': True,
+            'default': True,
+            'name': 'aws_aggregates',
+            **kwargs
+        }
+        r = self.one.alyx.post('/register-file', data=r_)
+
+        # Without content_type, should return empty
+        protected = self.client.check_protected_files(self.file_list)
+        self.assertEqual(protected, [])
+
+        # Check if it is protected, it shouldn't be, response 200
+        protected = self.client.check_protected_files(self.file_list, **kwargs)
+        self.assertEqual(protected[0]['status_code'], 200)
+
+        # Protect one of the datasets
+        tag_name = ''.join(random.choices(string.ascii_letters, k=5))
+        self.tag = self.one.alyx.rest('tags', 'create', data={'name': tag_name, 'protected': True})
+        self.one.alyx.rest('datasets', 'partial_update', id=r[0]['id'], data={'tags': [tag_name]})
+
+        # check protected
+        protected = self.client.check_protected_files(self.file_list, **kwargs)
+        self.assertEqual(protected[0]['status_code'], 403)
+        self.assertEqual(protected[0]['error'], 'One or more datasets is protected')
+
+    def test_prepare_files(self):
+        """Test for RegistrationClient.prepare_files.
+
+        The above methods already cover much of the function. Here we check for exclusions.
+        """
+        (no_ext := self.subject_path.joinpath('_ibl_wheel.timestamps.foo')).touch()
+        (no_dset_type := self.subject_path.joinpath('_ibl_foo.bar.npy')).touch()
+        file_list = self.file_list + [no_ext, no_dset_type]
+        with self.assertLogs('one.registration', 10) as ctx:
+            F, V, all_files, single_file = self.client.prepare_files(
+                file_list, content_type='subjects')
+        self.assertEqual(len(ctx), 2)
+        self.assertRegex(ctx.records[0].message, 'No matching extension ".foo"')
+        self.assertRegex(
+            ctx.records[1].message, 'No dataset type found for filename "_ibl_foo.bar.npy"')
+        root = Path(self.temp_dir.name)
+        self.assertEqual(len(F), 1), self.assertEqual(len(V), 1)
+        self.assertIn(root, F), self.assertIn(root, V)
+        expected = [x.relative_to(Path(self.temp_dir.name)) for x in self.file_list]
+        self.assertEqual(next(iter(F.values())), expected)
+        self.assertEqual(next(iter(V.values())), [None, None])
+        self.assertFalse(single_file)
+        self.assertEqual(all_files, file_list)
+        # Check with a different content-type (should skip)
+        with self.assertLogs('one.registration', 10) as ctx:
+            F, V, all_files, single_file = self.client.prepare_files(
+                self.file_list, content_type='tags')
+        self.assertRegex(ctx.output[-1], 'Path does not contain relation "tags"')
+        self.assertEqual(len(F), 0)
+
+    def tearDown(self):
+        self.temp_dir.cleanup()
+        # delete aggregate datasets
+        if self.tag:
+            self.one.alyx.rest('tags', 'delete', id=self.tag['name'])
+        query = 'session__isnull,True,name,' + self.dataset
+        for dset in self.one.alyx.rest('datasets', 'list', django=query, no_cache=True):
+            self.one.alyx.rest('datasets', 'delete', id=dset['url'][-36:])
+
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        cls.one.alyx.rest('subjects', 'delete', id=cls.subject)
 
 
 if __name__ == '__main__':

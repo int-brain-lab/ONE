@@ -1,6 +1,17 @@
 # Changelog
 
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [3.5.2]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [3.6.0]
+This version allows users to register files not associated with a single session.
+
+### Modified
+
+- RegistrationClient now allows registration of datasets outside of an ALF session path
+
+### Fixed
+
+- AlyxClient now handles basic HTTP error strings returned by Alyx
+
+## [3.5.2]
 This version allows Globus to be configured without a local endpoint.
 
 ### Fixed
@@ -16,7 +27,7 @@ This version allows DatasetType QuerySet objects to be passed to get_dataset_typ
 
 ### Fixed
 
-- registration.get_dataset_type now only casts dicts to Bunch, permitting Django objects to be passed 
+- registration.get_dataset_type now only casts dicts to Bunch, permitting Django objects to be passed
 
 ## [3.5.0]
 This version adds support for globus_sdk v4.4.0 and pandas v3.0, and gracefully handles Alyx request rate limits.
@@ -30,7 +41,7 @@ This version adds support for globus_sdk v4.4.0 and pandas v3.0, and gracefully 
 
 ### Fixed
 
-- registration.get_dataset_type now casts dtypes input to 
+- registration.get_dataset_type now casts dtypes input to
 - as_dict=False no longer ignored for list inputs to ConversionMixin.path2ref
 
 ## [3.4.2]
