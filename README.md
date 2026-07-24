@@ -1,6 +1,7 @@
 # Open Neurophysiology Environment
 [![Coverage Status](https://coveralls.io/repos/github/int-brain-lab/ONE/badge.svg?branch=main)](https://coveralls.io/github/int-brain-lab/ONE?branch=main)
 ![CI workflow](https://github.com/int-brain-lab/ONE/actions/workflows/main.yaml/badge.svg?branch=main)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21340989.svg)](https://doi.org/10.5281/zenodo.21340989)
 
 The Open Neurophysiology Environment is a scheme for sharing neurophysiology data in a standardized manner. It is a Python API for searching and loading ONE-standardized data, stored either on a user's local machine or on a remote server.
 
