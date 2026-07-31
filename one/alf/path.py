@@ -984,7 +984,7 @@ class PureALFPath(pathlib.PurePath):  # py3.12 supports direct subclassing
 
         pattern = spec.regex('{subject}/{date}/{number}')
         repl = fr'{subject}/\g<date>/\g<number>'
-        return self.__class__(pattern.sub(repl, self.as_posix()), count=1)
+        return self.__class__(pattern.sub(repl, self.as_posix(), count=1))
 
     def with_date(self, date):
         """Return a new path with the ALF date changed.
@@ -1016,7 +1016,7 @@ class PureALFPath(pathlib.PurePath):  # py3.12 supports direct subclassing
 
         pattern = spec.regex('{subject}/{date}/{number}')
         repl = fr'\g<subject>/{date}/\g<number>'
-        return self.__class__(pattern.sub(repl, self.as_posix()), count=1)
+        return self.__class__(pattern.sub(repl, self.as_posix(), count=1))
 
     def with_sequence(self, number):
         """Return a new path with the ALF number changed.
@@ -1048,7 +1048,7 @@ class PureALFPath(pathlib.PurePath):  # py3.12 supports direct subclassing
 
         pattern = spec.regex('{subject}/{date}/{number}')
         repl = fr'\g<subject>/\g<date>/{number:03d}'
-        return self.__class__(pattern.sub(repl, self.as_posix()), count=1)
+        return self.__class__(pattern.sub(repl, self.as_posix(), count=1))
 
     def with_object(self, obj):
         """Return a new path with the ALF object changed.
@@ -1211,11 +1211,16 @@ class PureALFPath(pathlib.PurePath):  # py3.12 supports direct subclassing
 
         Raises
         ------
+        ValueError
+            The extension is invalid, e.g. empty or containing a period.
         ALFInvalid
             The path is not a valid ALF dataset (e.g. doesn't have a three-part filename, or
             contains invalid characters).
 
         """
+        # NB: Validate here rather than relying on with_suffix, which permits a lone period
+        if not (ext and spec.regex('^{extension}$').match(ext)):
+            raise ValueError(f'Invalid extension: {ext}')
         if not self.is_dataset():
             raise ALFInvalid(str(self))
         return self.with_suffix(f'.{ext}')
@@ -1300,7 +1305,7 @@ class PureALFPath(pathlib.PurePath):  # py3.12 supports direct subclassing
         repl = fr'\g<subject>/\g<date>/\g<number>/{collection}/'
         if match.groupdict()['revision']:
             repl += r'#\g<revision>#/'
-        return self.__class__(pattern.sub(repl, string), count=1)
+        return self.__class__(pattern.sub(repl, string, count=1))
 
     def with_revision(self, revision):
         """Return a new path with the ALF revision part added/changed.

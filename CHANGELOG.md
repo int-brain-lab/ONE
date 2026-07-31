@@ -12,6 +12,10 @@ This version allows users to register files not associated with a single session
 ### Fixed
 
 - AlyxClient now handles basic HTTP error strings returned by Alyx
+- PureALFPath.with_subject, with_date, with_sequence and with_collection no longer raise a
+  TypeError on Python 3.14 due to a misplaced parenthesis passing count=1 to the path constructor
+- PureALFPath.with_extension validates the extension instead of relying on PurePath.with_suffix,
+  which no longer rejects a lone period on Python 3.14
 
 ## [3.5.2]
 This version allows Globus to be configured without a local endpoint.

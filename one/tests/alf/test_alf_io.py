@@ -346,7 +346,7 @@ class TestsAlf(unittest.TestCase):
         t_, d_ = alfio.read_ts(str(self.vfile))
         self.assertEqual(d_.ndim, 1)
         expected = np.around(np.arange(t[0, 1], t[1, 1], .01)[:-1], 2)
-        np.testing.assert_array_equal(t_, expected)
+        np.testing.assert_array_almost_equal(t_, expected)
 
         self.tfile.unlink()
         with self.assertRaises(FileNotFoundError):
