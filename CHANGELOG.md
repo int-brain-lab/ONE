@@ -6,6 +6,8 @@ This version allows users to register files not associated with a single session
 ### Modified
 
 - RegistrationClient now allows registration of datasets outside of an ALF session path
+- add_uuid_string and ALFPath.with_uuid accept a strict flag to raise instead of replacing a different UUID
+- OpenAlyx._download_aws now explicitly removes the UUID from the destination path when keep_uuid is False
 
 ### Fixed
 

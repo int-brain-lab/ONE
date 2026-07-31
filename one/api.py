@@ -2525,6 +2525,8 @@ class OneAlyx(One):
             source_path = alfiles.add_uuid_string(source_path, uuid)
             if keep_uuid is True or (keep_uuid is None and self.uuid_filenames is True):
                 local_path = alfiles.add_uuid_string(local_path, uuid)
+            else:
+                local_path = alfiles.remove_uuid_string(local_path)
             local_path.parent.mkdir(exist_ok=True, parents=True)
             out_files.append(aws.s3_download_file(
                 source_path, local_path, s3=s3, bucket_name=bucket_name, overwrite=update_exists))

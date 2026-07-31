@@ -393,7 +393,7 @@ def get_alf_path(path: Union[str, pathlib.Path]) -> str:
         return path if spec.regex(f'{COLLECTION_SPEC}{FILE_SPEC}').match(path) else parts[-1]
 
 
-def add_uuid_string(file_path, uuid):
+def add_uuid_string(file_path, uuid, strict=False):
     """Add a UUID to the filename of an ALF path.
 
     Adds a UUID to an ALF filename as an extra part, e.g.
@@ -405,6 +405,9 @@ def add_uuid_string(file_path, uuid):
         An ALF path to add the UUID to.
     uuid : str, uuid.UUID
         The UUID to add.
+    strict : bool
+        If true, raise a ValueError if the path already contains a different UUID instead of
+        replacing it. A UUID that matches `uuid` is not an error in either mode.
 
     Returns
     -------
@@ -419,7 +422,8 @@ def add_uuid_string(file_path, uuid):
     Raises
     ------
     ValueError
-        `uuid` must be a valid hyphen-separated hexadecimal UUID.
+        `uuid` must be a valid hyphen-separated hexadecimal UUID, or `strict` is true and the
+        path already contains a different UUID.
 
     See Also
     --------
@@ -440,6 +444,9 @@ def add_uuid_string(file_path, uuid):
         if old_uuid == uuid:
             _logger.warning(f'UUID already found in file name: {file_path.name}: IGNORE')
             return file_path
+        elif strict:
+            raise ValueError(
+                f'UUID {old_uuid} already found in file name: {file_path.name}; expected {uuid}')
         else:
             _logger.debug('Replacing %s with %s in %s', old_uuid, uuid, file_path)
     return file_path.parent.joinpath(f"{'.'.join(name_parts)}.{uuid}{file_path.suffix}")
@@ -460,10 +467,10 @@ def remove_uuid_string(file_path):
 
     Examples
     --------
-    >>> add_uuid_string('/path/to/trials.intervals.a976e418-c8b8-4d24-be47-d05120b18341.npy')
+    >>> remove_uuid_string('/path/to/trials.intervals.a976e418-c8b8-4d24-be47-d05120b18341.npy')
     Path('/path/to/trials.intervals.npy')
 
-    >>> add_uuid_string('/path/to/trials.intervals.npy')
+    >>> remove_uuid_string('/path/to/trials.intervals.npy')
     Path('/path/to/trials.intervals.npy')
 
     See Also
@@ -1383,13 +1390,16 @@ class PureALFPath(pathlib.PurePath):  # py3.12 supports direct subclassing
             # Does not include revision
             return self
 
-    def with_uuid(self, uuid):
+    def with_uuid(self, uuid, strict=False):
         """Return a new path with the ALF UUID part added/changed.
 
         Parameters
         ----------
         uuid : str, uuid.UUID
             The UUID to add.
+        strict : bool
+            If true, raise a ValueError if the path already contains a different UUID instead of
+            replacing it. A UUID that matches `uuid` is not an error in either mode.
 
         Returns
         -------
@@ -1405,14 +1415,15 @@ class PureALFPath(pathlib.PurePath):  # py3.12 supports direct subclassing
         Raises
         ------
         ValueError
-            `uuid` must be a valid hyphen-separated hexadecimal UUID.
+            `uuid` must be a valid hyphen-separated hexadecimal UUID, or `strict` is true and the
+            path already contains a different UUID.
         ALFInvalid
             Path is not a valid ALF file path.
 
         """
         if not self.is_dataset():
             raise ALFInvalid(f'{self} is not a valid ALF dataset file path')
-        return add_uuid_string(self, uuid)
+        return add_uuid_string(self, uuid, strict=strict)
 
     def without_uuid(self):
         """Return a new path with the ALF UUID part removed.
