@@ -323,7 +323,9 @@ def filter_datasets(
             continue
         if wildcards:
             # Convert to regex, remove \\Z which asserts end of string
-            v = (fnmatch.translate(x).replace('\\Z', '').replace('\\z', '') for x in ensure_list(v))
+            v = (
+                fnmatch.translate(x).replace("\\Z", "").replace("\\z", "") for x in ensure_list(v)
+            )
         if not isinstance(v, str):
             regex_args[k] = '|'.join(v)  # logical OR
 
