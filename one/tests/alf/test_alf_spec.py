@@ -222,12 +222,20 @@ class TestALFSpec(unittest.TestCase):
     @unittest.mock.patch('sys.stdout', new_callable=io.StringIO)
     def test_describe(self, sysout):
         """Test for one.alf.spec.describe."""
-        alf_spec.describe('object', width=5)
-        self.assertTrue('Every\nfile \ndescr' in sysout.getvalue())
-        self.assertTrue(' ' + '^' * len('object') + ' ' in sysout.getvalue())
-        self.assertTrue('EXTENSION' not in sysout.getvalue())
+        # Check max line width is respected
+        alf_spec.describe('object', width=9)
+        lines = sysout.getvalue().splitlines()
+        # NB: First two lines (spec string) are not wrapped
+        self.assertTrue(all(len(ln) <= 9 for ln in lines[2:]))
+        self.assertIn('Every', lines)
+        # Underline should be present to highlight relevant part of spec
+        self.assertIn(' ' + '^' * len('object') + ' ', sysout.getvalue())
+        # Assert unrelated parts aren't in the output: only OBJECT
+        self.assertNotIn('EXTENSION', sysout.getvalue())
+        # Check all parts described when no args passed
         alf_spec.describe()
         self.assertTrue(x.upper() in sysout.getvalue() for x in alf_spec.SPEC_DESCRIPTION.keys())
+        # Pass invalid ALF part
         with self.assertRaises(ValueError):
             alf_spec.describe('dimensions', width=5)
 
