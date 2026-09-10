@@ -10,7 +10,7 @@ Please [Click here](https://int-brain-lab.github.io/ONE/) for the main documenta
 **NB**: The API and backend database are still under active development, for the best experience please regularly update the package by running `pip install -U ONE-api`.
 
 ## Requirements
-ONE runs on Python 3.10 or later, and is tested on the latest Ubuntu and Windows (3.10 and 3.12 only).
+ONE runs on Python 3.10 or later, and is tested on the latest Ubuntu and Windows (3.10 and 3.14 only).
 
 ## Installing
 Installing the package via pip typically takes a few seconds.  To install, run
