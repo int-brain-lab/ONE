@@ -267,7 +267,7 @@ class One(ConversionMixin):
             name = 'dataset_uuid'
             ids = self._cache['_loaded_datasets']
 
-        timestamp = datetime.now().strftime("%Y-%m-%dT%H-%M-%S%z")
+        timestamp = datetime.now().strftime('%Y-%m-%dT%H-%M-%S%z')
         filename = Path(self._tables_dir or self.cache_dir) / f'{timestamp}_loaded_{name}s.csv'
         pd.DataFrame(ids, columns=[name]).to_csv(filename, index=False)
         if clear_list:
@@ -3024,7 +3024,8 @@ class OneAlyx(One):
             return out
 
         if (query_type or self.mode) == 'local':
-            return super().get_details(eid, full=full)
+            unwrapped = unwrap(super().get_details)
+            return unwrapped(self, eid, full=full)
         # If eid is a list of eIDs recurse through list and return the results
         eids = ensure_list(eid)
         details = dict.fromkeys(map(str, eids), None)  # create map to skip duplicates
