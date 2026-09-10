@@ -11,9 +11,9 @@ Commit messages should reference a specific issue wherever possible.
 
 ### Linting and formatting
 
-We use [ruff](https://docs.astral.sh/ruff/) to lint and format this repository. The ruff settings are defined in [pyproject.toml](./pyproject.toml).
+We use [ruff](https://docs.astral.sh/ruff/) to lint only. The ruff lint settings are defined in [pyproject.toml](./pyproject.toml).
 You can check for linting errors by running `ruff check .`. This should be run within the ONE root directory for the pyproject configuration to be used.
-The linter also checks for docstring formatting.
+The linter also checks for docstring formatting. Do not use ruff to format this repository.
 
 ### Testing and coverage
 
@@ -65,13 +65,13 @@ Once merged to main you can make a release to PyPi using the [.github/workflows/
 
 # Contributing to documentation
 ## Structure
-The main contents file is found in `docs/index.rst`.  Some pages are written in markdown (.md), and 
+The main contents file is found in `docs/index.rst`.  Some pages are written in markdown (.md), and
 are in the `docs/` folder.  The rest are Jupyter notebooks (.ipynb), placed in the `docs/notebooks/` folder.
 The API reference is automatically generated from the docstrings in the code.  Docstrings should follow
 the NumPy style.  Examples of the NumPy docstring format can be found [here](https://www.sphinx-doc.org/en/master/usage/extensions/example_numpy.html).
 
 ## Committing code to GitHub repo
-Commits to the 'docs' branch will trigger the documentation to compile and build automatically.  
+Commits to the 'docs' branch will trigger the documentation to compile and build automatically.
 External users should open a pull request to this branch.
 
 ## Running locally

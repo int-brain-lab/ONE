@@ -16,6 +16,7 @@ This version allows users to register files not associated with a single session
   TypeError on Python 3.14 due to a misplaced parenthesis passing count=1 to the path constructor
 - PureALFPath.with_extension validates the extension instead of relying on PurePath.with_suffix,
   which no longer rejects a lone period on Python 3.14
+- util.filter_datasets now handles end of string assertions in Python 3.14, restoring the behaviour of the ONE load methods.
 
 ## [3.5.2]
 This version allows Globus to be configured without a local endpoint.
