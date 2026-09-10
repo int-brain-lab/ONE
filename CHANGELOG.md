@@ -8,15 +8,15 @@ This version allows users to register files not associated with a single session
 - RegistrationClient now allows registration of datasets outside of an ALF session path
 - add_uuid_string and ALFPath.with_uuid accept a strict flag to raise instead of replacing a different UUID
 - OpenAlyx._download_aws now explicitly removes the UUID from the destination path when keep_uuid is False
+- AlyxClient paginated responses now handle changes to remote pagination (results in memory are resized when remote count changes)
 
 ### Fixed
 
 - AlyxClient now handles basic HTTP error strings returned by Alyx
 - PureALFPath.with_subject, with_date, with_sequence and with_collection no longer raise a
   TypeError on Python 3.14 due to a misplaced parenthesis passing count=1 to the path constructor
-- PureALFPath.with_extension validates the extension instead of relying on PurePath.with_suffix,
-  which no longer rejects a lone period on Python 3.14
-- util.filter_datasets now handles end of string assertions in Python 3.14, restoring the behaviour of the ONE load methods.
+- PureALFPath.with_extension validates the extension instead of relying on PurePath.with_suffix, which no longer rejects a lone period on Python 3.14
+- util.filter_datasets now handles end of string assertions in Python 3.14, restoring the behaviour of the ONE load methods
 
 ## [3.5.2]
 This version allows Globus to be configured without a local endpoint.
