@@ -19,6 +19,7 @@ import itertools
 from collections import defaultdict
 from fnmatch import fnmatch
 import shutil
+from os.path import commonpath
 
 import requests.exceptions
 
@@ -396,7 +397,7 @@ class RegistrationClient:
             session['data_dataset_session_related'] = ensure_list(recs)
         return session, recs
 
-    def prepare_files(self, file_list, versions=None):
+    def prepare_files(self, file_list, versions=None, content_type='session'):
         """Validate file list for registration and group files by session path.
 
         Parameters
@@ -405,6 +406,9 @@ class RegistrationClient:
             A filepath (or list thereof) of ALF datasets to register to Alyx.
         versions : str, list of str
             Optional version tags.
+        content_type : str
+            The database content type to register files to. When not 'session', the relative path
+            is determined by the first part of the file path that matches this name.
 
         Returns
         -------
@@ -432,24 +436,40 @@ class RegistrationClient:
 
         # Filter valid files and sort by session
         for fn, ver in zip(file_list, versions):
-            session_path = fn.session_path()
-            if not session_path:
-                _logger.debug(f'{fn}: Invalid session path')
-                continue
+            # NB: We may change the default here to None to permit users to register non-alf
+            #  compliant datasets to Alyx
+            if content_type == 'session':
+                shared_path = fn.session_path()
+                if not shared_path:
+                    _logger.debug(f'{fn}: Invalid session path')
+                    continue
+            else:
+                # Path should be relative to the folder containing the relation, e.g. 'Subject'
+                try:
+                    idx = fn.parts.index(content_type.capitalize())
+                except ValueError:
+                    # Plurals are often used so we check for the first part that starts with the
+                    # relation name
+                    fn_parts = enumerate(map(str.casefold, fn.parts))
+                    idx = next((i for i, p in fn_parts if p.startswith(content_type)), -1)
+                    if idx == -1:
+                        _logger.debug('%s: Path does not contain relation "%s"', fn, content_type)
+                        continue
+                shared_path = Path(*fn.parts[:idx])
             if fn.suffix not in self.file_extensions:
-                _logger.debug(f'{fn}: No matching extension "{fn.suffix}" in database')
+                _logger.debug(f'{fn.name}: No matching extension "{fn.suffix}" in database')
                 continue
             try:
                 get_dataset_type(fn, self.dtypes)
             except ValueError as ex:
                 _logger.debug('%s', ex.args[0])
                 continue
-            F[session_path].append(fn.relative_to(session_path))
-            V[session_path].append(ver)
+            F[shared_path].append(fn.relative_to(shared_path))
+            V[shared_path].append(ver)
 
         return F, V, file_list, single_file
 
-    def check_protected_files(self, file_list, created_by=None):
+    def check_protected_files(self, file_list, created_by=None, **kwargs):
         """Check whether a set of files associated to a session are protected.
 
         Parameters
@@ -458,31 +478,47 @@ class RegistrationClient:
             A filepath (or list thereof) of ALF datasets to register to Alyx.
         created_by : str
             Name of Alyx user (defaults to whoever is logged in to ONE instance).
+        kwargs
+            Extra arguments directly passed as REST request data to /check-protected endpoint.
+            For non-session datasets, provide 'content_type', 'object_id', and 'name' or
+            'hostname'.
 
         Returns
         -------
         list of dicts, dict
             A status for each session whether any of the files specified are protected
-            datasets or not.If none of the datasets are protected, a response with status
+            datasets or not. If none of the datasets are protected, a response with status
             200 is returned, if any of the files are protected a response with status
             403 is returned.
-
         """
+        content_type = kwargs.get('content_type', 'session')
         # Validate files and rearrange into list per session
-        F, _, _, single_file = self.prepare_files(file_list)
+        F, _, _, single_file = self.prepare_files(file_list, content_type=content_type)
 
         # For each unique session, make a separate POST request
         records = []
-        for session_path, files in F.items():
-            # this is the generic relative path: subject/yyyy-mm-dd/NNN
-            details = session_path_parts(session_path.as_posix(), as_dict=True, assert_valid=True)
-            rel_path = PurePosixPath(details['subject'], details['date'], details['number'])
+        for shared_path, files in F.items():
+            if content_type == 'session':
+                # this is the generic relative path: subject/yyyy-mm-dd/NNN
+                details = session_path_parts(
+                    shared_path.as_posix(), as_dict=True, assert_valid=True)
+                rel_path = PurePosixPath(details['subject'], details['date'], details['number'])
+                common_path = shared_path
+            else:
+                # Determine rel_path as path from content type part onwards that's in all filepaths
+                files = list(map(shared_path.joinpath, files))
+                common_path = Path(commonpath(files))
+                rel_path = common_path.relative_to(shared_path)
+                files = [f.relative_to(common_path) for f in files]
 
-            r_ = {'created_by': created_by or self.one.alyx.user,
-                  'path': rel_path.as_posix(),
-                  'filenames': [x.as_posix() for x in files]
-                  }
+            r_ = {
+                'created_by': created_by or self.one.alyx.user,
+                'path': rel_path.as_posix(),
+                'filenames': [x.as_posix() for x in files],
+                **kwargs}
             records.append(self.one.alyx.get('/check-protected', data=r_, clobber=True))
+            records[-1]['shared_path'] = common_path  # FIXME this naming is confusing
+            records[-1]['files'] = files
 
         return records[0] if single_file else records
 
@@ -539,20 +575,36 @@ class RegistrationClient:
             Revision protected (403 status code)
 
         """
-        F, V, file_list, single_file = self.prepare_files(file_list, versions=versions)
+        F, V, file_list, single_file = self.prepare_files(
+            file_list, versions=versions, content_type=kwargs.get('content_type', 'session'))
 
         # For each unique session, make a separate POST request
         records = [None] * (len(F) if dry else len(file_list))  # If dry return data per session
-        for session_path, files in F.items():
-            # this is the generic relative path: subject/yyyy-mm-dd/NNN
-            details = session_path_parts(session_path.as_posix(), as_dict=True, assert_valid=True)
-            rel_path = PurePosixPath(details['subject'], details['date'], details['number'])
-            file_sizes = [session_path.joinpath(fn).stat().st_size for fn in files]
-            # computing the md5 can be very long, so this is an option to skip if the file is
-            # bigger than a certain threshold
-            md5s = [hashfile.md5(session_path.joinpath(fn))
-                    if (max_md5_size is None or sz < max_md5_size) else None
-                    for fn, sz in zip(files, file_sizes)]
+        for shared_path, files in F.items():
+            if 'content_type' in kwargs:  # for data aggregated over sessions
+                details = session_path_parts('', as_dict=True, assert_valid=False)
+                # Find all parts of paths that are shared by all files
+                files = list(map(shared_path.joinpath, files))
+                file_sizes = [f.stat().st_size for f in files]
+                md5s = [hashfile.md5(f) if (max_md5_size is None or sz < max_md5_size) else None
+                        for f, sz in zip(files, file_sizes)]
+                # rel_path is the path from content type part onwards that's in all file paths
+                common_path = Path(commonpath(files))
+                # shared_path here is really root path that should not be included in file record
+                rel_path = common_path.relative_to(shared_path)
+                files = [f.relative_to(common_path) for f in files]
+            else:
+                # this is the generic relative path: subject/yyyy-mm-dd/NNN
+                details = session_path_parts(
+                    shared_path.as_posix(), as_dict=True, assert_valid=True)
+                rel_path = PurePosixPath(details['subject'], details['date'], details['number'])
+                file_sizes = [shared_path.joinpath(fn).stat().st_size for fn in files]
+                # computing the md5 can be very long, so this is an option to skip if the file is
+                # bigger than a certain threshold
+                md5s = [hashfile.md5(shared_path.joinpath(fn))
+                        if (max_md5_size is None or sz < max_md5_size) else None
+                        for fn, sz in zip(files, file_sizes)]
+                common_path = shared_path  # these are equivalent for session paths
 
             _logger.info('Registering ' + str(files))
 
@@ -565,7 +617,7 @@ class RegistrationClient:
                   'exists': exists,
                   'server_only': server_only,
                   'default': default,
-                  'versions': V[session_path],
+                  'versions': V[shared_path],
                   'check_protected': True,
                   **kwargs
                   }
@@ -575,14 +627,14 @@ class RegistrationClient:
                 r_['labs'] = details['lab']
             # If dry, store POST data, otherwise store resulting file records
             if dry:
-                records[list(F).index(session_path)] = r_
+                records[list(F).index(shared_path)] = r_
                 continue
             try:
                 response = self.one.alyx.post('/register-file', data=r_)
                 # Ensure we keep the order of the output records: the files missing will remain
                 # as None type
                 for f, r in zip(files, response):
-                    records[file_list.index(session_path / f)] = r
+                    records[file_list.index(common_path / f)] = r
             except requests.exceptions.HTTPError as err:
                 # 403 response when datasets already registered and protected by tags
                 err_message = err.response.json()
@@ -616,9 +668,9 @@ class RegistrationClient:
                             revision_path = fl.parent.parent.joinpath(f'#{new_revision}#')
 
                         if revision_path != fl.parent:
-                            session_path.joinpath(revision_path).mkdir(exist_ok=True)
+                            shared_path.joinpath(revision_path).mkdir(exist_ok=True)
                             _logger.info('Moving %s -> %s', fl, revision_path.joinpath(fl.name))
-                            shutil.move(session_path / fl, session_path / revision_path / fl.name)
+                            shutil.move(shared_path / fl, shared_path / revision_path / fl.name)
                         new_file_list.append(revision_path.joinpath(fl.name))
                         continue
 
@@ -672,19 +724,19 @@ class RegistrationClient:
 
                     # Only move for the cases where a revision folder has been made
                     if revision_path != fl_path:
-                        session_path.joinpath(revision_path).mkdir(exist_ok=True)
+                        shared_path.joinpath(revision_path).mkdir(exist_ok=True)
                         _logger.info('Moving %s -> %s', fl, revision_path.joinpath(fl.name))
-                        shutil.move(session_path / fl, session_path / revision_path / fl.name)
+                        shutil.move(shared_path / fl, shared_path / revision_path / fl.name)
                     new_file_list.append(revision_path.joinpath(fl.name))
 
                 assert len(new_file_list) == len(files)
                 r_['filenames'] = [p.as_posix() for p in new_file_list]
-                r_['filesizes'] = [session_path.joinpath(p).stat().st_size for p in new_file_list]
+                r_['filesizes'] = [shared_path.joinpath(p).stat().st_size for p in new_file_list]
                 r_['check_protected'] = False  # Speed things up by ignoring server-side checks
 
                 response = self.one.alyx.post('/register-file', data=r_)
                 for f, r in zip(files, response):  # Populate records list in correct order
-                    records[file_list.index(session_path / f)] = r
+                    records[file_list.index(shared_path / f)] = r
                 files = new_file_list
 
             # Log file names

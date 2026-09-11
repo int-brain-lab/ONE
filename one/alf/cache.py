@@ -415,7 +415,7 @@ def load_tables(tables_dir, glob_pattern='*.pqt'):
         # we need to keep this part fast enough for transient objects
         cache, meta['raw'][table] = parquet.load(cache_file)
         if 'date_created' not in meta['raw'][table]:
-            _logger.warning(f"{cache_file} does not appear to be a valid table. Skipping")
+            _logger.warning(f'{cache_file} does not appear to be a valid table. Skipping')
             continue
         meta['loaded_time'] = datetime.datetime.now()
 

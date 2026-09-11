@@ -277,8 +277,9 @@ class TestJsonFieldMethods(unittest.TestCase):
         self.ac = wc.AlyxClient(**TEST_DB_1, cache_rest=None)
 
         # Create new subject and two new sessions
-        name = '0A' + str(random.randint(0, 10000))
+        name = '0A' + uuid.uuid4().hex[:8]
         self.subj = self.ac.rest('subjects', 'create', data={'nickname': name, 'lab': 'cortexlab'})
+        self.addCleanup(self.ac.rest, 'subjects', 'delete', id=self.subj['nickname'])
         sessions = [
             self.ac.rest(
                 'sessions',
@@ -384,9 +385,6 @@ class TestJsonFieldMethods(unittest.TestCase):
         self.assertIsInstance(written, dict)
         # Encoder should have cast uuid to str
         self.assertEqual(str(self.eids[-1]), written.get('uid'))
-
-    def tearDown(self):
-        self.ac.rest('subjects', 'delete', id=self.subj['nickname'])
 
 
 class TestRestCache(unittest.TestCase):
@@ -879,6 +877,52 @@ class TestMisc(unittest.TestCase):
         # Check callbacks cleared when cache fully populated
         self.assertTrue(all(map(bool, pg)))
         self.assertEqual(0, len(pg._callbacks))
+
+    def test_paginated_response_count_changed(self):
+        """Test _PaginatedResponse when records are added/removed by another process.
+
+        The remote count is fixed at instantiation, so a -ve index is resolved against a count
+        that may be stale by the time the page is fetched.  Previously this left None values in
+        the cache when records were removed.
+        """
+        alyx = mock.Mock(spec_set=self.ac)
+        N, lim = 23, 5  # 23 results, 5 records per page
+        url = self.ac.base_url + f'/?foo=bar&offset={lim}&limit={lim}'
+        res = {'count': N, 'next': url, 'previous': None,
+               'results': [{'id': i} for i in range(lim)]}
+
+        def _remote(count):
+            """Return a _generic_request side effect for a remote list of `count` records."""
+            def _side_effect(_, url, **__):
+                query = urllib.parse.parse_qs(urllib.parse.urlparse(url).query)
+                offset = int(query['offset'][0])
+                return {'count': count, 'next': None, 'previous': None,
+                        'results': [{'id': i} for i in range(offset, min(offset + lim, count))]}
+            return _side_effect
+
+        # Records removed: the last page of the original count no longer exists
+        for count in (N - 4, N - 9, lim):
+            with self.subTest(count=count):
+                pg = wc._PaginatedResponse(alyx, res, cache_args=dict(clobber=True))
+                alyx._generic_request.side_effect = _remote(count)
+                with self.assertWarns(RuntimeWarning):
+                    last = pg[-1]
+                self.assertEqual({'id': count - 1}, last, 'failed to fetch last record')
+                self.assertEqual(count, len(pg), 'failed to update count')
+                self.assertEqual(count, len(pg._cache), 'failed to resize cache')
+
+        # Records added: the count is stale so -1 must be re-resolved against the new count
+        pg = wc._PaginatedResponse(alyx, res, cache_args=dict(clobber=True))
+        alyx._generic_request.side_effect = _remote(N + 6)
+        with self.assertWarns(RuntimeWarning):
+            self.assertEqual({'id': N + 5}, pg[-1], 'failed to fetch last record')
+        self.assertEqual(N + 6, len(pg))
+
+        # A +ve index within the new count should still be fetched
+        pg = wc._PaginatedResponse(alyx, res, cache_args=dict(clobber=True))
+        alyx._generic_request.side_effect = _remote(N - 4)
+        with self.assertWarns(RuntimeWarning):
+            self.assertEqual({'id': 7}, pg[7])
 
     def _check_get_query(self, call_args, limit, offset):
         """Check URL get query contains the expected limit and offset params."""
