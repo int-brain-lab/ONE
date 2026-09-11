@@ -569,10 +569,10 @@ class TestRegistrationClientNonSession(unittest.TestCase):
         # delete aggregate datasets
         if self.tag:
             self.one.alyx.rest('tags', 'delete', id=self.tag['name'])
-        query = 'session__isnull,True,name,' + self.dataset
+        query = (f'session__isnull,True,name,{self.dataset},'
+                 f'collection,Subjects/{self.subject}')
         for dset in self.one.alyx.rest('datasets', 'list', django=query, no_cache=True):
             self.one.alyx.rest('datasets', 'delete', id=dset['url'][-36:])
-
 
     @classmethod
     def tearDownClass(cls) -> None:
