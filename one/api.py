@@ -1599,6 +1599,11 @@ def ONE(*, mode='remote', wildcards=True, **kwargs):
         An Alyx database login username.
     password : str
         An Alyx database password.
+    token : str, dict
+        An Alyx REST API token, to authenticate with in place of a password.  Accounts that sign
+        in through an identity provider have no password; their token is shown on the database's
+        /me page.  The username is optional when a token is given, as the database reports whose
+        it is.
     cache_rest : str
         If not in 'local' mode, this determines which http request types to cache.  Default is
         'GET'.  Use None to deactivate cache (not recommended).
@@ -1609,7 +1614,7 @@ def ONE(*, mode='remote', wildcards=True, **kwargs):
         An One instance if mode is 'local', otherwise an OneAlyx instance.
 
     """
-    if (any(x in kwargs for x in ('base_url', 'username', 'password')) or
+    if (any(x in kwargs for x in ('base_url', 'username', 'password', 'token')) or
             not kwargs.get('cache_dir', False)):
         return OneAlyx(mode=mode, wildcards=wildcards, **kwargs)
 
@@ -1650,6 +1655,8 @@ class OneAlyx(One):
             An Alyx database login username.
         password : str
             An Alyx database password.
+        token : str, dict
+            An Alyx REST API token, to authenticate with in place of a password.
         cache_rest : str
             If not in 'local' mode, this determines which http request types to cache.  Default is
             'GET'.  Use None to deactivate cache (not recommended).

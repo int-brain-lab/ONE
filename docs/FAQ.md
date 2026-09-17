@@ -107,6 +107,30 @@ To log in as someone else temporarily:
 one.alyx.authenticate(username='other_user', cache_token=False, force=True)
 ```
 
+## How do I sign in if my account has no password?
+Accounts created through an identity provider such as ORCiD have no password. They authenticate
+with an API token instead, shown on the database's `/me` page (for the public database,
+[openalyx.internationalbrainlab.org/me](https://openalyx.internationalbrainlab.org/me)).
+
+At the prompt, leave the password blank and paste the token when asked for one. To skip the prompts
+altogether - in a script, or anywhere headless - pass it directly:
+```python
+from one.api import ONE
+one = ONE(token='a1b2c3...')
+```
+The username is optional here: the database is asked whose token it is. Treat the token as you
+would a password, and regenerate it from the same page if it leaks - the old one stops working
+immediately.
+
+## I have a token but ONE says it was rejected, what now?
+Tokens change whenever they are regenerated, and the old value stops working at once. Open the
+`/me` page again, copy the current token, and re-authenticate:
+```python
+one.alyx.authenticate(token='a1b2c3...', force=True)
+```
+Do not edit the ONE parameter file by hand to fix this - re-running the authentication updates it
+for you.
+
 ## What to do if I am seeing a certificate error?
 If you are using the Windows platform, you may see a certificate error when initially trying to connect with ONE. The last few
 lines of the traceback should like this:
