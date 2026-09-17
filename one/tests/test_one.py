@@ -138,6 +138,8 @@ class TestONECache(unittest.TestCase):
             ONE(mode='auto')
         with self.assertRaises(ValueError):
             ONE(mode='refresh')
+        with self.assertRaises(ValueError):
+            One(mode='auto')
 
     def test_offline_repr(self):
         """Test for One.offline property."""
@@ -1582,25 +1584,22 @@ class TestOneRemote(unittest.TestCase):
     """Test remote queries using OpenAlyx."""
 
     def setUp(self) -> None:
-        # Set cache directory to a temp dir to ensure that we re-download files. The parameter
-        # files are pointed there too, and before the client is built: authenticating writes the
-        # token to the parameter file for this database, which is OpenAlyx - so without this the
-        # tests rewrite the real parameters of whoever is running them, replacing the token they
-        # had cached.
+        # Set cache directory to a temp dir to ensure that we re-download files.
+        # The parameter files are pointed there too.
         self.tempdir = tempfile.TemporaryDirectory()
         patch = mock.patch('one.params.iopar.getfile',
                            new=partial(util.get_file, self.tempdir.name))
         patch.start()
         self.addCleanup(patch.stop)
-        self.one = OneAlyx(**TEST_DB_2, mode='remote')
-        self.eid = UUID('4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a')
-        self.pid = UUID('da8dfec1-d265-44e8-84ce-6ae9c109b8bd')
+        self.one = OneAlyx(**TEST_DB_1, mode='remote')
+        self.eid = UUID('d3372b15-f696-4279-9be5-98f15783b5bb')
+        self.pid = UUID('47e735ca-f14a-44d3-bea0-0e6a5a771cd1')  # probe00 on self.eid
         self.one.alyx._par = self.one.alyx._par.set('CACHE_DIR', Path(self.tempdir.name))
 
     def test_online_repr(self):
         """Tests OneAlyx.__repr__."""
         self.assertTrue('online' in str(self.one))
-        self.assertTrue(TEST_DB_2['base_url'] in str(self.one))
+        self.assertTrue(TEST_DB_1['base_url'] in str(self.one))
 
     def test_list_datasets(self):
         """Test OneAlyx.list_datasets."""
@@ -1610,7 +1609,7 @@ class TestOneRemote(unittest.TestCase):
         self.one._cache['datasets'] = self.one._cache['datasets'].iloc[0:0].copy()
 
         dsets = self.one.list_datasets(self.eid, details=True, query_type='remote')
-        expected_n_datasets = 280  # this may change after a BWM release or patch
+        expected_n_datasets = 106
         self.assertEqual(expected_n_datasets, len(dsets))
         self.assertEqual(1, dsets.index.nlevels, 'details data frame should be without eid index')
 
@@ -1638,7 +1637,7 @@ class TestOneRemote(unittest.TestCase):
         # Test with other filters
         dsets = self.one.list_datasets(self.eid, collection='*probe*', filename='*channels*',
                                        details=False, query_type='remote')
-        self.assertEqual(36, len(dsets))
+        self.assertEqual(5, len(dsets))
         self.assertTrue(all(x in y for x in ('probe', 'channels') for y in dsets))
 
         with self.assertWarns(Warning):
@@ -1650,18 +1649,18 @@ class TestOneRemote(unittest.TestCase):
         self.one.load_cache()
 
         # Modify sessions dataframe so we can check that the records get updated
-        records = self.one._cache.sessions[self.one._cache.sessions.subject == 'SWC_043']
+        records = self.one._cache.sessions[self.one._cache.sessions.subject == 'ZFM-01935']
         self.one._cache.sessions.loc[records.index, 'lab'] = 'foolab'  # change a field
         self.one._cache.sessions.drop(self.eid, inplace=True)  # remove a row
 
         # Check remote seach of subject
-        eids = self.one.search(subject='SWC_043', query_type='remote')
+        eids = self.one.search(subject='ZFM-01935', query_type='remote')
         self.assertIn(self.eid, list(eids))
-        updated = self.one._cache.sessions[self.one._cache.sessions.subject == 'SWC_043']
+        updated = self.one._cache.sessions[self.one._cache.sessions.subject == 'ZFM-01935']
         self.assertCountEqual(eids, updated.index)
         self.assertFalse('foolab' in updated['lab'])
 
-        eids, d = self.one.search(subject='SWC_043', query_type='remote', details=True)
+        eids, d = self.one.search(subject='ZM_335', query_type='remote', details=True)
         correct = len(d) == len(eids) and 'url' in d[0] and d[0]['url'].endswith(str(eids[0]))
         self.assertTrue(correct)
 
@@ -1671,23 +1670,25 @@ class TestOneRemote(unittest.TestCase):
         # Test dataset search with Django
         query = ['data_dataset_session_related__collection__iexact,alf',
                  'data_dataset_session_related__name__startswith,probes.description']
-        eids = self.one.search(subject='SWC_043', number=1, django=query, query_type='remote')
+        eids = self.one.search(subject='ZFM-01935', number=1, django=query, query_type='remote')
         self.assertIn(self.eid, list(eids))
 
-        # Test date range
-        eids = self.one.search(subject='SWC_043', date='2020-09-21', query_type='remote')
-        self.assertCountEqual(eids, [self.eid])
-
-        date_range = [datetime.date(2020, 9, 21), datetime.date(2020, 9, 22)]
-        eids = self.one.search(date=date_range, lab='hoferlab', query_type='remote')
-        self.assertIn(self.eid, list(eids))
+        # Test date range. KS005 spans nine dates, so a date filter has something to exclude;
+        # filtering a subject that has only one session by its only date would pass whether or
+        # not the filter worked.
+        eids = self.one.search(subject='KS005', date='2019-04-01', query_type='remote')
         dates = set(map(lambda x: self.one.get_details(x)['date'], eids))
-        self.assertTrue(dates <= set(date_range))
+        self.assertEqual({datetime.date(2019, 4, 1)}, dates)
+
+        date_range = [datetime.date(2019, 4, 9), datetime.date(2019, 4, 10)]
+        eids = self.one.search(subject='KS005', date=date_range, query_type='remote')
+        dates = set(map(lambda x: self.one.get_details(x)['date'], eids))
+        self.assertEqual(set(date_range), dates, 'both ends of the range should be represented')
 
         # Test limit arg, LazyId, and update with paginated response callback
         self.one._reset_cache()  # Remove sessions table
         assert self.one._cache.sessions.empty
-        eids = self.one.search(date='2020-03-23', limit=2, query_type='remote')
+        eids = self.one.search(subject='KS005', limit=2, query_type='remote')
         self.assertEqual(2, len(self.one._cache.sessions),
                          'failed to update cache with first page of search results')
         self.assertIsInstance(eids, LazyId)
@@ -1700,41 +1701,43 @@ class TestOneRemote(unittest.TestCase):
         self.assertEqual(len(eids), len(self.one._cache.sessions))
 
         # Test laboratory kwarg
-        eids = self.one.search(laboratory='hoferlab', query_type='remote')
+        eids = self.one.search(laboratory='mainenlab', query_type='remote')
         self.assertIn(self.eid, list(eids))
 
-        eids = self.one.search(lab='hoferlab', query_type='remote')
+        eids = self.one.search(lab='mainenlab', query_type='remote')
         self.assertIn(self.eid, list(eids))
 
         # Test dataset and dataset_types kwargs
-        eids = self.one.search(datasets='_ibl_trials.table.pqt', query_type='remote')
+        eids = self.one.search(datasets='spikes.times.npy', query_type='remote')
         self.assertIn(self.eid, list(eids))
-        eids = self.one.search(datasets=['_ibl_trials.intervals.npy'], query_type='remote')
+        eids = self.one.search(datasets=['_ibl_trials.table.pqt'], query_type='remote')
         self.assertNotIn(self.eid, list(eids))
         # The dataset arg with partial matching has been retired and should raise a value error
         self.assertRaises(ValueError, self.one.search, dataset='wheel.times', query_type='remote')
 
-        eids = self.one.search(dataset_type='_ibl_trials.table.pqt', query_type='remote')
+        eids = self.one.search(dataset_type='_ibl_trials.intervals.npy', query_type='remote')
         self.assertEqual(0, len(eids))
-        eids = self.one.search(dataset_type='trials.table', date='2020-09-21', query_type='remote')
+        eids = self.one.search(
+            dataset_type='trials.intervals', date='2021-02-05', query_type='remote')
         self.assertIn(self.eid, list(eids))
 
         # Ensure that when calling with anything other than remote mode, One.search is used
         with mock.patch('one.api.One.search') as offline_search, \
                 mock.patch.object(self.one.alyx, 'rest', return_value=[]) as alyx:
             # In remote mode
-            self.one.search(subject='SWC_043', query_type='remote')
+            self.one.search(subject='ZFM-01935', query_type='remote')
             offline_search.assert_not_called(), alyx.assert_called()
             alyx.reset_mock()
             # In another mode
-            self.one.search(subject='SWC_043', query_type='local')
-            offline_search.assert_called_with(details=False, query_type='local', subject='SWC_043')
+            self.one.search(subject='ZFM-01935', query_type='local')
+            offline_search.assert_called_with(
+                details=False, query_type='local', subject='ZFM-01935')
             alyx.assert_not_called()
 
     def test_search_insertions(self):
         """Test OneAlyx.search_insertion method in remote mode."""
         # Test search on subject
-        pids = self.one.search_insertions(subject='SWC_043', query_type='remote')
+        pids = self.one.search_insertions(subject='ZFM-01935', query_type='remote')
         self.assertIn(self.pid, list(pids))
 
         # Test search on session with details
@@ -1763,12 +1766,19 @@ class TestOneRemote(unittest.TestCase):
         # - full 'laboratory' word
         # - 'dataset' as singular with fuzzy match
         # - 'number' -> 'experiment_number'
-        lab = 'cortexlab'
+        # atlas_acronym is left out of this query: filtering on it needs channels registered to
+        # brain regions, which the test database has none of - the assertion above already
+        # covers that the parameter reaches the endpoint.
+        # The dataset filter matches an insertion's own datasets, which Alyx links from the
+        # session collections named after the probe - so only an insertion whose session has an
+        # alf/<name> collection has any to match, which here is probe00 on self.eid.
+        lab = 'mainenlab'
         _, det = self.one.search_insertions(
-            laboratory=lab, number=1, dataset='_ibl_log.info',
-            atlas_acronym='STR', query_type='remote', details=True)
-        self.assertEqual(14, len(det))
+            laboratory=lab, number=1, dataset='clusters.amps',
+            query_type='remote', details=True)
+        self.assertEqual([str(self.pid)], [x['id'] for x in det])
         self.assertEqual({lab}, {x['session_info']['lab'] for x in det})
+        self.assertEqual({1}, {x['session_info']['number'] for x in det})
 
         # Test mode and field validation
         self.assertRaises(TypeError, self.one.search_insertions,
@@ -1777,12 +1787,13 @@ class TestOneRemote(unittest.TestCase):
         with mock.patch('one.api.One._search_insertions') as offline_search, \
                 mock.patch.object(self.one.alyx, 'rest', return_value=[]) as alyx:
             # In remote mode
-            self.one.search_insertions(subject='SWC_043', query_type='remote')
+            self.one.search_insertions(subject='ZFM-01935', query_type='remote')
             offline_search.assert_not_called(), alyx.assert_called()
             alyx.reset_mock()
             # In local mode
-            self.one.search_insertions(subject='SWC_043', query_type='local')
-            offline_search.assert_called_with(details=False, query_type='local', subject='SWC_043')
+            self.one.search_insertions(subject='ZFM-01935', query_type='local')
+            offline_search.assert_called_with(
+                details=False, query_type='local', subject='ZFM-01935')
             alyx.assert_not_called()
 
         # Test limit arg, LazyId, and update with paginated response callback
@@ -1791,15 +1802,19 @@ class TestOneRemote(unittest.TestCase):
         pids = self.one.search_insertions(limit=2, query_type='remote')
         self.assertEqual(2, len(self.one._cache.insertions),
                          'failed to update insertions cache with first page of search results')
-        self.assertEqual(2, len(self.one._cache.sessions),
+        # Not a fixed number: a page of insertions may hold two probes from one session, as
+        # the ephys session here does, so the sessions cached are the distinct ones of the page.
+        self.assertEqual(self.one._cache.insertions.index.get_level_values('eid').nunique(),
+                         len(self.one._cache.sessions),
                          'failed to update sessions cache with first page of search results')
         self.assertIsInstance(pids, LazyId)
         assert len(pids) > 5, 'in order to check paginated response callback we need several pages'
         p = pids[-2]  # access an uncached value
         self.assertEqual(4, len(self.one._cache.insertions),
                          'failed to update insertions cache after page access')
-        self.assertEqual(4, len(self.one._cache.sessions),
-                         'failed to update insertions cache after page access')
+        self.assertEqual(self.one._cache.insertions.index.get_level_values('eid').nunique(),
+                         len(self.one._cache.sessions),
+                         'failed to update sessions cache after page access')
         self.assertTrue(p in self.one._cache.insertions.index.get_level_values('id'))
 
     def test_search_terms(self):
@@ -1822,14 +1837,17 @@ class TestOneRemote(unittest.TestCase):
 
     def test_load_dataset(self):
         """Test OneAlyx.load_dataset."""
-        file = self.one.load_dataset(self.eid, '_spikeglx_sync.channels.npy',
-                                     collection='raw_ephys_data', query_type='remote',
-                                     download_only=True)
+        with util.mock_http_download():
+            file = self.one.load_dataset(self.eid, '_spikeglx_sync.channels.npy',
+                                         collection='raw_ephys_data', query_type='remote',
+                                         download_only=True)
         self.assertIsInstance(file, Path)
         self.assertTrue(file.as_posix().endswith('raw_ephys_data/_spikeglx_sync.channels.npy'))
-        # Test validations
+        # Test validations. This session has the encoder files in both raw_behavior_data and
+        # raw_passive_data, so naming one without a collection is ambiguous.
         with self.assertRaises(alferr.ALFMultipleCollectionsFound):
-            self.one.load_dataset(self.eid, 'spikes.clusters', query_type='remote')
+            self.one.load_dataset(
+                self.eid, '_iblrig_encoderEvents.raw.ssv', query_type='remote')
         with self.assertRaises(alferr.ALFMultipleObjectsFound):
             self.one.load_dataset(self.eid, '_iblrig_*Camera.raw', query_type='remote')
         with self.assertRaises(alferr.ALFObjectNotFound):
@@ -1838,21 +1856,24 @@ class TestOneRemote(unittest.TestCase):
 
     def test_load_object(self):
         """Test OneAlyx.load_object."""
-        files = self.one.load_object(self.eid, 'wheel',
-                                     collection='alf', query_type='remote',
-                                     download_only=True)
+        with util.mock_http_download():
+            files = self.one.load_object(self.eid, 'wheel',
+                                         collection='alf', query_type='remote',
+                                         download_only=True)
         self.assertIsInstance(files[0], Path)
-        self.assertTrue(
-            files[0].as_posix().endswith('SWC_043/2020-09-21/001/alf/_ibl_wheel.timestamps.npy')
-        )
+        # The object has several attributes and their order is not guaranteed, so look for the
+        # one file rather than assuming which comes first.
+        expected = 'ZFM-01935/2021-02-05/001/alf/_ibl_wheel.timestamps.npy'
+        self.assertTrue(any(f.as_posix().endswith(expected) for f in files),
+                        f'{expected} not among {[f.name for f in files]}')
 
     def test_get_details(self):
         """Test OneAlyx.get_details."""
         det = self.one.get_details(self.eid, query_type='remote')
         self.assertIsInstance(det, dict)
-        self.assertEqual('SWC_043', det['subject'])
-        self.assertEqual('ibl_neuropixel_brainwide_01', det['projects'])
-        self.assertEqual('2020-09-21', str(det['date']))
+        self.assertEqual('ZFM-01935', det['subject'])
+        self.assertEqual('', det['projects'])  # the session has none; details joins the list
+        self.assertEqual('2021-02-05', str(det['date']))
         self.assertEqual(1, det['number'])
         self.assertNotIn('data_dataset_session_related', det)
 
@@ -2152,8 +2173,9 @@ class TestOneSetup(unittest.TestCase):
         """
         with mock.patch('iblutil.io.params.getfile', new=self.get_file), \
                 mock.patch('one.params.input', new=self.assertFalse):
-            one_obj = ONE(silent=True, mode='local', username=TEST_DB_2['username'],
-                          password=TEST_DB_2['password'])
+            # No credentials: this is a test of the setup, and authenticating would tie it to
+            # an account on the public database.
+            one_obj = ONE(silent=True, mode='local')
             self.assertEqual(one_obj.alyx.base_url, one.params.default().ALYX_URL)
 
         # Check param files were saved
@@ -2259,12 +2281,10 @@ class TestOneSetup(unittest.TestCase):
             one.params.setup(url)
             self.assertEqual(one.params.get(url).ALYX_PWD, 'mock_pwd')
 
-        # Check conflict warning
+        # Check conflict warning. Any URL other than the one above will do - the warning comes
+        # from the cache directory already being claimed, so no login is involved.
         with mock.patch('iblutil.io.params.getfile', new=self.get_file):
-            OneAlyx(mode='local',
-                    base_url=TEST_DB_2['base_url'],
-                    username=TEST_DB_2['username'],
-                    password=TEST_DB_2['password'])
+            OneAlyx(mode='local', base_url=TEST_DB_2['base_url'])
         self.assertTrue(getattr(mock_input, 'conflict_warn', False))
 
     def test_patch_params(self):
@@ -2301,8 +2321,7 @@ class TestOneSetup(unittest.TestCase):
                 if OFFLINE_ONLY:
                     self.skipTest('Requires remote db connection')
                 # No cache dir provided; use OneAlyx (silent setup mode)
-                one_obj = ONE(silent=True, mode='local', username=TEST_DB_2['username'],
-                              password=TEST_DB_2['password'])
+                one_obj = ONE(silent=True, mode='local')
                 self.assertIsInstance(one_obj, OneAlyx)
 
                 # The cache dir is in client cache map; use OneAlyx
