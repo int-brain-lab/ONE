@@ -948,8 +948,7 @@ class AlyxClient:
             self.authenticate(username, password, token=token)
         self._rest_schemes = None
         # the mixed accept application may cause errors sometimes, only necessary for the docs
-        self._headers = {
-            **self._headers, 'Accept': 'application/json', 'ONE-API-Version': __version__}
+        self._headers = {**self._headers, **self._base_headers}
         # REST cache parameters
         # The default length of time that cache file is valid for,
         # The default expiry is overridden by the `expires` kwarg.  If False, the caching is
@@ -960,6 +959,11 @@ class AlyxClient:
         self._obj_id = id(self)
         # Used to track number of attempts for a given request, for retry logic in _generic_request
         self._attempt_counter = 0
+
+    @property
+    def _base_headers(self):
+        """dict: The headers every REST request carries, authentication aside."""
+        return {'Accept': 'application/json', 'ONE-API-Version': __version__}
 
     @property
     def cache_dir(self):
@@ -1014,7 +1018,6 @@ class AlyxClient:
         if files is None:
             to_json = functools.partial(json.dumps, cls=_JSONEncoder)
             data = to_json(data) if isinstance(data, dict) or isinstance(data, list) else data
-            # __ONE_API_VERSION__
             headers['Content-Type'] = 'application/json'
         if rest_query.startswith('/docs'):
             headers['Accept'] = 'application/coreapi+json'
@@ -1143,8 +1146,8 @@ class AlyxClient:
         if not force and getattr(self._par, 'TOKEN', False) and username in self._par.TOKEN:
             self._token = self._par.TOKEN[username]
             self._headers = {
+                **self._base_headers,
                 'Authorization': f'Token {list(self._token.values())[0]}',
-                'Accept': 'application/json'
             }
             self.user = username
             return
@@ -1206,8 +1209,8 @@ class AlyxClient:
                     rep.raise_for_status()
 
         self._headers = {
+            **self._base_headers,
             'Authorization': 'Token {}'.format(list(self._token.values())[0]),
-            'Accept': 'application/json',
         }
         if token is not None:
             # A password gets a definitive yes or no from /auth-token; a token has no such
