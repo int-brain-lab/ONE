@@ -1,7 +1,8 @@
 # Changelog
 
 ## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [3.6.0]
-This version allows users to register files not associated with a single session.
+This version adds support for public accounts and authentication without password.
+It also allows users to register files not associated with a single session.
 
 ### Modified
 
@@ -12,17 +13,15 @@ This version allows users to register files not associated with a single session
 - AlyxClient.authenticate accepts an API token in place of a password, for accounts that sign in
   through an identity provider and so have none; ONE and AlyxClient take a `token` keyword, and the
   password prompt offers a token when left blank
-- a token is sufficient on its own: no username is prompted for or read from the saved parameters
-  when one is given, as the database reports whose token it is
-- a token is checked against the database's /me endpoint before being cached, and the username it
-  reports is used, so a token alone is enough to authenticate
 - the default ALYX_LOGIN is now blank rather than the shared `intbrainlab` account: public users
-  register their own account on Open Alyx, and are asked which one they are
+  now register their own account on Open Alyx
 
 ### Fixed
 
-- http_download_file creates its target directory instead of failing with FileNotFoundError; the
-  default target is ~/Downloads, which a container, CI runner or fresh server account may not have
+- the ONE-API-Version header is now sent on every request; authenticate rebuilt the header dict
+  and dropped it, so only a client that authenticated through the constructor ever sent it
+- ONE rejects an unrecognised `mode` before building a client
+- http_download_file creates its target directory instead of failing with FileNotFoundError
 - AlyxClient now handles basic HTTP error strings returned by Alyx
 - PureALFPath.with_subject, with_date, with_sequence and with_collection no longer raise a
   TypeError on Python 3.14 due to a misplaced parenthesis passing count=1 to the path constructor

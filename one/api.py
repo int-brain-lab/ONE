@@ -1614,6 +1614,9 @@ def ONE(*, mode='remote', wildcards=True, **kwargs):
         An One instance if mode is 'local', otherwise an OneAlyx instance.
 
     """
+    if mode not in ('local', 'remote'):
+        raise ValueError(f'Mode "{mode}" not recognized')
+
     if (any(x in kwargs for x in ('base_url', 'username', 'password', 'token')) or
             not kwargs.get('cache_dir', False)):
         return OneAlyx(mode=mode, wildcards=wildcards, **kwargs)

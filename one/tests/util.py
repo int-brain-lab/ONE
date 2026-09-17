@@ -1,8 +1,11 @@
 """Utilities functions for setting up test fixtures."""
 import tempfile
+from contextlib import contextmanager
 from pathlib import Path
+from unittest import mock
 import shutil
 import json
+import urllib.parse
 from uuid import uuid4
 
 import pandas as pd
@@ -226,3 +229,42 @@ def caches_str2int(caches):
                 cache[f'{name}_{i}'] = col
         int_cols = cache.filter(regex=r'_\d{1}$').columns.sort_values().tolist()
         caches[table] = cache.set_index(int_cols)
+
+
+@contextmanager
+def mock_http_download(content=b'mock file contents'):
+    """Stand in for the HTTP transfer so download tests need no data server access.
+
+    The test database's file records point at the private FlatIron tree, which needs IBL member
+    credentials. The public tree is not a substitute: it holds the same sessions under different
+    dataset ids, because Open Alyx has its own dataset records and Alyx builds the file name from
+    the id - so the public URL for a test database dataset does not exist.
+
+    Only the bytes on the wire are simulated. Everything above still runs for real: the URL is
+    validated against the data server, the target directory is created, the file name has its
+    UUID stripped, and the hash and size are compared against the record.
+
+    That last comparison is why the mismatch handler is stubbed out alongside. A fabricated file
+    never matches the recorded hash, and the handler's response is to tell Alyx to flag the file
+    record - which would write to the shared test database from a unit test.
+
+    Yields
+    ------
+    unittest.mock.MagicMock
+        The patched `_tag_mismatched_file_record`, so a test may assert on the mismatch path.
+
+    """
+    from iblutil.io import hashfile
+
+    def download(url, chunks=None, *, clobber=False, silent=False, username='', password='',
+                 target_dir='', return_md5=False, headers=None):
+        name = urllib.parse.urlsplit(url).path.rsplit('/', 1)[-1]
+        target = Path(target_dir or '')
+        target.mkdir(parents=True, exist_ok=True)
+        file = target.joinpath(name)
+        file.write_bytes(content)
+        return (file, hashfile.md5(file)) if return_md5 else file
+
+    with mock.patch('one.webclient.http_download_file', new=download), \
+            mock.patch('one.api.OneAlyx._tag_mismatched_file_record') as tag:
+        yield tag

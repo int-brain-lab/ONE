@@ -445,6 +445,33 @@ class TestAuthentication(unittest.TestCase):
             ac.authenticate(password='whatever')
         self.assertIn('signup', str(ex.exception))
 
+    def test_a_token_alone_needs_a_database_that_names_its_owner(self):
+        """An Alyx too old to serve /me as an API cannot say whose token it is.
+
+        With a token alone there is no name to cache it under and no way to tell whether it is
+        even the intended account, so it is refused.
+        """
+        ac = self.ac
+        ac.logout()
+        self.assertTrue(getattr(ac._par, 'ALYX_LOGIN', None), 'a stored login is what we ignore')
+        page = requests.Response()
+        page.status_code = 200
+        page._content = b'<html>sign in</html>'  # the old /me is a web page, not JSON
+        with mock.patch('one.webclient.requests.get', return_value=page):
+            with self.assertRaises(ValueError) as ex:
+                ac.authenticate(token='unusable', cache_token=False)
+        self.assertIn('recent enough', str(ex.exception))
+        self.assertFalse(ac.is_logged_in, 'the token it could not place should be discarded')
+
+    def test_a_token_alone_is_refused_when_the_database_is_unreachable(self):
+        """The other way the check comes back empty: it never reached the database."""
+        ac = self.ac
+        ac.logout()
+        with mock.patch('one.webclient.requests.get', side_effect=requests.ConnectionError):
+            with self.assertRaises(ValueError):
+                ac.authenticate(token='unusable', cache_token=False)
+        self.assertFalse(ac.is_logged_in)
+
     def test_a_username_resolved_once_is_remembered(self):
         """Otherwise the cached token, which is keyed by username, could never be found again."""
         ac = self.ac
@@ -479,17 +506,12 @@ class TestAuthentication(unittest.TestCase):
 
     @unittest.skipIf(OFFLINE_ONLY, 'online only test')
     def test_download_cache_tables_authenticates(self):
-        """Downloading the cache tables must authenticate first, like any other request.
-
-        Still on the public database: the test database has no cache tables generated, so its
-        /cache/info raises a 500 on the missing cache_info.json. Generating them there - as part
-        of the nightly rebuild - would let this move across with the rest of the class.
-        """
-        ac = wc.AlyxClient(**TEST_DB_2)
+        """Downloading the cache tables must authenticate first, like any other request."""
+        ac = wc.AlyxClient(**TEST_DB_1)
         # Stored so that the request below has something to authenticate with once logged out,
         # which is the whole point of the test.
-        for key, value in (('ALYX_LOGIN', TEST_DB_2['username']),
-                           ('ALYX_PWD', TEST_DB_2['password'])):
+        for key, value in (('ALYX_LOGIN', TEST_DB_1['username']),
+                           ('ALYX_PWD', TEST_DB_1['password'])):
             ac._par = ac._par.set(key, value)
         ac.logout()
         self.assertFalse(ac.is_logged_in)
