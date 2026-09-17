@@ -28,10 +28,9 @@ CACHE_DIR_DEFAULT = str(Path.home() / 'Downloads' / 'ONE')
 def default():
     """Default Web client parameters.
 
-    The default login is deliberately blank. The public database used to be reached through a
-    single shared account, and baking its name in here meant a silent setup quietly assumed an
-    identity for the user; now that anyone can register their own account, the client asks who
-    they are instead. Passing ``username`` to :func:`setup` still fills it in unattended.
+    The login is deliberately blank: public users now register their own account, so the client
+    asks who they are rather than assuming a shared one. Pass ``username`` to :func:`setup` to
+    fill it in unattended.
     """
     par = {'ALYX_URL': 'https://openalyx.internationalbrainlab.org',
            'ALYX_LOGIN': '',

@@ -507,9 +507,7 @@ def http_download_file(full_link_to_file, chunks=None, *, clobber=False, silent=
     block_sz = 8192 * 64 * 8
 
     md5 = hashlib.md5()
-    # The target may not exist: the default is ~/Downloads, which a container, a CI runner or a
-    # fresh server account will not have. Left to itself, open() then fails with a bare
-    # FileNotFoundError, after the request has been made and the download announced.
+    # The default target is ~/Downloads, which a container or CI runner may not have.
     file_name.parent.mkdir(parents=True, exist_ok=True)
     f = open(file_name, 'wb')
     with tqdm(total=file_size / 1024 / 1024, disable=silent) as pbar:
@@ -1115,17 +1113,11 @@ class AlyxClient:
             page. Supplying one forces re-authentication, as supplying a password does.
 
         """
-        # Get username. Treated as absent when empty as well as when None: the default
-        # parameters carry a blank login, so that a public database that no longer ships a
-        # shared account prompts for one instead of silently assuming a name.
+        # An empty login counts as absent: the defaults now ship a blank one so a public
+        # database prompts rather than assuming a shared account.
         #
-        # None of this happens when a token is supplied. A token names its own owner through
-        # /me, so there is nothing to look up and nothing to ask for. Falling back to a
-        # stored login here would also be actively harmful rather than merely redundant: the
-        # token would be cached under a name that may not own it, and _clear_token below
-        # would discard that account's own cached token on the way past. Leaving the
-        # username as None lets /me settle it, and means there is no caller assertion for
-        # the token's owner to contradict, hence no spurious mismatch warning.
+        # None of this applies to a token, which names its own owner through /me. Falling back
+        # to a stored login would cache the token under a name that may not own it.
         if not username and token is None:
             username = getattr(self._par, 'ALYX_LOGIN', None) or self.user
         if not username and token is None and not self.silent:
@@ -1225,14 +1217,12 @@ class AlyxClient:
             tokens[username] = self._token
             par = par.set('TOKEN', tokens)
             if not getattr(par, 'ALYX_LOGIN', None):
-                # Remember a username that was prompted for or resolved from a token, so that
-                # it is asked for once and not every session: the cached token is looked up by
-                # username, and without this it could never be found again.
+                # The cached token is looked up by username, so record one that was resolved
+                # or prompted for, or it could never be found again.
                 par = par.set('ALYX_LOGIN', username)
             one.params.save(par, self.base_url)
-            # Update current pars. The login is only filled in where this client has none of its
-            # own: a client instantiated for a particular user keeps that user, whatever the
-            # saved parameters say.
+            # Only fill in the login where this client has none: one built for a particular
+            # user keeps that user.
             self._par = self._par.set('TOKEN', tokens)
             if not getattr(self._par, 'ALYX_LOGIN', None):
                 self._par = self._par.set('ALYX_LOGIN', username)
@@ -1281,22 +1271,19 @@ class AlyxClient:
                 response=rep)
         _logger.debug('Token accepted for user "%s"', username)
         try:
-            # Older databases serve /me as a web page, and answer a token request with a
-            # redirect to the login form; only a JSON body names the user.
+            # Older databases serve /me as a web page, so only a JSON body names the user.
             reported = rep.json().get('username')
         except ValueError:
             return None
-        # Anything but a non-empty string is treated as no answer. The name ends up as a key in
-        # the parameter file, and a key that will not serialise truncates that file as it is
-        # written, taking every other cached token with it.
+        # Only a non-empty string counts: the name becomes a key in the parameter file, and one
+        # that will not serialise truncates that file as it is written.
         return reported if isinstance(reported, str) and reported else None
 
     def _resolve_token_user(self, username):
         """Validate a token and settle on the username to cache it under.
 
-        The database is the authority on whose token it is, so a name it reports wins over one
-        the caller typed: caching a token under the wrong name would leave the parameter file
-        claiming an account the credential does not belong to.
+        A name the database reports wins over one the caller typed: caching a token under the
+        wrong name would leave the parameter file claiming an account it does not own.
 
         Parameters
         ----------
