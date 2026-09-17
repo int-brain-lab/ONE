@@ -1,6 +1,7 @@
 """Unit tests for the one.webclient module."""
 
 from pathlib import Path
+from functools import partial
 import unittest
 from unittest import mock
 import http.client
@@ -17,6 +18,7 @@ import shutil
 import requests
 import json
 import logging
+import warnings
 from datetime import datetime, timedelta, timezone
 
 from iblutil.io import hashfile
@@ -25,14 +27,59 @@ import iblutil.io.params as iopar
 from one.tests import OFFLINE_ONLY, TEST_DB_1, TEST_DB_2
 from one.tests import util
 
-par = one.params.get(silent=True)
+# The defaults, not the developer's own parameters: importing a test module should not read -
+# or, where none exist yet, create - the real ~/.one files. Only the public data server login
+# is wanted here, which no deployment overrides.
+par = one.params.default()
+
+_tempdir = None
+_patches = []
+
+
+def setUpModule():
+    """Point the parameter files at a directory belonging to this module.
+
+    Nothing here should touch the developer's real ~/.one. These tests log in and out, which
+    rewrites the parameter file for whichever database they are pointed at: at best that
+    discards a cached token the developer was using, and a test that hands `authenticate` an
+    unserialisable username - a bare Mock, say - truncates the file outright, as `json.dump`
+    fails part way through a write that has already emptied it.
+
+    Each test database is then set up silently, so that no class depends on another having run
+    first to create the parameters it reads.
+    """
+    global _tempdir
+    _tempdir = tempfile.TemporaryDirectory()
+    _patches.extend((
+        mock.patch('iblutil.io.params.getfile', new=partial(util.get_file, _tempdir.name)),
+        mock.patch('one.params.CACHE_DIR_DEFAULT', Path(_tempdir.name)),
+    ))
+    for patch in _patches:
+        patch.start()
+    # TEST_DB_2 last and as the default, since it is the database a bare AlyxClient() reaches.
+    for db in (TEST_DB_1, TEST_DB_2):
+        if db:
+            one.params.setup(db['base_url'], silent=True, make_default=db is TEST_DB_2)
+
+
+def tearDownModule():
+    for patch in _patches:
+        patch.stop()
+    _patches.clear()
+    if _tempdir:
+        _tempdir.cleanup()
 
 
 class TestRestDocumentation(unittest.TestCase):
     """Tests for AlyxClient REST API schema parsing and printing."""
 
     def setUp(self) -> None:
-        self.ac = wc.AlyxClient()
+        # Two of these tests make a request, so the client needs credentials of its own rather
+        # than whatever token happens to be cached on the machine running them - which is what
+        # a bare AlyxClient() picked up, and why they passed or failed depending on whose
+        # machine they ran on. The other two work from the fixtures alone and must still run
+        # where there is no network.
+        self.ac = wc.AlyxClient(silent=True) if OFFLINE_ONLY else wc.AlyxClient(**TEST_DB_2)
         self.path_fixtures = Path(__file__).parent.joinpath('fixtures', 'rest_responses')
         with open(self.path_fixtures.joinpath('coreapi.json'), 'r') as f:
             rest_scheme = json.load(f)
@@ -144,6 +191,17 @@ class TestAuthentication(unittest.TestCase):
     """Tests for AlyxClient authentication, token storage, login/out methods and user prompts."""
 
     def setUp(self) -> None:
+        # A parameter directory per test on top of the module's own: these tests rewrite the
+        # stored login and token as part of what they assert, and those edits would otherwise
+        # carry into whatever runs next.
+        self.tempdir = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tempdir.cleanup)
+        for target, new in (('iblutil.io.params.getfile',
+                             partial(util.get_file, self.tempdir.name)),
+                            ('one.params.CACHE_DIR_DEFAULT', Path(self.tempdir.name))):
+            patch = mock.patch(target, new=new)
+            patch.start()
+            self.addCleanup(patch.stop)
         self.ac = wc.AlyxClient(**TEST_DB_2)
 
     def test_authentication(self):
@@ -212,6 +270,150 @@ class TestAuthentication(unittest.TestCase):
         # Check non-silent double logout
         ac.logout()
         ac.logout()  # Shouldn't complain
+
+    def test_authenticate_with_token(self):
+        """Test authenticating with a token in place of a password.
+
+        Accounts that sign in through an identity provider have no password at all, so
+        /auth-token is closed to them and a token is the only credential they have.
+        """
+        ac = self.ac
+        ac.logout()
+        token = {'token': 'a-valid-looking-token'}
+        with (
+            mock.patch.object(ac, '_verify_token', return_value=TEST_DB_2['username']) as verify,
+            mock.patch('one.webclient.requests.post') as post,
+        ):
+            ac.authenticate(TEST_DB_2['username'], token=token['token'], cache_token=True)
+            post.assert_not_called()  # a token must not be exchanged at /auth-token
+            verify.assert_called_once()
+        self.assertTrue(ac.is_logged_in)
+        self.assertEqual('Token ' + token['token'], ac._headers['Authorization'])
+        # Cached like a token fetched with a password, so later sessions need no credential
+        cached = getattr(one.params.get(TEST_DB_2['base_url']), 'TOKEN', {})
+        self.assertEqual(token, cached.get(TEST_DB_2['username']))
+
+    def test_authenticate_with_token_not_cached(self):
+        """A token passed with cache_token=False should not be written to the params."""
+        ac = self.ac
+        ac.logout()
+        with mock.patch.object(ac, '_verify_token', return_value=TEST_DB_2['username']):
+            ac.authenticate(TEST_DB_2['username'], token='transient', cache_token=False)
+        cached = getattr(one.params.get(TEST_DB_2['base_url']), 'TOKEN', {})
+        self.assertNotIn(TEST_DB_2['username'], cached)
+
+    def test_authenticate_token_prompt(self):
+        """A blank password at the prompt should fall through to asking for a token."""
+        ac = self.ac
+        ac.logout()
+        ac.silent = False
+        prompts = []
+
+        def _getpass(prompt):
+            prompts.append(prompt)
+            return '' if 'password' in prompt else 'token-from-prompt'
+
+        with (
+            mock.patch('one.webclient.getpass', side_effect=_getpass),
+            mock.patch.object(ac, '_verify_token', return_value=TEST_DB_2['username']),
+            mock.patch('one.webclient.requests.post') as post,
+        ):
+            ac.authenticate(TEST_DB_2['username'], force=True)
+            post.assert_not_called()
+        self.assertEqual(2, len(prompts), 'expected a password prompt then a token prompt')
+        self.assertIn('token', prompts[1].lower())
+        self.assertEqual('Token token-from-prompt', ac._headers['Authorization'])
+
+    def test_verify_token_rejects_bad_token(self):
+        """A token the database refuses must be discarded rather than cached."""
+        ac = self.ac
+        rep = requests.Response()
+        rep.status_code = 403
+        rep.url = ac.base_url + '/me'
+        with (
+            mock.patch('one.webclient.requests.get', return_value=rep),
+            self.assertRaises(requests.HTTPError) as ex,
+        ):
+            ac.authenticate(TEST_DB_2['username'], token='bad', cache_token=True)
+        self.assertIn('rejected the API token', str(ex.exception))
+        cached = getattr(one.params.get(TEST_DB_2['base_url']), 'TOKEN', {})
+        self.assertNotIn(TEST_DB_2['username'], cached)
+
+    def test_verify_token_tolerates_unreachable_database(self):
+        """A network failure while checking must not reject a token that may be perfectly good."""
+        ac = self.ac
+        with mock.patch('one.webclient.requests.get',
+                        side_effect=requests.ConnectionError):
+            ac.authenticate(TEST_DB_2['username'], token='probably-fine', cache_token=False)
+        self.assertTrue(ac.is_logged_in)
+
+    def test_verify_token_checks_the_me_endpoint(self):
+        """The token is checked against /me, which also reports whose it is."""
+        ac = self.ac
+        rep = requests.Response()
+        rep.status_code = 200
+        rep._content = json.dumps({'username': TEST_DB_2['username']}).encode()
+        with mock.patch('one.webclient.requests.get', return_value=rep) as get:
+            ac.authenticate(TEST_DB_2['username'], token='fine', cache_token=False)
+        self.assertEqual(ac.base_url + '/me', get.call_args.args[0])
+
+    def test_token_username_wins_over_the_one_supplied(self):
+        """The database knows whose token it is; caching it under another name would lie."""
+        ac = self.ac
+        ac.logout()
+        with mock.patch.object(ac, '_verify_token', return_value=TEST_DB_2['username']):
+            with self.assertWarns(UserWarning):
+                ac.authenticate('somebody-else', token='fine', cache_token=True)
+        self.assertEqual(TEST_DB_2['username'], ac.user)
+        cached = getattr(one.params.get(TEST_DB_2['base_url']), 'TOKEN', {})
+        self.assertIn(TEST_DB_2['username'], cached)
+        self.assertNotIn('somebody-else', cached)
+
+    def test_token_alone_identifies_the_user(self):
+        """A token is the one credential that can name its owner, so no username is needed."""
+        ac = self.ac
+        ac.logout()
+        with mock.patch.object(ac, '_verify_token', return_value=TEST_DB_2['username']):
+            ac.authenticate(token='fine', cache_token=False)
+        self.assertEqual(TEST_DB_2['username'], ac.user)
+
+    def test_a_token_is_never_asked_who_it_belongs_to(self):
+        """A token names its own owner, so neither the prompt nor the stored login applies."""
+        ac = self.ac
+        ac.logout()
+        ac.silent = False
+        ac._par = ac._par.set('ALYX_LOGIN', 'somebody-else')
+        with (
+            mock.patch('one.webclient.input', side_effect=AssertionError('prompted')),
+            mock.patch.object(ac, '_verify_token', return_value=TEST_DB_2['username']) as verify,
+            warnings.catch_warnings(),
+        ):
+            # A stored login that disagrees is not an assertion by the caller, so it must not
+            # produce a mismatch warning either.
+            warnings.simplefilter('error', UserWarning)
+            ac.authenticate(token='fine', cache_token=False)
+            self.assertIsNone(verify.call_args.args[0], 'the stored login must not be passed on')
+        self.assertEqual(TEST_DB_2['username'], ac.user)
+
+    def test_no_username_is_an_error_rather_than_a_prompt_loop(self):
+        """With a blank default login and no token, there is nothing to authenticate as."""
+        ac = self.ac
+        ac.logout()
+        ac._par = ac._par.set('ALYX_LOGIN', '')
+        with self.assertRaises(ValueError) as ex:
+            ac.authenticate(password='whatever')
+        self.assertIn('signup', str(ex.exception))
+
+    def test_a_username_resolved_once_is_remembered(self):
+        """Otherwise the cached token, which is keyed by username, could never be found again."""
+        ac = self.ac
+        ac.logout()
+        ac._par = ac._par.set('ALYX_LOGIN', '')
+        one.params.save(ac._par, ac.base_url)
+        with mock.patch.object(ac, '_verify_token', return_value=TEST_DB_2['username']):
+            ac.authenticate(token='fine', cache_token=True)
+        self.assertEqual(TEST_DB_2['username'],
+                         one.params.get(TEST_DB_2['base_url']).ALYX_LOGIN)
 
     def test_auth_methods(self):
         """Test behaviour when calling AlyxClient._generic_request when logged out."""
@@ -647,6 +849,17 @@ class TestDownloadHTTP(unittest.TestCase):
             finally:
                 self.assertTrue(raised)
                 self.ac._par = old_par
+
+    def test_download_creates_a_missing_target_directory(self):
+        """The default target is ~/Downloads, which plenty of machines do not have."""
+        tempdir = tempfile.TemporaryDirectory()
+        self.addCleanup(tempdir.cleanup)
+        target = Path(tempdir.name, 'does', 'not', 'exist')
+        self.assertFalse(target.exists())
+        link = ('https://ibl.flatironinstitute.org/public/hoferlab/Subjects/SWC_043/'
+                '2020-09-21/001/alf/probes.description.c4df1eea-c92c-479f-a907-41fa6e770094.json')
+        file_name = wc.http_download_file(link, target_dir=target, clobber=True)
+        self.assertTrue(Path(file_name).exists())
 
     def test_download_datasets(self):
         # test downloading a single file

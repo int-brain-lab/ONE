@@ -1582,11 +1582,19 @@ class TestOneRemote(unittest.TestCase):
     """Test remote queries using OpenAlyx."""
 
     def setUp(self) -> None:
+        # Set cache directory to a temp dir to ensure that we re-download files. The parameter
+        # files are pointed there too, and before the client is built: authenticating writes the
+        # token to the parameter file for this database, which is OpenAlyx - so without this the
+        # tests rewrite the real parameters of whoever is running them, replacing the token they
+        # had cached.
+        self.tempdir = tempfile.TemporaryDirectory()
+        patch = mock.patch('one.params.iopar.getfile',
+                           new=partial(util.get_file, self.tempdir.name))
+        patch.start()
+        self.addCleanup(patch.stop)
         self.one = OneAlyx(**TEST_DB_2, mode='remote')
         self.eid = UUID('4ecb5d24-f5cc-402c-be28-9d0f7cb14b3a')
         self.pid = UUID('da8dfec1-d265-44e8-84ce-6ae9c109b8bd')
-        # Set cache directory to a temp dir to ensure that we re-download files
-        self.tempdir = tempfile.TemporaryDirectory()
         self.one.alyx._par = self.one.alyx._par.set('CACHE_DIR', Path(self.tempdir.name))
 
     def test_online_repr(self):
@@ -2144,7 +2152,8 @@ class TestOneSetup(unittest.TestCase):
         """
         with mock.patch('iblutil.io.params.getfile', new=self.get_file), \
                 mock.patch('one.params.input', new=self.assertFalse):
-            one_obj = ONE(silent=True, mode='local', password=TEST_DB_2['password'])
+            one_obj = ONE(silent=True, mode='local', username=TEST_DB_2['username'],
+                          password=TEST_DB_2['password'])
             self.assertEqual(one_obj.alyx.base_url, one.params.default().ALYX_URL)
 
         # Check param files were saved
@@ -2160,8 +2169,8 @@ class TestOneSetup(unittest.TestCase):
             # With the default database in silent mode the defaults should be used
             one.params.save(one_obj.alyx._par.set('ALYX_LOGIN', 'foobar'), url)
             one.params.setup(url, silent=True)
-            one_obj = ONE(mode='local')
-            self.assertEqual(one.params.default().ALYX_LOGIN, one_obj.alyx._par.ALYX_LOGIN)
+            self.assertEqual(one.params.default().ALYX_LOGIN,
+                             one.params.get(client=url).ALYX_LOGIN)
 
         # Check saves base_url arg
         with self.subTest('Test setup with base URL'):
@@ -2292,7 +2301,8 @@ class TestOneSetup(unittest.TestCase):
                 if OFFLINE_ONLY:
                     self.skipTest('Requires remote db connection')
                 # No cache dir provided; use OneAlyx (silent setup mode)
-                one_obj = ONE(silent=True, mode='local', password=TEST_DB_2['password'])
+                one_obj = ONE(silent=True, mode='local', username=TEST_DB_2['username'],
+                              password=TEST_DB_2['password'])
                 self.assertIsInstance(one_obj, OneAlyx)
 
                 # The cache dir is in client cache map; use OneAlyx

@@ -9,9 +9,20 @@ This version allows users to register files not associated with a single session
 - add_uuid_string and ALFPath.with_uuid accept a strict flag to raise instead of replacing a different UUID
 - OpenAlyx._download_aws now explicitly removes the UUID from the destination path when keep_uuid is False
 - AlyxClient paginated responses now handle changes to remote pagination (results in memory are resized when remote count changes)
+- AlyxClient.authenticate accepts an API token in place of a password, for accounts that sign in
+  through an identity provider and so have none; ONE and AlyxClient take a `token` keyword, and the
+  password prompt offers a token when left blank
+- a token is sufficient on its own: no username is prompted for or read from the saved parameters
+  when one is given, as the database reports whose token it is
+- a token is checked against the database's /me endpoint before being cached, and the username it
+  reports is used, so a token alone is enough to authenticate
+- the default ALYX_LOGIN is now blank rather than the shared `intbrainlab` account: public users
+  register their own account on Open Alyx, and are asked which one they are
 
 ### Fixed
 
+- http_download_file creates its target directory instead of failing with FileNotFoundError; the
+  default target is ~/Downloads, which a container, CI runner or fresh server account may not have
 - AlyxClient now handles basic HTTP error strings returned by Alyx
 - PureALFPath.with_subject, with_date, with_sequence and with_collection no longer raise a
   TypeError on Python 3.14 due to a misplaced parenthesis passing count=1 to the path constructor
