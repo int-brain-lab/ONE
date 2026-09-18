@@ -235,23 +235,16 @@ def caches_str2int(caches):
 def mock_http_download(content=b'mock file contents'):
     """Stand in for the HTTP transfer so download tests need no data server access.
 
-    The test database's file records point at the private FlatIron tree, which needs IBL member
-    credentials. The public tree is not a substitute: it holds the same sessions under different
-    dataset ids, because Open Alyx has its own dataset records and Alyx builds the file name from
-    the id - so the public URL for a test database dataset does not exist.
+    The test database's file records point at the private FlatIron tree. Only the bytes on the
+    wire are simulated; URL validation, the hash check and UUID stripping still run.
 
-    Only the bytes on the wire are simulated. Everything above still runs for real: the URL is
-    validated against the data server, the target directory is created, the file name has its
-    UUID stripped, and the hash and size are compared against the record.
-
-    That last comparison is why the mismatch handler is stubbed out alongside. A fabricated file
-    never matches the recorded hash, and the handler's response is to tell Alyx to flag the file
-    record - which would write to the shared test database from a unit test.
+    The mismatch handler is stubbed out too: a fabricated file never matches the recorded hash,
+    and the handler would flag the file record on Alyx, writing to the shared test database.
 
     Yields
     ------
     unittest.mock.MagicMock
-        The patched `_tag_mismatched_file_record`, so a test may assert on the mismatch path.
+        The patched `_tag_mismatched_file_record`.
 
     """
     from iblutil.io import hashfile

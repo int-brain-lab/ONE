@@ -1600,10 +1600,8 @@ def ONE(*, mode='remote', wildcards=True, **kwargs):
     password : str
         An Alyx database password.
     token : str, dict
-        An Alyx REST API token, to authenticate with in place of a password.  Accounts that sign
-        in through an identity provider have no password; their token is shown on the database's
-        /me page.  The username is optional when a token is given, as the database reports whose
-        it is.
+        An Alyx REST API token, used in place of a password and shown on the database's /me
+        page.  The username is optional with a token, as the database reports whose it is.
     cache_rest : str
         If not in 'local' mode, this determines which http request types to cache.  Default is
         'GET'.  Use None to deactivate cache (not recommended).

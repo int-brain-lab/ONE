@@ -40,14 +40,9 @@ _patches = []
 def setUpModule():
     """Point the parameter files at a directory belonging to this module.
 
-    Nothing here should touch the developer's real ~/.one. These tests log in and out, which
-    rewrites the parameter file for whichever database they are pointed at: at best that
-    discards a cached token the developer was using, and a test that hands `authenticate` an
-    unserialisable username - a bare Mock, say - truncates the file outright, as `json.dump`
-    fails part way through a write that has already emptied it.
-
-    Each test database is then set up silently, so that no class depends on another having run
-    first to create the parameters it reads.
+    These tests log in and out, which rewrites the parameter file for whichever database they
+    use - the developer's real ~/.one without this. Each test database is then set up silently
+    so no class depends on another having run first.
     """
     global _tempdir
     _tempdir = tempfile.TemporaryDirectory()
@@ -192,9 +187,7 @@ class TestAuthentication(unittest.TestCase):
     """Tests for AlyxClient authentication, token storage, login/out methods and user prompts."""
 
     def setUp(self) -> None:
-        # A parameter directory per test on top of the module's own: these tests rewrite the
-        # stored login and token as part of what they assert, and those edits would otherwise
-        # carry into whatever runs next.
+        # A directory per test: these rewrite the stored login and token as they assert.
         self.tempdir = tempfile.TemporaryDirectory()
         self.addCleanup(self.tempdir.cleanup)
         for target, new in (('iblutil.io.params.getfile',
