@@ -127,7 +127,7 @@ def dataframe(adict):
             df[k] = adict[k][:, 0]
         elif adict[k].ndim == 2:
             for i in np.arange(adict[k].shape[1]):
-                df[f"{k}_{i}"] = adict[k][:, i]
+                df[f'{k}_{i}'] = adict[k][:, i]
                 if i == 9:
                     break
         else:

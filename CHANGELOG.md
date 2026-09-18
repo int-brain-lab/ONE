@@ -1,6 +1,24 @@
 # Changelog
 
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [3.5.2]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [3.6.0]
+This version allows users to register files not associated with a single session.
+
+### Modified
+
+- RegistrationClient now allows registration of datasets outside of an ALF session path
+- add_uuid_string and ALFPath.with_uuid accept a strict flag to raise instead of replacing a different UUID
+- OpenAlyx._download_aws now explicitly removes the UUID from the destination path when keep_uuid is False
+- AlyxClient paginated responses now handle changes to remote pagination (results in memory are resized when remote count changes)
+
+### Fixed
+
+- AlyxClient now handles basic HTTP error strings returned by Alyx
+- PureALFPath.with_subject, with_date, with_sequence and with_collection no longer raise a
+  TypeError on Python 3.14 due to a misplaced parenthesis passing count=1 to the path constructor
+- PureALFPath.with_extension validates the extension instead of relying on PurePath.with_suffix, which no longer rejects a lone period on Python 3.14
+- util.filter_datasets now handles end of string assertions in Python 3.14, restoring the behaviour of the ONE load methods
+
+## [3.5.2]
 This version allows Globus to be configured without a local endpoint.
 
 ### Fixed
@@ -16,7 +34,7 @@ This version allows DatasetType QuerySet objects to be passed to get_dataset_typ
 
 ### Fixed
 
-- registration.get_dataset_type now only casts dicts to Bunch, permitting Django objects to be passed 
+- registration.get_dataset_type now only casts dicts to Bunch, permitting Django objects to be passed
 
 ## [3.5.0]
 This version adds support for globus_sdk v4.4.0 and pandas v3.0, and gracefully handles Alyx request rate limits.
@@ -30,7 +48,7 @@ This version adds support for globus_sdk v4.4.0 and pandas v3.0, and gracefully 
 
 ### Fixed
 
-- registration.get_dataset_type now casts dtypes input to 
+- registration.get_dataset_type now casts dtypes input to
 - as_dict=False no longer ignored for list inputs to ConversionMixin.path2ref
 
 ## [3.4.2]

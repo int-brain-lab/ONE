@@ -267,7 +267,7 @@ class One(ConversionMixin):
             name = 'dataset_uuid'
             ids = self._cache['_loaded_datasets']
 
-        timestamp = datetime.now().strftime("%Y-%m-%dT%H-%M-%S%z")
+        timestamp = datetime.now().strftime('%Y-%m-%dT%H-%M-%S%z')
         filename = Path(self._tables_dir or self.cache_dir) / f'{timestamp}_loaded_{name}s.csv'
         pd.DataFrame(ids, columns=[name]).to_csv(filename, index=False)
         if clear_list:
@@ -2525,6 +2525,8 @@ class OneAlyx(One):
             source_path = alfiles.add_uuid_string(source_path, uuid)
             if keep_uuid is True or (keep_uuid is None and self.uuid_filenames is True):
                 local_path = alfiles.add_uuid_string(local_path, uuid)
+            else:
+                local_path = alfiles.remove_uuid_string(local_path)
             local_path.parent.mkdir(exist_ok=True, parents=True)
             out_files.append(aws.s3_download_file(
                 source_path, local_path, s3=s3, bucket_name=bucket_name, overwrite=update_exists))
@@ -3022,7 +3024,8 @@ class OneAlyx(One):
             return out
 
         if (query_type or self.mode) == 'local':
-            return super().get_details(eid, full=full)
+            unwrapped = unwrap(super().get_details)
+            return unwrapped(self, eid, full=full)
         # If eid is a list of eIDs recurse through list and return the results
         eids = ensure_list(eid)
         details = dict.fromkeys(map(str, eids), None)  # create map to skip duplicates

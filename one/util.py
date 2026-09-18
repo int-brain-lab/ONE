@@ -322,8 +322,8 @@ def filter_datasets(
         if v is None:
             continue
         if wildcards:
-            # Convert to regex, remove \\Z which asserts end of string
-            v = (fnmatch.translate(x).replace('\\Z', '') for x in ensure_list(v))
+            # Convert to regex, remove the end-of-string assertion (\Z before py3.14, \z after)
+            v = (re.sub(r'\\[Zz]$', '', fnmatch.translate(x)) for x in ensure_list(v))
         if not isinstance(v, str):
             regex_args[k] = '|'.join(v)  # logical OR
 

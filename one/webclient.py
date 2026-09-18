@@ -267,9 +267,34 @@ class _PaginatedResponse(Mapping):
                 i = self.count + item.start if item.start < 0 else item.start
                 self.populate(i + self._cache[item].index(None))
         elif self._cache[item] is None:
-            # If index is -ve, convert to +ve
-            self.populate(self.count + item if item < 0 else item)
+            # A -ve index is resolved against the count at the time of the request. If the remote
+            # count changed, populate re-syncs it and the record may now be on a different page,
+            # so resolve the index again and retry once.
+            for _ in range(2):
+                # If index is -ve, convert to +ve
+                self.populate(self.count + item if item < 0 else item)
+                if self._cache[item] is not None:
+                    break
         return self._cache[item]
+
+    def _resize(self, count):
+        """Resize the cache to match a changed remote count.
+
+        Records are truncated from the end when the remote count shrinks, and None placeholders
+        appended when it grows.  Note that cached records may be shifted relative to the remote
+        list, hence the warning raised by :meth:`populate`.
+
+        Parameters
+        ----------
+        count : int
+            The new total number of remote records.
+
+        """
+        if count < self.count:
+            del self._cache[count:]
+        else:
+            self._cache.extend([None] * (count - self.count))
+        self.count = count
 
     def populate(self, idx):
         """Populate response cache with new page of results.
@@ -290,8 +315,9 @@ class _PaginatedResponse(Mapping):
             warnings.warn(
                 f'remote results for {urllib.parse.urlsplit(query).path} endpoint changed; '
                 f'results may be inconsistent', RuntimeWarning)
+            self._resize(res['count'])
         for i, r in enumerate(res['results'][:self.count - offset]):
-            self._cache[i + offset] = res['results'][i]
+            self._cache[i + offset] = r
         # Notify callbacks
         pending_removal = []
         for callback in self._callbacks:
@@ -1039,8 +1065,9 @@ class AlyxClient:
         _logger.debug('Response text raw: ' + r.text)
         try:
             message = json.loads(r.text)
-            message.pop('status_code', None)  # Get status code from response object instead
-            message = message.get('detail') or message  # Get details if available
+            if isinstance(message, dict):
+                message.pop('status_code', None)  # Get status code from response object instead
+                message = message.get('detail') or message  # Get details if available
             _logger.debug(message)
         except json.decoder.JSONDecodeError:
             message = r.text
