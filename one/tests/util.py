@@ -1,8 +1,11 @@
 """Utilities functions for setting up test fixtures."""
 import tempfile
+from contextlib import contextmanager
 from pathlib import Path
+from unittest import mock
 import shutil
 import json
+import urllib.parse
 from uuid import uuid4
 
 import pandas as pd
@@ -226,3 +229,35 @@ def caches_str2int(caches):
                 cache[f'{name}_{i}'] = col
         int_cols = cache.filter(regex=r'_\d{1}$').columns.sort_values().tolist()
         caches[table] = cache.set_index(int_cols)
+
+
+@contextmanager
+def mock_http_download(content=b'mock file contents'):
+    """Stand in for the HTTP transfer so download tests need no data server access.
+
+    The test database's file records point at the private FlatIron tree. Only the bytes on the
+    wire are simulated; URL validation, the hash check and UUID stripping still run.
+
+    The mismatch handler is stubbed out too: a fabricated file never matches the recorded hash,
+    and the handler would flag the file record on Alyx, writing to the shared test database.
+
+    Yields
+    ------
+    unittest.mock.MagicMock
+        The patched `_tag_mismatched_file_record`.
+
+    """
+    from iblutil.io import hashfile
+
+    def download(url, chunks=None, *, clobber=False, silent=False, username='', password='',
+                 target_dir='', return_md5=False, headers=None):
+        name = urllib.parse.urlsplit(url).path.rsplit('/', 1)[-1]
+        target = Path(target_dir or '')
+        target.mkdir(parents=True, exist_ok=True)
+        file = target.joinpath(name)
+        file.write_bytes(content)
+        return (file, hashfile.md5(file)) if return_md5 else file
+
+    with mock.patch('one.webclient.http_download_file', new=download), \
+            mock.patch('one.api.OneAlyx._tag_mismatched_file_record') as tag:
+        yield tag
