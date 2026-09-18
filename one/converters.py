@@ -773,6 +773,9 @@ def ses2records(ses: dict):
     eid = UUID(ses.get('id') or ses['url'][-36:])
     session_keys = ('subject', 'start_time', 'lab', 'number', 'task_protocol', 'projects')
     session_data = {k: v for k, v in ses.items() if k in session_keys}
+    # Base sessions have no number. The cache column is a plain integer, so a null one fails the
+    # type cast when the record is merged in.
+    session_data['number'] = session_data.get('number') or 0
     session = (
         pd.Series(data=session_data, name=eid).rename({'start_time': 'date'})
     )

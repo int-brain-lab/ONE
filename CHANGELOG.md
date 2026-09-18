@@ -22,6 +22,7 @@ It also allows users to register files not associated with a single session.
 
 ### Fixed
 
+- one.converters.ses2records now supports base sessions with null number
 - the ONE-API-Version header is now sent on every request; authenticate rebuilt the header dict
   and dropped it, so only a client that authenticated through the constructor ever sent it
 - ONE rejects an unrecognised `mode` before building a client
