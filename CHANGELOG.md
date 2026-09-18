@@ -4,6 +4,10 @@
 This version adds support for public accounts and authentication without password.
 It also allows users to register files not associated with a single session.
 
+### Added
+
+- CITATION file for information on how to cite this repository
+
 ### Modified
 
 - RegistrationClient now allows registration of datasets outside of an ALF session path

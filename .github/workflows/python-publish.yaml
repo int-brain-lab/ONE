@@ -57,3 +57,40 @@ jobs:
       with:
         user: __token__
         password: ${{ secrets.PYPI_API_TOKEN }}
+
+  update-citation:
+    name: Update CITATION.cff
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - name: Check tag is a full major.minor.patch release
+      id: check
+      run: |
+        VERSION="${GITHUB_REF_NAME#v}"
+        if [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          echo "is_release=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "is_release=false" >> "$GITHUB_OUTPUT"
+          echo "Skipping CITATION.cff update for non-release tag: ${GITHUB_REF_NAME}"
+        fi
+    - uses: actions/checkout@v3
+      if: steps.check.outputs.is_release == 'true'
+      with:
+        ref: main
+    - name: Bump version and date-released in CITATION.cff
+      if: steps.check.outputs.is_release == 'true'
+      run: |
+        VERSION="${GITHUB_REF_NAME#v}"
+        DATE=$(date -u +%Y-%m-%d)
+        sed -i "s/^version: .*/version: ${VERSION}/" CITATION.cff
+        sed -i "s/^date-released: .*/date-released: ${DATE}/" CITATION.cff
+    - name: Commit and push
+      if: steps.check.outputs.is_release == 'true'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add CITATION.cff
+        git diff --cached --quiet || git commit -m "Update CITATION.cff for ${GITHUB_REF_NAME}"
+        git push origin HEAD:main

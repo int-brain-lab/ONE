@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "ONE"
+abstract: "The Open Neurophysiology Environment (ONE) API."
+type: software
+authors:
+  - name: "International Brain Laboratory"
+    alias: "IBL"
+    # ror: "https://ror.org/029r6a961"
+    website: "https://internationalbrainlab.org"
+version: 3.6.0
+date-released: 2026-09-17
+doi: 10.5281/zenodo.21340989
+repository-code: "https://github.com/int-brain-lab/ONE"
+url: "https://one.internationalbrainlab.org"
+license: MIT
