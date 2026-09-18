@@ -12,6 +12,7 @@ import uuid
 import os
 import io
 import one.webclient as wc
+import one
 import one.params
 import tempfile
 import shutil
@@ -79,7 +80,7 @@ class TestRestDocumentation(unittest.TestCase):
         # a bare AlyxClient() picked up, and why they passed or failed depending on whose
         # machine they ran on. The other two work from the fixtures alone and must still run
         # where there is no network.
-        self.ac = wc.AlyxClient(silent=True) if OFFLINE_ONLY else wc.AlyxClient(**TEST_DB_2)
+        self.ac = wc.AlyxClient(silent=True) if OFFLINE_ONLY else wc.AlyxClient(**TEST_DB_1)
         self.path_fixtures = Path(__file__).parent.joinpath('fixtures', 'rest_responses')
         with open(self.path_fixtures.joinpath('coreapi.json'), 'r') as f:
             rest_scheme = json.load(f)
@@ -202,7 +203,7 @@ class TestAuthentication(unittest.TestCase):
             patch = mock.patch(target, new=new)
             patch.start()
             self.addCleanup(patch.stop)
-        self.ac = wc.AlyxClient(**TEST_DB_2)
+        self.ac = wc.AlyxClient(**TEST_DB_1)
 
     def test_authentication(self):
         """Test for AlyxClient.authenticate and AlyxClient.is_logged_in property."""
@@ -211,12 +212,12 @@ class TestAuthentication(unittest.TestCase):
         ac.logout()
         self.assertFalse(ac.is_logged_in)
         # Check token removed from cache
-        cached_token = getattr(one.params.get(TEST_DB_2['base_url']), 'TOKEN', {})
-        self.assertFalse(TEST_DB_2['username'] in cached_token)
+        cached_token = getattr(one.params.get(TEST_DB_1['base_url']), 'TOKEN', {})
+        self.assertFalse(TEST_DB_1['username'] in cached_token)
         # Test with pars set
         login_keys = {'ALYX_LOGIN', 'ALYX_PWD'}
         if not set(ac._par.as_dict().keys()) >= login_keys:
-            for k, v in zip(sorted(login_keys), (TEST_DB_2['username'], TEST_DB_2['password'])):
+            for k, v in zip(sorted(login_keys), (TEST_DB_1['username'], TEST_DB_1['password'])):
                 ac._par = ac._par.set(k, v)
         with mock.patch('builtins.input') as mock_input:
             ac.authenticate()
@@ -235,26 +236,26 @@ class TestAuthentication(unittest.TestCase):
             {k: v for k, v in ac._par.as_dict().items() if k not in login_keys}
         )
         with mock.patch('builtins.input') as mock_input:
-            ac.authenticate(TEST_DB_2['username'], TEST_DB_2['password'], cache_token=False)
+            ac.authenticate(TEST_DB_1['username'], TEST_DB_1['password'], cache_token=False)
             mock_input.assert_not_called()
         # Check token not saved in cache
-        cached_token = getattr(one.params.get(TEST_DB_2['base_url']), 'TOKEN', {})
-        self.assertFalse(TEST_DB_2['username'] in cached_token)
+        cached_token = getattr(one.params.get(TEST_DB_1['base_url']), 'TOKEN', {})
+        self.assertFalse(TEST_DB_1['username'] in cached_token)
         # Test user prompts
         ac.logout()
         ac.silent = False
         with (
-            mock.patch('builtins.input', return_value=TEST_DB_2['username']),
-            mock.patch('one.webclient.getpass', return_value=TEST_DB_2['password']),
+            mock.patch('builtins.input', return_value=TEST_DB_1['username']),
+            mock.patch('one.webclient.getpass', return_value=TEST_DB_1['password']),
         ):
             ac.authenticate(cache_token=True)
         self.assertTrue(ac.is_logged_in)
         # Check token saved in cache
         ac.authenticate(cache_token=True)
-        cached_token = getattr(one.params.get(TEST_DB_2['base_url']), 'TOKEN', {})
-        self.assertTrue(TEST_DB_2['username'] in cached_token)
+        cached_token = getattr(one.params.get(TEST_DB_1['base_url']), 'TOKEN', {})
+        self.assertTrue(TEST_DB_1['username'] in cached_token)
         # Check force flag
-        with mock.patch('one.webclient.getpass', return_value=TEST_DB_2['password']) as mock_pwd:
+        with mock.patch('one.webclient.getpass', return_value=TEST_DB_1['password']) as mock_pwd:
             ac.authenticate(cache_token=True, force=True)
             mock_pwd.assert_called()
         # If a password is passed, should always force re-authentication
@@ -264,8 +265,8 @@ class TestAuthentication(unittest.TestCase):
         assert self.ac.is_logged_in
         with mock.patch('one.webclient.requests.post', return_value=rep) as m:
             self.ac.authenticate(password='foo', force=False)
-            expected = {'username': TEST_DB_2['username'], 'password': 'foo'}
-            m.assert_called_once_with(TEST_DB_2['base_url'] + '/auth-token', data=expected)
+            expected = {'username': TEST_DB_1['username'], 'password': 'foo'}
+            m.assert_called_once_with(TEST_DB_1['base_url'] + '/auth-token', data=expected)
 
         # Check non-silent double logout
         ac.logout()
@@ -281,26 +282,26 @@ class TestAuthentication(unittest.TestCase):
         ac.logout()
         token = {'token': 'a-valid-looking-token'}
         with (
-            mock.patch.object(ac, '_verify_token', return_value=TEST_DB_2['username']) as verify,
+            mock.patch.object(ac, '_verify_token', return_value=TEST_DB_1['username']) as verify,
             mock.patch('one.webclient.requests.post') as post,
         ):
-            ac.authenticate(TEST_DB_2['username'], token=token['token'], cache_token=True)
+            ac.authenticate(TEST_DB_1['username'], token=token['token'], cache_token=True)
             post.assert_not_called()  # a token must not be exchanged at /auth-token
             verify.assert_called_once()
         self.assertTrue(ac.is_logged_in)
         self.assertEqual('Token ' + token['token'], ac._headers['Authorization'])
         # Cached like a token fetched with a password, so later sessions need no credential
-        cached = getattr(one.params.get(TEST_DB_2['base_url']), 'TOKEN', {})
-        self.assertEqual(token, cached.get(TEST_DB_2['username']))
+        cached = getattr(one.params.get(TEST_DB_1['base_url']), 'TOKEN', {})
+        self.assertEqual(token, cached.get(TEST_DB_1['username']))
 
     def test_authenticate_with_token_not_cached(self):
         """A token passed with cache_token=False should not be written to the params."""
         ac = self.ac
         ac.logout()
-        with mock.patch.object(ac, '_verify_token', return_value=TEST_DB_2['username']):
-            ac.authenticate(TEST_DB_2['username'], token='transient', cache_token=False)
-        cached = getattr(one.params.get(TEST_DB_2['base_url']), 'TOKEN', {})
-        self.assertNotIn(TEST_DB_2['username'], cached)
+        with mock.patch.object(ac, '_verify_token', return_value=TEST_DB_1['username']):
+            ac.authenticate(TEST_DB_1['username'], token='transient', cache_token=False)
+        cached = getattr(one.params.get(TEST_DB_1['base_url']), 'TOKEN', {})
+        self.assertNotIn(TEST_DB_1['username'], cached)
 
     def test_authenticate_token_prompt(self):
         """A blank password at the prompt should fall through to asking for a token."""
@@ -315,10 +316,10 @@ class TestAuthentication(unittest.TestCase):
 
         with (
             mock.patch('one.webclient.getpass', side_effect=_getpass),
-            mock.patch.object(ac, '_verify_token', return_value=TEST_DB_2['username']),
+            mock.patch.object(ac, '_verify_token', return_value=TEST_DB_1['username']),
             mock.patch('one.webclient.requests.post') as post,
         ):
-            ac.authenticate(TEST_DB_2['username'], force=True)
+            ac.authenticate(TEST_DB_1['username'], force=True)
             post.assert_not_called()
         self.assertEqual(2, len(prompts), 'expected a password prompt then a token prompt')
         self.assertIn('token', prompts[1].lower())
@@ -334,17 +335,17 @@ class TestAuthentication(unittest.TestCase):
             mock.patch('one.webclient.requests.get', return_value=rep),
             self.assertRaises(requests.HTTPError) as ex,
         ):
-            ac.authenticate(TEST_DB_2['username'], token='bad', cache_token=True)
+            ac.authenticate(TEST_DB_1['username'], token='bad', cache_token=True)
         self.assertIn('rejected the API token', str(ex.exception))
-        cached = getattr(one.params.get(TEST_DB_2['base_url']), 'TOKEN', {})
-        self.assertNotIn(TEST_DB_2['username'], cached)
+        cached = getattr(one.params.get(TEST_DB_1['base_url']), 'TOKEN', {})
+        self.assertNotIn(TEST_DB_1['username'], cached)
 
     def test_verify_token_tolerates_unreachable_database(self):
         """A network failure while checking must not reject a token that may be perfectly good."""
         ac = self.ac
         with mock.patch('one.webclient.requests.get',
                         side_effect=requests.ConnectionError):
-            ac.authenticate(TEST_DB_2['username'], token='probably-fine', cache_token=False)
+            ac.authenticate(TEST_DB_1['username'], token='probably-fine', cache_token=False)
         self.assertTrue(ac.is_logged_in)
 
     def test_verify_token_checks_the_me_endpoint(self):
@@ -352,30 +353,30 @@ class TestAuthentication(unittest.TestCase):
         ac = self.ac
         rep = requests.Response()
         rep.status_code = 200
-        rep._content = json.dumps({'username': TEST_DB_2['username']}).encode()
+        rep._content = json.dumps({'username': TEST_DB_1['username']}).encode()
         with mock.patch('one.webclient.requests.get', return_value=rep) as get:
-            ac.authenticate(TEST_DB_2['username'], token='fine', cache_token=False)
+            ac.authenticate(TEST_DB_1['username'], token='fine', cache_token=False)
         self.assertEqual(ac.base_url + '/me', get.call_args.args[0])
 
     def test_token_username_wins_over_the_one_supplied(self):
         """The database knows whose token it is; caching it under another name would lie."""
         ac = self.ac
         ac.logout()
-        with mock.patch.object(ac, '_verify_token', return_value=TEST_DB_2['username']):
+        with mock.patch.object(ac, '_verify_token', return_value=TEST_DB_1['username']):
             with self.assertWarns(UserWarning):
                 ac.authenticate('somebody-else', token='fine', cache_token=True)
-        self.assertEqual(TEST_DB_2['username'], ac.user)
-        cached = getattr(one.params.get(TEST_DB_2['base_url']), 'TOKEN', {})
-        self.assertIn(TEST_DB_2['username'], cached)
+        self.assertEqual(TEST_DB_1['username'], ac.user)
+        cached = getattr(one.params.get(TEST_DB_1['base_url']), 'TOKEN', {})
+        self.assertIn(TEST_DB_1['username'], cached)
         self.assertNotIn('somebody-else', cached)
 
     def test_token_alone_identifies_the_user(self):
         """A token is the one credential that can name its owner, so no username is needed."""
         ac = self.ac
         ac.logout()
-        with mock.patch.object(ac, '_verify_token', return_value=TEST_DB_2['username']):
+        with mock.patch.object(ac, '_verify_token', return_value=TEST_DB_1['username']):
             ac.authenticate(token='fine', cache_token=False)
-        self.assertEqual(TEST_DB_2['username'], ac.user)
+        self.assertEqual(TEST_DB_1['username'], ac.user)
 
     def test_a_token_is_never_asked_who_it_belongs_to(self):
         """A token names its own owner, so neither the prompt nor the stored login applies."""
@@ -385,7 +386,7 @@ class TestAuthentication(unittest.TestCase):
         ac._par = ac._par.set('ALYX_LOGIN', 'somebody-else')
         with (
             mock.patch('one.webclient.input', side_effect=AssertionError('prompted')),
-            mock.patch.object(ac, '_verify_token', return_value=TEST_DB_2['username']) as verify,
+            mock.patch.object(ac, '_verify_token', return_value=TEST_DB_1['username']) as verify,
             warnings.catch_warnings(),
         ):
             # A stored login that disagrees is not an assertion by the caller, so it must not
@@ -393,7 +394,47 @@ class TestAuthentication(unittest.TestCase):
             warnings.simplefilter('error', UserWarning)
             ac.authenticate(token='fine', cache_token=False)
             self.assertIsNone(verify.call_args.args[0], 'the stored login must not be passed on')
-        self.assertEqual(TEST_DB_2['username'], ac.user)
+        self.assertEqual(TEST_DB_1['username'], ac.user)
+
+    def test_the_api_version_survives_every_authentication_path(self):
+        """A database can only see how old its clients are if they all say so.
+
+        `authenticate` rebuilds the header dict, so the version was previously sent only by a
+        client that authenticated through the constructor, and dropped by one that
+        authenticated lazily or from a cached token - the common case by far.
+        """
+        ac = self.ac
+        version = one.__version__
+
+        self.assertEqual(version, ac._headers.get('ONE-API-Version'), 'lost at construction')
+
+        ac.logout()
+        ac.authenticate(TEST_DB_1['username'], TEST_DB_1['password'], cache_token=True)
+        self.assertEqual(version, ac._headers.get('ONE-API-Version'), 'lost after a password')
+
+        ac.authenticate(TEST_DB_1['username'], force=False)  # the cached-token branch
+        self.assertEqual(version, ac._headers.get('ONE-API-Version'), 'lost on a cached token')
+
+        ac.logout()
+        with mock.patch.object(ac, '_verify_token', return_value=TEST_DB_1['username']):
+            ac.authenticate(token='fine', cache_token=False)
+        self.assertEqual(version, ac._headers.get('ONE-API-Version'), 'lost after a token')
+
+    def test_the_api_version_is_sent_with_the_request(self):
+        """The header must reach the wire, not merely sit in the client's dict."""
+        sent = {}
+        canned = requests.Response()
+        canned.status_code = 200
+        canned._content = b'[]'
+
+        def get(*_, **kwargs):  # a stand-in for requests.get, recording what it was handed
+            sent.update(kwargs.get('headers') or {})
+            return canned
+
+        # __wrapped__ to step over the response cache, which would otherwise answer without
+        # issuing a request at all.
+        self.ac._generic_request.__wrapped__(self.ac, get, '/labs')
+        self.assertEqual(one.__version__, sent.get('ONE-API-Version'))
 
     def test_no_username_is_an_error_rather_than_a_prompt_loop(self):
         """With a blank default login and no token, there is nothing to authenticate as."""
@@ -410,10 +451,10 @@ class TestAuthentication(unittest.TestCase):
         ac.logout()
         ac._par = ac._par.set('ALYX_LOGIN', '')
         one.params.save(ac._par, ac.base_url)
-        with mock.patch.object(ac, '_verify_token', return_value=TEST_DB_2['username']):
+        with mock.patch.object(ac, '_verify_token', return_value=TEST_DB_1['username']):
             ac.authenticate(token='fine', cache_token=True)
-        self.assertEqual(TEST_DB_2['username'],
-                         one.params.get(TEST_DB_2['base_url']).ALYX_LOGIN)
+        self.assertEqual(TEST_DB_1['username'],
+                         one.params.get(TEST_DB_1['base_url']).ALYX_LOGIN)
 
     def test_auth_methods(self):
         """Test behaviour when calling AlyxClient._generic_request when logged out."""
@@ -423,7 +464,7 @@ class TestAuthentication(unittest.TestCase):
         # Set pars for auto login
         login_keys = {'ALYX_LOGIN', 'ALYX_PWD'}
         if not set(self.ac._par.as_dict().keys()) >= login_keys:
-            for k, v in zip(sorted(login_keys), (TEST_DB_2['username'], TEST_DB_2['password'])):
+            for k, v in zip(sorted(login_keys), (TEST_DB_1['username'], TEST_DB_1['password'])):
                 self.ac._par = self.ac._par.set(k, v)
 
         # Test generic request
@@ -436,12 +477,25 @@ class TestAuthentication(unittest.TestCase):
         self.ac._generic_request(requests.get, '/sessions?user=Hamish', clobber=True)
         self.assertTrue(self.ac.is_logged_in)
 
-        # Test download cache tables
-        self.ac.logout()
-        self.assertFalse(self.ac.is_logged_in)
-        url = self.ac.get('cache/info').get('location')
-        self.ac.download_cache_tables(url)
-        self.assertTrue(self.ac.is_logged_in)
+    @unittest.skipIf(OFFLINE_ONLY, 'online only test')
+    def test_download_cache_tables_authenticates(self):
+        """Downloading the cache tables must authenticate first, like any other request.
+
+        Still on the public database: the test database has no cache tables generated, so its
+        /cache/info raises a 500 on the missing cache_info.json. Generating them there - as part
+        of the nightly rebuild - would let this move across with the rest of the class.
+        """
+        ac = wc.AlyxClient(**TEST_DB_2)
+        # Stored so that the request below has something to authenticate with once logged out,
+        # which is the whole point of the test.
+        for key, value in (('ALYX_LOGIN', TEST_DB_2['username']),
+                           ('ALYX_PWD', TEST_DB_2['password'])):
+            ac._par = ac._par.set(key, value)
+        ac.logout()
+        self.assertFalse(ac.is_logged_in)
+        url = ac.get('cache/info').get('location')
+        ac.download_cache_tables(url)
+        self.assertTrue(ac.is_logged_in)
 
     def test_auth_errors(self):
         """Test behaviour when authentication fails."""
