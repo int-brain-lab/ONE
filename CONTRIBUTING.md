@@ -22,7 +22,7 @@ You should ensure all tests are running locally.  We run tests using python unit
 ## Releasing (maintainers only)
 
 Before merging to main, the CI checks that all unit tests pass and that coverage does not decrease.  Merges should not occur until all checks pass.
-The Github testing workflow can be in [.github/workflows/main.yaml](.github/workflows/main.yaml) and is testing against Python version 3.10 and 3.12 on Ubuntu and Windows.
+The Github testing workflow can be in [.github/workflows/main.yaml](.github/workflows/main.yaml) and is testing against Python version 3.10 and 3.14 on Ubuntu and Windows.
 The divergent changes to the `docs` branch should be pulled into your release branch as the [.github/workflows/docs.yaml](.github/workflows/docs.yaml) workflow is triggered by both pushes to main and docs.
 
 ### Release notes and version
