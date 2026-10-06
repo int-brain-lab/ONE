@@ -253,7 +253,7 @@ def s3_download_file(source, destination, s3=None, bucket_name=None, overwrite=F
         file_object = s3.Object(bucket_name, Path(source).as_posix())
         filesize = file_object.content_length
         if not overwrite and destination.exists() and filesize == destination.stat().st_size:
-            _logger.debug(f"{destination} exists and match size -- skipping")
+            _logger.debug(f'{destination} exists and match size -- skipping')
             return destination
         with tqdm(total=filesize, unit='B',
                   unit_scale=True, desc=f'(S3) {destination}') as t:

@@ -267,9 +267,34 @@ class _PaginatedResponse(Mapping):
                 i = self.count + item.start if item.start < 0 else item.start
                 self.populate(i + self._cache[item].index(None))
         elif self._cache[item] is None:
-            # If index is -ve, convert to +ve
-            self.populate(self.count + item if item < 0 else item)
+            # A -ve index is resolved against the count at the time of the request. If the remote
+            # count changed, populate re-syncs it and the record may now be on a different page,
+            # so resolve the index again and retry once.
+            for _ in range(2):
+                # If index is -ve, convert to +ve
+                self.populate(self.count + item if item < 0 else item)
+                if self._cache[item] is not None:
+                    break
         return self._cache[item]
+
+    def _resize(self, count):
+        """Resize the cache to match a changed remote count.
+
+        Records are truncated from the end when the remote count shrinks, and None placeholders
+        appended when it grows.  Note that cached records may be shifted relative to the remote
+        list, hence the warning raised by :meth:`populate`.
+
+        Parameters
+        ----------
+        count : int
+            The new total number of remote records.
+
+        """
+        if count < self.count:
+            del self._cache[count:]
+        else:
+            self._cache.extend([None] * (count - self.count))
+        self.count = count
 
     def populate(self, idx):
         """Populate response cache with new page of results.
@@ -290,8 +315,9 @@ class _PaginatedResponse(Mapping):
             warnings.warn(
                 f'remote results for {urllib.parse.urlsplit(query).path} endpoint changed; '
                 f'results may be inconsistent', RuntimeWarning)
+            self._resize(res['count'])
         for i, r in enumerate(res['results'][:self.count - offset]):
-            self._cache[i + offset] = res['results'][i]
+            self._cache[i + offset] = r
         # Notify callbacks
         pending_removal = []
         for callback in self._callbacks:
@@ -481,6 +507,8 @@ def http_download_file(full_link_to_file, chunks=None, *, clobber=False, silent=
     block_sz = 8192 * 64 * 8
 
     md5 = hashlib.md5()
+    # The default target is ~/Downloads, which a container or CI runner may not have.
+    file_name.parent.mkdir(parents=True, exist_ok=True)
     f = open(file_name, 'wb')
     with tqdm(total=file_size / 1024 / 1024, disable=silent) as pbar:
         while True:
@@ -871,6 +899,8 @@ class AlyxClient:
     """int: The maximum number of retry attempts for REST requests in case of throttling."""
     max_retry_wait_seconds = 300.  # 5 minutes
     """float: The maximum number of seconds to wait between retry attempts for REST requests."""
+    token_verify_timeout = 10.
+    """float: Seconds to wait when checking a user-supplied token is valid."""
 
     def __init__(
         self,
@@ -880,6 +910,7 @@ class AlyxClient:
         cache_dir=None,
         silent=False,
         cache_rest='GET',
+        token=None,
     ):
         """Create a client instance that allows to GET and POST to the Alyx server.
 
@@ -894,6 +925,9 @@ class AlyxClient:
             Alyx database user.
         password : str
             Alyx database password.
+        token : str, dict
+            An Alyx API token, as an alternative to a password. Accounts that sign in through
+            an identity provider have no password and must use one.
         cache_dir : str, pathlib.Path
             The default root download location.
         silent : bool
@@ -908,12 +942,11 @@ class AlyxClient:
         self._par = one.params.get(client=base_url, silent=self.silent, username=username)
         self.base_url = base_url or self._par.ALYX_URL
         self._par = self._par.set('CACHE_DIR', cache_dir or self._par.CACHE_DIR)
-        if username or password:
-            self.authenticate(username, password)
+        if username or password or token:
+            self.authenticate(username, password, token=token)
         self._rest_schemes = None
         # the mixed accept application may cause errors sometimes, only necessary for the docs
-        self._headers = {
-            **self._headers, 'Accept': 'application/json', 'ONE-API-Version': __version__}
+        self._headers = {**self._headers, **self._base_headers}
         # REST cache parameters
         # The default length of time that cache file is valid for,
         # The default expiry is overridden by the `expires` kwarg.  If False, the caching is
@@ -924,6 +957,11 @@ class AlyxClient:
         self._obj_id = id(self)
         # Used to track number of attempts for a given request, for retry logic in _generic_request
         self._attempt_counter = 0
+
+    @property
+    def _base_headers(self):
+        """dict: The headers every REST request carries, authentication aside."""
+        return {'Accept': 'application/json', 'ONE-API-Version': __version__}
 
     @property
     def cache_dir(self):
@@ -978,7 +1016,6 @@ class AlyxClient:
         if files is None:
             to_json = functools.partial(json.dumps, cls=_JSONEncoder)
             data = to_json(data) if isinstance(data, dict) or isinstance(data, list) else data
-            # __ONE_API_VERSION__
             headers['Content-Type'] = 'application/json'
         if rest_query.startswith('/docs'):
             headers['Accept'] = 'application/coreapi+json'
@@ -1039,105 +1076,245 @@ class AlyxClient:
         _logger.debug('Response text raw: ' + r.text)
         try:
             message = json.loads(r.text)
-            message.pop('status_code', None)  # Get status code from response object instead
-            message = message.get('detail') or message  # Get details if available
+            if isinstance(message, dict):
+                message.pop('status_code', None)  # Get status code from response object instead
+                message = message.get('detail') or message  # Get details if available
             _logger.debug(message)
         except json.decoder.JSONDecodeError:
             message = r.text
         raise requests.HTTPError(r.status_code, rest_query, message, response=r)
 
-    def authenticate(self, username=None, password=None, cache_token=True, force=False):
+    def authenticate(self, username=None, password=None, cache_token=True, force=False,
+                     token=None):
         """Fetch token from the Alyx REST API for authenticating request headers.
 
         Credentials are loaded via one.params.
+
+        A token may be given in place of a password. Accounts that sign in through an identity
+        provider have no password at all and cannot use /auth-token, so a token copied from the
+        database's /me page is the only credential they have. The token is cached exactly as one
+        fetched with a password would be, so this is needed once rather than every session.
 
         Parameters
         ----------
         username : str
             Alyx username.  If None, token not cached and not silent, user is prompted.
+            Not required, and not prompted for, when `token` is given: the database reports
+            whose token it is.
         password : str
-            Alyx password.  If None, token not cached and not silent, user is prompted.
+            Alyx password.  If None, token not cached and not silent, user is prompted for a
+            password or, failing that, a token.
         cache_token : bool
             If true, the token is cached for subsequent auto-logins.
         force : bool
             If true, any cached token is ignored.
+        token : str, dict
+            An Alyx API token, used instead of a password. Obtained from the database's /me
+            page. Supplying one forces re-authentication, as supplying a password does.
 
         """
-        # Get username
-        if username is None:
-            username = getattr(self._par, 'ALYX_LOGIN', self.user)
-        if username is None and not self.silent:
-            username = input('Enter Alyx username:')
+        # An empty login counts as absent: the defaults now ship a blank one so a public
+        # database prompts rather than assuming a shared account.
+        #
+        # None of this applies to a token, which names its own owner through /me. Falling back
+        # to a stored login would cache the token under a name that may not own it.
+        if not username and token is None:
+            username = getattr(self._par, 'ALYX_LOGIN', None) or self.user
+        if not username and token is None and not self.silent:
+            username = input('Enter Alyx username:') or None
+        if not username and token is None:
+            # A token can name its own owner; nothing else can, so there is no point going on.
+            raise ValueError(
+                'No Alyx username. Pass one to ONE, or store it with '
+                'ONE.setup(username=<username>). Accounts on the public database are created '
+                'at https://openalyx.internationalbrainlab.org/signup')
 
-        # If user passes in a password, force re-authentication even if token cached
-        if password is not None:
+        # If the user passes in a credential, force re-authentication even if token cached
+        if password is not None or token is not None:
             if not force:
-                _logger.debug('Forcing token request with provided password')
+                _logger.debug('Forcing re-authentication with the provided credential')
             force = True
         # Check if token cached
         if not force and getattr(self._par, 'TOKEN', False) and username in self._par.TOKEN:
             self._token = self._par.TOKEN[username]
             self._headers = {
+                **self._base_headers,
                 'Authorization': f'Token {list(self._token.values())[0]}',
-                'Accept': 'application/json'
             }
             self.user = username
             return
 
-        # Get password
-        if password is None:
+        # Get a credential: a password, or failing that a token
+        if password is None and token is None:
             password = getattr(self._par, 'ALYX_PWD', None)
-        if password is None:
+        if password is None and token is None:
             if self.silent:
                 warnings.warn(
-                    'No password or cached token in silent mode. '
+                    'No password, token or cached token in silent mode. '
                     'Please run the following to re-authenticate:\n\t'
                     'AlyxClient(silent=False).authenticate'
-                    '(username=<username>, force=True)',
+                    '(username=<username>, force=True)\n'
+                    'An account without a password, such as one that signs in through an '
+                    'identity provider, should pass a token instead:\n\t'
+                    'AlyxClient(silent=True).authenticate'
+                    '(username=<username>, token=<token>)',
                     UserWarning,
                 )
             else:
-                password = getpass(f'Enter Alyx password for "{username}":')
+                # Offered as a fallback on the existing prompt rather than as a question of its
+                # own, so that the common case of having a password is unchanged.
+                password = getpass(
+                    f'Enter Alyx password for "{username}" '
+                    '(leave blank to enter an API token instead):')
+                if not password:
+                    password = None
+                    token = getpass(
+                        f'Enter Alyx API token for "{username}", '
+                        f'found at {self.base_url}/me:') or None
         # Remove previous token
         self._clear_token(username)
-        try:
-            credentials = {'username': username, 'password': password}
-            rep = requests.post(self.base_url + '/auth-token', data=credentials)
-        except requests.exceptions.ConnectionError:
-            raise ConnectionError(
-                f'Can\'t connect to {self.base_url}.\n' +
-                'Check your internet connections and Alyx database firewall'
-            )
-        # Assign token or raise exception on auth error
-        if rep.ok:
-            self._token = rep.json()
-            assert list(self._token.keys()) == ['token']
+        if token is not None:
+            self._token = token if isinstance(token, dict) else {'token': token}
         else:
-            if rep.status_code == 400:  # Auth error; re-raise with details
-                redacted = '*' * len(credentials['password']) if credentials['password'] else None
-                message = (
-                    'Alyx authentication failed with credentials: '
-                    f'user = {credentials["username"]}, password = {redacted}'
+            try:
+                credentials = {'username': username, 'password': password}
+                rep = requests.post(self.base_url + '/auth-token', data=credentials)
+            except requests.exceptions.ConnectionError:
+                raise ConnectionError(
+                    f'Can\'t connect to {self.base_url}.\n' +
+                    'Check your internet connections and Alyx database firewall'
                 )
-                raise requests.HTTPError(rep.status_code, rep.url, message, response=rep)
+            # Assign token or raise exception on auth error
+            if rep.ok:
+                self._token = rep.json()
+                assert list(self._token.keys()) == ['token']
             else:
-                rep.raise_for_status()
+                if rep.status_code == 400:  # Auth error; re-raise with details
+                    redacted = (
+                        '*' * len(credentials['password']) if credentials['password'] else None)
+                    message = (
+                        'Alyx authentication failed with credentials: '
+                        f'user = {credentials["username"]}, password = {redacted}'
+                    )
+                    raise requests.HTTPError(rep.status_code, rep.url, message, response=rep)
+                else:
+                    rep.raise_for_status()
 
         self._headers = {
+            **self._base_headers,
             'Authorization': 'Token {}'.format(list(self._token.values())[0]),
-            'Accept': 'application/json',
         }
+        if token is not None:
+            # A password gets a definitive yes or no from /auth-token; a token has no such
+            # endpoint, so check it before caching rather than letting a mistyped one surface
+            # as a puzzling failure on the first real query. The check also reports who the
+            # token belongs to, which is the one credential that can name its own owner.
+            username = self._resolve_token_user(username)
         if cache_token:
             # Update saved pars
             par = one.params.get(client=self.base_url, silent=True)
             tokens = getattr(par, 'TOKEN', {})
             tokens[username] = self._token
-            one.params.save(par.set('TOKEN', tokens), self.base_url)
-            # Update current pars
+            par = par.set('TOKEN', tokens)
+            if not getattr(par, 'ALYX_LOGIN', None):
+                # The cached token is looked up by username, so record one that was resolved
+                # or prompted for, or it could never be found again.
+                par = par.set('ALYX_LOGIN', username)
+            one.params.save(par, self.base_url)
+            # Only fill in the login where this client has none: one built for a particular
+            # user keeps that user.
             self._par = self._par.set('TOKEN', tokens)
+            if not getattr(self._par, 'ALYX_LOGIN', None):
+                self._par = self._par.set('ALYX_LOGIN', username)
         self.user = username
         if not self.silent:
             print(f'Connected to {self.base_url} as user "{self.user}"')
+
+    def _verify_token(self, username=None):
+        """Check that a user-supplied token is accepted, and discard it if not.
+
+        Only an explicit rejection counts as failure. Anything else - a network blip, an
+        endpoint missing on an older Alyx - leaves the token in place, because refusing a
+        credential that is probably fine is worse than letting the first real query report the
+        problem.
+
+        Parameters
+        ----------
+        username : str, optional
+            The user the token was given for; its cached token is removed if the token is bad.
+
+        Returns
+        -------
+        str, None
+            The user the database says the token belongs to, where it says. None where the
+            question could not be answered, which is not in itself a failure.
+
+        Raises
+        ------
+        requests.HTTPError
+            If the database explicitly rejects the token.
+
+        """
+        try:
+            rep = requests.get(self.base_url + '/me', headers=self._headers,
+                               timeout=self.token_verify_timeout)
+        except requests.exceptions.RequestException as ex:
+            _logger.debug('Could not verify the token (%s); assuming it is valid', ex)
+            return None
+        if rep.status_code in (401, 403):
+            self._clear_token(username)
+            whose = f' for user "{username}"' if username else ''
+            raise requests.HTTPError(
+                rep.status_code, rep.url,
+                f'Alyx rejected the API token provided{whose}. '
+                f'Tokens are shown at {self.base_url}/me and change when regenerated.',
+                response=rep)
+        _logger.debug('Token accepted for user "%s"', username)
+        try:
+            # Older databases serve /me as a web page, so only a JSON body names the user.
+            reported = rep.json().get('username')
+        except ValueError:
+            return None
+        # Only a non-empty string counts: the name becomes a key in the parameter file, and one
+        # that will not serialise truncates that file as it is written.
+        return reported if isinstance(reported, str) and reported else None
+
+    def _resolve_token_user(self, username):
+        """Validate a token and settle on the username to cache it under.
+
+        A name the database reports wins over one the caller typed: caching a token under the
+        wrong name would leave the parameter file claiming an account it does not own.
+
+        Parameters
+        ----------
+        username : str, None
+            The username the caller supplied, if any.
+
+        Returns
+        -------
+        str
+            The username to record.
+
+        Raises
+        ------
+        requests.HTTPError
+            If the database explicitly rejects the token.
+        ValueError
+            If no username was given and the database would not name one.
+
+        """
+        verified = self._verify_token(username)
+        if verified and username and verified != username:
+            warnings.warn(
+                f'The token provided belongs to "{verified}", not "{username}"; '
+                f'authenticating as "{verified}".', UserWarning)
+        username = verified or username
+        if not username:
+            self._clear_token(username)
+            raise ValueError(
+                'Could not determine the user this token belongs to. Pass a username, or '
+                f'check that {self.base_url} is an Alyx database recent enough to serve /me.')
+        return username
 
     def _clear_token(self, username):
         """Remove auth token from client params.

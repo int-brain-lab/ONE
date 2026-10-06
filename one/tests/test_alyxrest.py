@@ -4,7 +4,7 @@ import unittest
 import unittest.mock
 import random
 import string
-from uuid import UUID
+from uuid import UUID, uuid4
 import io
 from logging import WARNING
 
@@ -62,7 +62,7 @@ class TestREST(unittest.TestCase):
         # self.assertTrue(len([_ for _ in rep]) == len(rep))
 
         # Test what happens when list changes between paginated requests
-        name = '0A' + str(random.randint(0, 10000))
+        name = '0A' + uuid4().hex[:8]
         # Add subject between calls
         rep = self.alyx.rest('subjects', 'list', limit=5, no_cache=True)
         s = self.alyx.rest('subjects', 'create', data={'nickname': name, 'lab': 'cortexlab'})
@@ -134,8 +134,7 @@ class TestREST(unittest.TestCase):
 
     def test_rest_all_actions(self):
         """Test for AlyxClient.rest method using subjects endpoint."""
-        # randint reduces conflicts with parallel tests
-        nickname = f'foobar_{random.randint(0, 10000)}'
+        nickname = f'foobar_{uuid4().hex[:8]}'
         newsub = {
             'nickname': nickname,
             'responsible_user': 'olivier',

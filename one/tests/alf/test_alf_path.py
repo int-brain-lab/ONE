@@ -176,6 +176,16 @@ class TestALFParse(unittest.TestCase):
         with self.assertRaises(ValueError):
             path.add_uuid_string('/foo/bar.npy', 'fake')
 
+        # In strict mode, replacing a different UUID raises instead of silently substituting it
+        self.assertRaises(ValueError, path.add_uuid_string, file_with_uuid, _uuid2, strict=True)
+        # A UUID that matches the one provided is not an error, in either mode
+        self.assertEqual(
+            Path(file_with_uuid), path.add_uuid_string(file_with_uuid, _uuid, strict=True))
+        # Neither is a path that doesn't yet contain a UUID
+        self.assertEqual(
+            Path(f'/tutu/tata.{_uuid}.json'),
+            path.add_uuid_string('/tutu/tata.json', _uuid, strict=True))
+
     def test_remove_uuid(self):
         """Test for one.alf.path.remove_uuid_string."""
         # First test with full file
@@ -424,6 +434,9 @@ class TestALFPath(unittest.TestCase):
         alfpath = expected.with_uuid(uuid)
         expected = self.alfpath.parent / f'obj.attr.{uuid}.ext'
         self.assertEqual(expected, alfpath)
+        # Test strict mode: replacing a different uuid raises, the same uuid does not
+        self.assertRaises(ValueError, alfpath.with_uuid, uuid4(), strict=True)
+        self.assertEqual(expected, alfpath.with_uuid(uuid, strict=True))
         # Test folder
         self.assertRaises(ALFInvalid, alfpath.parent.with_uuid, uuid)
 

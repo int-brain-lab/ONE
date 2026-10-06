@@ -1,6 +1,7 @@
 # Open Neurophysiology Environment
 [![Coverage Status](https://coveralls.io/repos/github/int-brain-lab/ONE/badge.svg?branch=main)](https://coveralls.io/github/int-brain-lab/ONE?branch=main)
 ![CI workflow](https://github.com/int-brain-lab/ONE/actions/workflows/main.yaml/badge.svg?branch=main)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21340989.svg)](https://doi.org/10.5281/zenodo.21340989)
 
 The Open Neurophysiology Environment is a scheme for sharing neurophysiology data in a standardized manner. It is a Python API for searching and loading ONE-standardized data, stored either on a user's local machine or on a remote server.
 
@@ -9,7 +10,7 @@ Please [Click here](https://int-brain-lab.github.io/ONE/) for the main documenta
 **NB**: The API and backend database are still under active development, for the best experience please regularly update the package by running `pip install -U ONE-api`.
 
 ## Requirements
-ONE runs on Python 3.10 or later, and is tested on the latest Ubuntu and Windows (3.10 and 3.12 only).
+ONE runs on Python 3.10 or later, and is tested on the latest Ubuntu and Windows (3.10 and 3.14 only).
 
 ## Installing
 Installing the package via pip typically takes a few seconds.  To install, run
@@ -28,8 +29,14 @@ To use the default setup settings that connect you to the [IBL public database](
 ```python
 from one.api import ONE
 ONE.setup(silent=True)  # Will use default information
-one = ONE(password='international')
+one = ONE()  # Prompts for your username, then your password
 ```
+
+The public database is free to use but needs an account, which you can create at
+[openalyx.internationalbrainlab.org/signup](https://openalyx.internationalbrainlab.org/signup),
+either with an email address or through ORCiD.  An ORCiD account has no password: leave the
+password prompt blank and paste the API token shown on the database's `/me` page instead.  See
+[installation and setup](https://int-brain-lab.github.io/ONE/one_installation.html) for details.
 
 For setting up ONE for a given database e.g. internal IBL Alyx:
 ```python

@@ -6,6 +6,7 @@ from requests.exceptions import HTTPError
 from uuid import UUID, uuid4
 import datetime
 
+import numpy as np
 import pandas as pd
 
 from one.api import ONE
@@ -419,6 +420,23 @@ class TestOnlineConverters(unittest.TestCase):
         _, datasets = converters.ses2records(ses)
         self.assertTrue(datasets.empty)
 
+    def test_ses2records_base_session(self):
+        """A base session has no number; the cache column is an integer and cannot take null."""
+        ses = self.one.alyx.rest('sessions', 'read', id=self.eid)
+        for number in (None, ''):
+            with self.subTest(number=number):
+                session, _ = converters.ses2records({**ses, 'number': number})
+                self.assertEqual(0, session['number'])
+                self.assertEqual(
+                    0, pd.Series([session['number']]).astype(np.uint16).iloc[0],
+                    'must survive the cast merge_tables makes')
+        # A missing key is the same case
+        session, _ = converters.ses2records({k: v for k, v in ses.items() if k != 'number'})
+        self.assertEqual(0, session['number'])
+        # A real number is untouched
+        session, _ = converters.ses2records({**ses, 'number': 3})
+        self.assertEqual(3, session['number'])
+
     def test_datasets2records(self):
         """Test one.converters.datasets2records function."""
         dsets = self.one.alyx.rest('datasets', 'list', session=str(self.eid))
@@ -564,5 +582,5 @@ class TestWrappers(unittest.TestCase):
         self.assertIsInstance(wrapped([ref.copy(), expected], parse=True), list)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main(exit=False)

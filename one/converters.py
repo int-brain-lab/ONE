@@ -173,7 +173,7 @@ class ConversionMixin:
         """
         # If not valid return None
         if not is_uuid(eid):
-            raise ValueError(f"{eid} is not a valid eID/UUID string")
+            raise ValueError(f'{eid} is not a valid eID/UUID string')
         if isinstance(eid, str):
             eid = UUID(eid)
         if self._cache['sessions'].size == 0:
@@ -773,6 +773,9 @@ def ses2records(ses: dict):
     eid = UUID(ses.get('id') or ses['url'][-36:])
     session_keys = ('subject', 'start_time', 'lab', 'number', 'task_protocol', 'projects')
     session_data = {k: v for k, v in ses.items() if k in session_keys}
+    # Base sessions have no number. The cache column is a plain integer, so a null one fails the
+    # type cast when the record is merged in.
+    session_data['number'] = session_data.get('number') or 0
     session = (
         pd.Series(data=session_data, name=eid).rename({'start_time': 'date'})
     )

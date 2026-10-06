@@ -26,9 +26,14 @@ CACHE_DIR_DEFAULT = str(Path.home() / 'Downloads' / 'ONE')
 
 
 def default():
-    """Default Web client parameters."""
+    """Default Web client parameters.
+
+    The login is deliberately blank: public users now register their own account, so the client
+    asks who they are rather than assuming a shared one. Pass ``username`` to :func:`setup` to
+    fill it in unattended.
+    """
     par = {'ALYX_URL': 'https://openalyx.internationalbrainlab.org',
-           'ALYX_LOGIN': 'intbrainlab',
+           'ALYX_LOGIN': '',
            'HTTP_DATA_SERVER': 'https://ibl.flatironinstitute.org/public',
            'HTTP_DATA_SERVER_LOGIN': None,
            'HTTP_DATA_SERVER_PWD': None}
