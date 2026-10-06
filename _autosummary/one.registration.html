@@ -237,15 +237,15 @@ cache directory.</p></li>
 </dl>
 <p class="rubric">Examples</p>
 <p>Create a local session only</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">session_path</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">RegistrationClient</span><span class="p">()</span><span class="o">.</span><span class="n">create_new_session</span><span class="p">(</span><span class="s1">&#39;Ian&#39;</span><span class="p">,</span> <span class="n">register</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">session_path</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">RegistrationClient</span><span class="p">()</span><span class="o">.</span><span class="n">create_new_session</span><span class="p">(</span><span class="s1">'Ian'</span><span class="p">,</span> <span class="n">register</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Register a session on Alyx in a specific location</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">session_path</span><span class="p">,</span> <span class="n">eid</span> <span class="o">=</span> <span class="n">RegistrationClient</span><span class="p">()</span><span class="o">.</span><span class="n">create_new_session</span><span class="p">(</span><span class="s1">&#39;Sy&#39;</span><span class="p">,</span> <span class="s1">&#39;/data/lab/Subjects&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">session_path</span><span class="p">,</span> <span class="n">eid</span> <span class="o">=</span> <span class="n">RegistrationClient</span><span class="p">()</span><span class="o">.</span><span class="n">create_new_session</span><span class="p">(</span><span class="s1">'Sy'</span><span class="p">,</span> <span class="s1">'/data/lab/Subjects'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Create a session for a given date</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">session_path</span><span class="p">,</span> <span class="n">eid</span> <span class="o">=</span> <span class="n">RegistrationClient</span><span class="p">()</span><span class="o">.</span><span class="n">create_new_session</span><span class="p">(</span><span class="s1">&#39;Ian&#39;</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="s1">&#39;2020-01-01&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">session_path</span><span class="p">,</span> <span class="n">eid</span> <span class="o">=</span> <span class="n">RegistrationClient</span><span class="p">()</span><span class="o">.</span><span class="n">create_new_session</span><span class="p">(</span><span class="s1">'Ian'</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="s1">'2020-01-01'</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -277,9 +277,9 @@ cache directory.</p></li>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">assert_exists</span><span class="p">(</span><span class="s1">&#39;ALK_036&#39;</span><span class="p">,</span> <span class="s1">&#39;subjects&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">assert_exists</span><span class="p">(</span><span class="s1">&#39;user_45&#39;</span><span class="p">,</span> <span class="s1">&#39;users&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">assert_exists</span><span class="p">(</span><span class="s1">&#39;local_server&#39;</span><span class="p">,</span> <span class="s1">&#39;repositories&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">assert_exists</span><span class="p">(</span><span class="s1">'ALK_036'</span><span class="p">,</span> <span class="s1">'subjects'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">assert_exists</span><span class="p">(</span><span class="s1">'user_45'</span><span class="p">,</span> <span class="s1">'users'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">assert_exists</span><span class="p">(</span><span class="s1">'local_server'</span><span class="p">,</span> <span class="s1">'repositories'</span><span class="p">)</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -368,13 +368,15 @@ path.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.registration.RegistrationClient.prepare_files">
-<span class="sig-name descname"><span class="pre">prepare_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">versions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/registration.html#RegistrationClient.prepare_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.registration.RegistrationClient.prepare_files" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">prepare_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">versions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'session'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/registration.html#RegistrationClient.prepare_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.registration.RegistrationClient.prepare_files" title="Link to this definition"></a></dt>
 <dd><p>Validate file list for registration and group files by session path.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>file_list</strong> (<em>list</em><em>, </em><em>str</em><em>, </em><em>pathlib.Path</em>) – A filepath (or list thereof) of ALF datasets to register to Alyx.</p></li>
 <li><p><strong>versions</strong> (<em>str</em><em>, </em><em>list</em><em> of </em><em>str</em>) – Optional version tags.</p></li>
+<li><p><strong>content_type</strong> (<em>str</em>) – The database content type to register files to. When not ‘session’, the relative path
+is determined by the first part of the file path that matches this name.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -391,18 +393,21 @@ path.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.registration.RegistrationClient.check_protected_files">
-<span class="sig-name descname"><span class="pre">check_protected_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">created_by</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/registration.html#RegistrationClient.check_protected_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.registration.RegistrationClient.check_protected_files" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">check_protected_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">created_by</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/registration.html#RegistrationClient.check_protected_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.registration.RegistrationClient.check_protected_files" title="Link to this definition"></a></dt>
 <dd><p>Check whether a set of files associated to a session are protected.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>file_list</strong> (<em>list</em><em>, </em><em>str</em><em>, </em><em>pathlib.Path</em>) – A filepath (or list thereof) of ALF datasets to register to Alyx.</p></li>
 <li><p><strong>created_by</strong> (<em>str</em>) – Name of Alyx user (defaults to whoever is logged in to ONE instance).</p></li>
+<li><p><strong>kwargs</strong> – Extra arguments directly passed as REST request data to /check-protected endpoint.
+For non-session datasets, provide ‘content_type’, ‘object_id’, and ‘name’ or
+‘hostname’.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A status for each session whether any of the files specified are protected
-datasets or not.If none of the datasets are protected, a response with status
+datasets or not. If none of the datasets are protected, a response with status
 200 is returned, if any of the files are protected a response with status
 403 is returned.</p>
 </dd>

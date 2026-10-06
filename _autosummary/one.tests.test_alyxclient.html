@@ -138,6 +138,17 @@
   <section id="module-one.tests.test_alyxclient">
 <span id="one-tests-test-alyxclient"></span><h1>one.tests.test_alyxclient<a class="headerlink" href="#module-one.tests.test_alyxclient" title="Link to this heading"></a></h1>
 <p>Unit tests for the one.webclient module.</p>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.tests.test_alyxclient.setUpModule" title="one.tests.test_alyxclient.setUpModule"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setUpModule</span></code></a></p></td>
+<td><p>Point the parameter files at a directory belonging to this module.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.tests.test_alyxclient.tearDownModule" title="one.tests.test_alyxclient.tearDownModule"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tearDownModule</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
 <p class="rubric">Classes</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
@@ -164,6 +175,20 @@
 </tr>
 </tbody>
 </table>
+<dl class="py function">
+<dt class="sig sig-object py" id="one.tests.test_alyxclient.setUpModule">
+<span class="sig-name descname"><span class="pre">setUpModule</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#setUpModule"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.setUpModule" title="Link to this definition"></a></dt>
+<dd><p>Point the parameter files at a directory belonging to this module.</p>
+<p>These tests log in and out, which rewrites the parameter file for whichever database they
+use - the developer’s real ~/.one without this. Each test database is then set up silently
+so no class depends on another having run first.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="one.tests.test_alyxclient.tearDownModule">
+<span class="sig-name descname"><span class="pre">tearDownModule</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#tearDownModule"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.tearDownModule" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="one.tests.test_alyxclient.TestRestDocumentation">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">TestRestDocumentation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestRestDocumentation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestRestDocumentation" title="Link to this definition"></a></dt>
@@ -219,9 +244,112 @@
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_alyxclient.TestAuthentication.test_authenticate_with_token">
+<span class="sig-name descname"><span class="pre">test_authenticate_with_token</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestAuthentication.test_authenticate_with_token"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestAuthentication.test_authenticate_with_token" title="Link to this definition"></a></dt>
+<dd><p>Test authenticating with a token in place of a password.</p>
+<p>Accounts that sign in through an identity provider have no password at all, so
+/auth-token is closed to them and a token is the only credential they have.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_alyxclient.TestAuthentication.test_authenticate_with_token_not_cached">
+<span class="sig-name descname"><span class="pre">test_authenticate_with_token_not_cached</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestAuthentication.test_authenticate_with_token_not_cached"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestAuthentication.test_authenticate_with_token_not_cached" title="Link to this definition"></a></dt>
+<dd><p>A token passed with cache_token=False should not be written to the params.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_alyxclient.TestAuthentication.test_authenticate_token_prompt">
+<span class="sig-name descname"><span class="pre">test_authenticate_token_prompt</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestAuthentication.test_authenticate_token_prompt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestAuthentication.test_authenticate_token_prompt" title="Link to this definition"></a></dt>
+<dd><p>A blank password at the prompt should fall through to asking for a token.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_alyxclient.TestAuthentication.test_verify_token_rejects_bad_token">
+<span class="sig-name descname"><span class="pre">test_verify_token_rejects_bad_token</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestAuthentication.test_verify_token_rejects_bad_token"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestAuthentication.test_verify_token_rejects_bad_token" title="Link to this definition"></a></dt>
+<dd><p>A token the database refuses must be discarded rather than cached.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_alyxclient.TestAuthentication.test_verify_token_tolerates_unreachable_database">
+<span class="sig-name descname"><span class="pre">test_verify_token_tolerates_unreachable_database</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestAuthentication.test_verify_token_tolerates_unreachable_database"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestAuthentication.test_verify_token_tolerates_unreachable_database" title="Link to this definition"></a></dt>
+<dd><p>A network failure while checking must not reject a token that may be perfectly good.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_alyxclient.TestAuthentication.test_verify_token_checks_the_me_endpoint">
+<span class="sig-name descname"><span class="pre">test_verify_token_checks_the_me_endpoint</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestAuthentication.test_verify_token_checks_the_me_endpoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestAuthentication.test_verify_token_checks_the_me_endpoint" title="Link to this definition"></a></dt>
+<dd><p>The token is checked against /me, which also reports whose it is.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_alyxclient.TestAuthentication.test_token_username_wins_over_the_one_supplied">
+<span class="sig-name descname"><span class="pre">test_token_username_wins_over_the_one_supplied</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestAuthentication.test_token_username_wins_over_the_one_supplied"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestAuthentication.test_token_username_wins_over_the_one_supplied" title="Link to this definition"></a></dt>
+<dd><p>The database knows whose token it is; caching it under another name would lie.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_alyxclient.TestAuthentication.test_token_alone_identifies_the_user">
+<span class="sig-name descname"><span class="pre">test_token_alone_identifies_the_user</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestAuthentication.test_token_alone_identifies_the_user"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestAuthentication.test_token_alone_identifies_the_user" title="Link to this definition"></a></dt>
+<dd><p>A token is the one credential that can name its owner, so no username is needed.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_alyxclient.TestAuthentication.test_a_token_is_never_asked_who_it_belongs_to">
+<span class="sig-name descname"><span class="pre">test_a_token_is_never_asked_who_it_belongs_to</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestAuthentication.test_a_token_is_never_asked_who_it_belongs_to"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestAuthentication.test_a_token_is_never_asked_who_it_belongs_to" title="Link to this definition"></a></dt>
+<dd><p>A token names its own owner, so neither the prompt nor the stored login applies.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_alyxclient.TestAuthentication.test_the_api_version_survives_every_authentication_path">
+<span class="sig-name descname"><span class="pre">test_the_api_version_survives_every_authentication_path</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestAuthentication.test_the_api_version_survives_every_authentication_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestAuthentication.test_the_api_version_survives_every_authentication_path" title="Link to this definition"></a></dt>
+<dd><p>A database can only see how old its clients are if they all say so.</p>
+<p><cite>authenticate</cite> rebuilds the header dict, so the version was previously sent only by a
+client that authenticated through the constructor, and dropped by one that
+authenticated lazily or from a cached token - the common case by far.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_alyxclient.TestAuthentication.test_the_api_version_is_sent_with_the_request">
+<span class="sig-name descname"><span class="pre">test_the_api_version_is_sent_with_the_request</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestAuthentication.test_the_api_version_is_sent_with_the_request"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestAuthentication.test_the_api_version_is_sent_with_the_request" title="Link to this definition"></a></dt>
+<dd><p>The header must reach the wire, not merely sit in the client’s dict.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_alyxclient.TestAuthentication.test_no_username_is_an_error_rather_than_a_prompt_loop">
+<span class="sig-name descname"><span class="pre">test_no_username_is_an_error_rather_than_a_prompt_loop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestAuthentication.test_no_username_is_an_error_rather_than_a_prompt_loop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestAuthentication.test_no_username_is_an_error_rather_than_a_prompt_loop" title="Link to this definition"></a></dt>
+<dd><p>With a blank default login and no token, there is nothing to authenticate as.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_alyxclient.TestAuthentication.test_a_token_alone_needs_a_database_that_names_its_owner">
+<span class="sig-name descname"><span class="pre">test_a_token_alone_needs_a_database_that_names_its_owner</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestAuthentication.test_a_token_alone_needs_a_database_that_names_its_owner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestAuthentication.test_a_token_alone_needs_a_database_that_names_its_owner" title="Link to this definition"></a></dt>
+<dd><p>An Alyx too old to serve /me as an API cannot say whose token it is.</p>
+<p>With a token alone there is no name to cache it under and no way to tell whether it is
+even the intended account, so it is refused.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_alyxclient.TestAuthentication.test_a_token_alone_is_refused_when_the_database_is_unreachable">
+<span class="sig-name descname"><span class="pre">test_a_token_alone_is_refused_when_the_database_is_unreachable</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestAuthentication.test_a_token_alone_is_refused_when_the_database_is_unreachable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestAuthentication.test_a_token_alone_is_refused_when_the_database_is_unreachable" title="Link to this definition"></a></dt>
+<dd><p>The other way the check comes back empty: it never reached the database.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_alyxclient.TestAuthentication.test_a_username_resolved_once_is_remembered">
+<span class="sig-name descname"><span class="pre">test_a_username_resolved_once_is_remembered</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestAuthentication.test_a_username_resolved_once_is_remembered"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestAuthentication.test_a_username_resolved_once_is_remembered" title="Link to this definition"></a></dt>
+<dd><p>Otherwise the cached token, which is keyed by username, could never be found again.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_alyxclient.TestAuthentication.test_auth_methods">
 <span class="sig-name descname"><span class="pre">test_auth_methods</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestAuthentication.test_auth_methods"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestAuthentication.test_auth_methods" title="Link to this definition"></a></dt>
 <dd><p>Test behaviour when calling AlyxClient._generic_request when logged out.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_alyxclient.TestAuthentication.test_download_cache_tables_authenticates">
+<span class="sig-name descname"><span class="pre">test_download_cache_tables_authenticates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestAuthentication.test_download_cache_tables_authenticates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestAuthentication.test_download_cache_tables_authenticates" title="Link to this definition"></a></dt>
+<dd><p>Downloading the cache tables must authenticate first, like any other request.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -261,12 +389,6 @@ Django queries are also tested in TestRemote.test_search.</p>
 <dt class="sig sig-object py" id="one.tests.test_alyxclient.TestJsonFieldMethods.test_uuid_serialize">
 <span class="sig-name descname"><span class="pre">test_uuid_serialize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestJsonFieldMethods.test_uuid_serialize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestJsonFieldMethods.test_uuid_serialize" title="Link to this definition"></a></dt>
 <dd><p>Check that UUID objects are serialized to JSON.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="one.tests.test_alyxclient.TestJsonFieldMethods.tearDown">
-<span class="sig-name descname"><span class="pre">tearDown</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestJsonFieldMethods.tearDown"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestJsonFieldMethods.tearDown" title="Link to this definition"></a></dt>
-<dd><p>Hook method for deconstructing the test fixture after testing it.</p>
 </dd></dl>
 
 </dd></dl>
@@ -385,6 +507,12 @@ Django queries are also tested in TestRemote.test_search.</p>
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_alyxclient.TestDownloadHTTP.test_download_creates_a_missing_target_directory">
+<span class="sig-name descname"><span class="pre">test_download_creates_a_missing_target_directory</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestDownloadHTTP.test_download_creates_a_missing_target_directory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestDownloadHTTP.test_download_creates_a_missing_target_directory" title="Link to this definition"></a></dt>
+<dd><p>The default target is ~/Downloads, which plenty of machines do not have.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_alyxclient.TestDownloadHTTP.test_download_datasets">
 <span class="sig-name descname"><span class="pre">test_download_datasets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestDownloadHTTP.test_download_datasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestDownloadHTTP.test_download_datasets" title="Link to this definition"></a></dt>
 <dd></dd></dl>
@@ -443,6 +571,15 @@ downloading the tables.</p>
 <dt class="sig sig-object py" id="one.tests.test_alyxclient.TestMisc.test_paginated_response">
 <span class="sig-name descname"><span class="pre">test_paginated_response</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestMisc.test_paginated_response"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestMisc.test_paginated_response" title="Link to this definition"></a></dt>
 <dd><p>Test the _PaginatedResponse class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_alyxclient.TestMisc.test_paginated_response_count_changed">
+<span class="sig-name descname"><span class="pre">test_paginated_response_count_changed</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_alyxclient.html#TestMisc.test_paginated_response_count_changed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_alyxclient.TestMisc.test_paginated_response_count_changed" title="Link to this definition"></a></dt>
+<dd><p>Test _PaginatedResponse when records are added/removed by another process.</p>
+<p>The remote count is fixed at instantiation, so a -ve index is resolved against a count
+that may be stale by the time the page is fetched.  Previously this left None values in
+the cache when records were removed.</p>
 </dd></dl>
 
 <dl class="py method">

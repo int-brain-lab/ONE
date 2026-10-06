@@ -9,6 +9,14 @@ one.tests.test\_alyxclient
 
    
    
+   .. rubric:: Functions
+
+   .. autosummary::
+      :nosignatures:
+   
+      setUpModule
+      tearDownModule
+   
    
 
    

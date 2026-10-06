@@ -147,6 +147,9 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#one.tests.test_registration.TestRegistrationClient" title="one.tests.test_registration.TestRegistrationClient"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestRegistrationClient</span></code></a></p></td>
 <td><p>Test class for RegistrationClient class.</p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.tests.test_registration.TestRegistrationClientNonSession" title="one.tests.test_registration.TestRegistrationClientNonSession"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestRegistrationClientNonSession</span></code></a></p></td>
+<td><p>Tests for RegistrationClient handling non-session files.</p></td>
+</tr>
 </tbody>
 </table>
 <dl class="py class">
@@ -280,6 +283,76 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="one.tests.test_registration.TestRegistrationClient.tearDownClass">
 <span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">tearDownClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/tests/test_registration.html#TestRegistrationClient.tearDownClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_registration.TestRegistrationClient.tearDownClass" title="Link to this definition"></a></dt>
+<dd><p>Hook method for deconstructing the class fixture after running all tests in the class.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="one.tests.test_registration.TestRegistrationClientNonSession">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">TestRegistrationClientNonSession</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_registration.html#TestRegistrationClientNonSession"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_registration.TestRegistrationClientNonSession" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
+<p>Tests for RegistrationClient handling non-session files.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="one.tests.test_registration.TestRegistrationClientNonSession.one">
+<span class="sig-name descname"><span class="pre">one</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#one.tests.test_registration.TestRegistrationClientNonSession.one" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="one.tests.test_registration.TestRegistrationClientNonSession.subject">
+<span class="sig-name descname"><span class="pre">subject</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#one.tests.test_registration.TestRegistrationClientNonSession.subject" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="one.tests.test_registration.TestRegistrationClientNonSession.tag">
+<span class="sig-name descname"><span class="pre">tag</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#one.tests.test_registration.TestRegistrationClientNonSession.tag" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="one.tests.test_registration.TestRegistrationClientNonSession.temp_dir">
+<span class="sig-name descname"><span class="pre">temp_dir</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#one.tests.test_registration.TestRegistrationClientNonSession.temp_dir" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_registration.TestRegistrationClientNonSession.setUpClass">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">setUpClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/tests/test_registration.html#TestRegistrationClientNonSession.setUpClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_registration.TestRegistrationClientNonSession.setUpClass" title="Link to this definition"></a></dt>
+<dd><p>Hook method for setting up class fixture before running tests in the class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_registration.TestRegistrationClientNonSession.setUp">
+<span class="sig-name descname"><span class="pre">setUp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/tests/test_registration.html#TestRegistrationClientNonSession.setUp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_registration.TestRegistrationClientNonSession.setUp" title="Link to this definition"></a></dt>
+<dd><p>Hook method for setting up the test fixture before exercising it.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_registration.TestRegistrationClientNonSession.test_register_files">
+<span class="sig-name descname"><span class="pre">test_register_files</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_registration.html#TestRegistrationClientNonSession.test_register_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_registration.TestRegistrationClientNonSession.test_register_files" title="Link to this definition"></a></dt>
+<dd><p>Test for RegistrationClient.register_files with non-session files.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_registration.TestRegistrationClientNonSession.test_check_protected_files">
+<span class="sig-name descname"><span class="pre">test_check_protected_files</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_registration.html#TestRegistrationClientNonSession.test_check_protected_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_registration.TestRegistrationClientNonSession.test_check_protected_files" title="Link to this definition"></a></dt>
+<dd><p>Test for RegistrationClient.check_protected_files for non-session files.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_registration.TestRegistrationClientNonSession.test_prepare_files">
+<span class="sig-name descname"><span class="pre">test_prepare_files</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_registration.html#TestRegistrationClientNonSession.test_prepare_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_registration.TestRegistrationClientNonSession.test_prepare_files" title="Link to this definition"></a></dt>
+<dd><p>Test for RegistrationClient.prepare_files.</p>
+<p>The above methods already cover much of the function. Here we check for exclusions.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_registration.TestRegistrationClientNonSession.tearDown">
+<span class="sig-name descname"><span class="pre">tearDown</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/test_registration.html#TestRegistrationClientNonSession.tearDown"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_registration.TestRegistrationClientNonSession.tearDown" title="Link to this definition"></a></dt>
+<dd><p>Hook method for deconstructing the test fixture after testing it.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="one.tests.test_registration.TestRegistrationClientNonSession.tearDownClass">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">tearDownClass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/one/tests/test_registration.html#TestRegistrationClientNonSession.tearDownClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.test_registration.TestRegistrationClientNonSession.tearDownClass" title="Link to this definition"></a></dt>
 <dd><p>Hook method for deconstructing the class fixture after running all tests in the class.</p>
 </dd></dl>
 

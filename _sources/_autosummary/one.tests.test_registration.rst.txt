@@ -20,6 +20,7 @@ one.tests.test\_registration
    
       TestDatasetTypes
       TestRegistrationClient
+      TestRegistrationClientNonSession
    
    
 

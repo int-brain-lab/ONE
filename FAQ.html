@@ -88,6 +88,8 @@
 <li class="toctree-l2"><a class="reference internal" href="#how-do-i-load-cache-tables-from-a-different-location">How do I load cache tables from a different location?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#how-do-check-who-i-m-logged-in-as">How do check who I’m logged in as?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#how-do-i-log-out-or-temporarily-log-in-as-someone-else">How do I log out, or temporarily log in as someone else?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-do-i-sign-in-if-my-account-has-no-password">How do I sign in if my account has no password?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#i-have-a-token-but-one-says-it-was-rejected-what-now">I have a token but ONE says it was rejected, what now?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#what-to-do-if-i-am-seeing-a-certificate-error">What to do if I am seeing a certificate error?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#how-do-i-download-the-datasets-cache-for-a-specific-ibl-paper-release">How do I download the datasets cache for a specific IBL paper release?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#how-do-i-ensure-my-own-analyses-don-t-change-when-the-database-is-updated">How do I ensure my own analyses don’t change when the database is updated?</a></li>
@@ -139,7 +141,7 @@ guide for more information.</p>
 <section id="how-do-i-use-one-without-connecting-to-my-database">
 <h2>How do I use ONE without connecting to my database?<a class="headerlink" href="#how-do-i-use-one-without-connecting-to-my-database" title="Link to this heading"></a></h2>
 <p>If you temporarily lose access to your Alyx database, you can instantiate ONE in local mode:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://openalyx.internationalbrainlab.org&#39;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;local&#39;</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">'https://openalyx.internationalbrainlab.org'</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">'local'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Read more about ONE modes <a class="reference internal" href="notebooks/one_modes.html"><span class="doc std std-doc">here</span></a>.</p>
@@ -171,7 +173,7 @@ to only download when new data are available.  More information, including incre
 <h2>I made a mistake during setup and now can’t call setup, how do I fix it?<a class="headerlink" href="#i-made-a-mistake-during-setup-and-now-can-t-call-setup-how-do-i-fix-it" title="Link to this heading"></a></h2>
 <p>Usually you can re-run your setup with the following command:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">one.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">ONE</span>
-<span class="n">ONE</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://alyx.example.com&#39;</span><span class="p">)</span>
+<span class="n">ONE</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">'https://alyx.example.com'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>⚠️<span style="color: red;"> Note: ‘alyx.example.com’ is just an example URL - replace with your actual database URL</span></p>
@@ -180,7 +182,7 @@ to only download when new data are available.  More information, including incre
 <h2>How do I reset my ONE parameters to use Open Alyx?<a class="headerlink" href="#how-do-i-reset-my-one-parameters-to-use-open-alyx" title="Link to this heading"></a></h2>
 <p>To reset your ONE configuration to use the public Open Alyx database with default settings:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">one.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">ONE</span>
-<span class="n">ONE</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://openalyx.internationalbrainlab.org&#39;</span><span class="p">,</span> <span class="n">make_default</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">ONE</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">'https://openalyx.internationalbrainlab.org'</span><span class="p">,</span> <span class="n">make_default</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 <p><strong>Note</strong>: The <code class="docutils literal notranslate"><span class="pre">make_default=True</span></code> argument saves these settings as your default configuration. This means future ONE instances will use these settings unless specified otherwise.</p>
@@ -197,7 +199,7 @@ to only download when new data are available.  More information, including incre
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">one.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">ONE</span>
 
-<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://alyx.example.com&#39;</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span> <span class="o">/</span> <span class="s1">&#39;new_download_dir&#39;</span><span class="p">)</span>
+<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">'https://alyx.example.com'</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span> <span class="o">/</span> <span class="s1">'new_download_dir'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>⚠️<span style="color: red;"> Note: ‘alyx.example.com’ is just an example URL - replace with your actual database URL</span></p>
@@ -210,9 +212,9 @@ to only download when new data are available.  More information, including incre
 <span class="kn">from</span><span class="w"> </span><span class="nn">one.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">ONE</span>
 
 <span class="c1"># 1. Specify location upon instantiation</span>
-<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">tables_dir</span><span class="o">=</span><span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span> <span class="o">/</span> <span class="s1">&#39;tables_dir&#39;</span><span class="p">)</span>
+<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">tables_dir</span><span class="o">=</span><span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span> <span class="o">/</span> <span class="s1">'tables_dir'</span><span class="p">)</span>
 <span class="c1"># 2. Specify location after instantiation</span>
-<span class="n">one</span><span class="o">.</span><span class="n">load_cache</span><span class="p">(</span><span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span> <span class="o">/</span> <span class="s1">&#39;tables_dir&#39;</span><span class="p">)</span>
+<span class="n">one</span><span class="o">.</span><span class="n">load_cache</span><span class="p">(</span><span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span> <span class="o">/</span> <span class="s1">'tables_dir'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p><strong>Note</strong>: Avoid using the same location for different database cache tables: ONE will overwrite tables when <code class="docutils literal notranslate"><span class="pre">load_cache</span></code> is called in remote mode.</p>
@@ -237,15 +239,40 @@ to only download when new data are available.  More information, including incre
 </pre></div>
 </div>
 <p>To log in as someone else temporarily:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="s1">&#39;other_user&#39;</span><span class="p">,</span> <span class="n">cache_token</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="s1">'other_user'</span><span class="p">,</span> <span class="n">cache_token</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
+</section>
+<section id="how-do-i-sign-in-if-my-account-has-no-password">
+<h2>How do I sign in if my account has no password?<a class="headerlink" href="#how-do-i-sign-in-if-my-account-has-no-password" title="Link to this heading"></a></h2>
+<p>Accounts created through an identity provider such as ORCiD have no password. They authenticate
+with an API token instead, shown on the database’s <code class="docutils literal notranslate"><span class="pre">/me</span></code> page (for the public database,
+<a class="reference external" href="https://openalyx.internationalbrainlab.org/me">openalyx.internationalbrainlab.org/me</a>).</p>
+<p>At the prompt, leave the password blank and paste the token when asked for one. To skip the prompts
+altogether - in a script, or anywhere headless - pass it directly:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">one.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">ONE</span>
+<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">token</span><span class="o">=</span><span class="s1">'a1b2c3...'</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The username is optional here: the database is asked whose token it is. Treat the token as you
+would a password, and regenerate it from the same page if it leaks - the old one stops working
+immediately.</p>
+</section>
+<section id="i-have-a-token-but-one-says-it-was-rejected-what-now">
+<h2>I have a token but ONE says it was rejected, what now?<a class="headerlink" href="#i-have-a-token-but-one-says-it-was-rejected-what-now" title="Link to this heading"></a></h2>
+<p>Tokens change whenever they are regenerated, and the old value stops working at once. Open the
+<code class="docutils literal notranslate"><span class="pre">/me</span></code> page again, copy the current token, and re-authenticate:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">token</span><span class="o">=</span><span class="s1">'a1b2c3...'</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Do not edit the ONE parameter file by hand to fix this - re-running the authentication updates it
+for you.</p>
 </section>
 <section id="what-to-do-if-i-am-seeing-a-certificate-error">
 <h2>What to do if I am seeing a certificate error?<a class="headerlink" href="#what-to-do-if-i-am-seeing-a-certificate-error" title="Link to this heading"></a></h2>
 <p>If you are using the Windows platform, you may see a certificate error when initially trying to connect with ONE. The last few
 lines of the traceback should like this:</p>
-<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="n">File</span> <span class="s2">&quot;C:\Users\User\anaconda3\envs\ONE\lib\urllib\request.py&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="n">1351</span><span class="p">,</span> <span class="k">in</span> <span class="n">do_open</span>
+<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="n">File</span> <span class="s2">"C:\Users\User\anaconda3\envs\ONE\lib\urllib\request.py"</span><span class="p">,</span> <span class="n">line</span> <span class="n">1351</span><span class="p">,</span> <span class="k">in</span> <span class="n">do_open</span>
     <span class="n">raise</span> <span class="n">URLError</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
 <span class="n">urllib</span><span class="p">.</span><span class="n">error</span><span class="p">.</span><span class="n">URLError</span><span class="p">:</span> <span class="p">&lt;</span><span class="n">urlopen</span> <span class="n">error</span> <span class="p">[</span><span class="n">SSL</span><span class="p">:</span> <span class="n">CERTIFICATE_VERIFY_FAILED</span><span class="p">]</span> <span class="n">certificate</span> <span class="n">verify</span> <span class="n">failed</span><span class="p">:</span> <span class="n">unable</span> <span class="n">to</span> <span class="n">get</span> <span class="n">local</span> <span class="n">issuer</span> <span class="n">certificate</span> <span class="p">(</span><span class="n">_ssl</span><span class="p">.</span><span class="n">c</span><span class="p">:</span><span class="n">997</span><span class="p">)&gt;</span>
 </pre></div>
@@ -268,14 +295,14 @@ This is a unique issue with the way that the Windows OS handles certificates.</p
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">one.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">ONE</span>
 
 <span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">()</span>
-<span class="n">TAG</span> <span class="o">=</span> <span class="s1">&#39;2021_Q1_IBL_et_al_Behaviour&#39;</span>  <span class="c1"># Release tag to download cache for</span>
+<span class="n">TAG</span> <span class="o">=</span> <span class="s1">'2021_Q1_IBL_et_al_Behaviour'</span>  <span class="c1"># Release tag to download cache for</span>
 <span class="n">one</span><span class="o">.</span><span class="n">load_cache</span><span class="p">(</span><span class="n">tag</span><span class="o">=</span><span class="n">TAG</span><span class="p">)</span>
-<span class="n">one</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;local&#39;</span>  <span class="c1"># Tell API to use loaded table instead of Alyx db</span>
+<span class="n">one</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="s1">'local'</span>  <span class="c1"># Tell API to use loaded table instead of Alyx db</span>
 </pre></div>
 </div>
 <p>To return to the full cache containing an index of all experiments:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ONE</span><span class="o">.</span><span class="n">cache_clear</span><span class="p">()</span>
-<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;remote&#39;</span><span class="p">)</span>
+<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s1">'remote'</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -294,14 +321,14 @@ To update to the latest available version run <code class="docutils literal notr
 <h2>How do I use ONE in a read-only environment?<a class="headerlink" href="#how-do-i-use-one-in-a-read-only-environment" title="Link to this heading"></a></h2>
 <p>To use ONE without any write access or internet access, simply instantiate in local mode:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">one.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">ONE</span>
-<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">cache_dir</span><span class="o">=</span><span class="s1">&#39;/path/to/data/dir&#39;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;local&#39;</span><span class="p">)</span>
+<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">cache_dir</span><span class="o">=</span><span class="s1">'/path/to/data/dir'</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">'local'</span><span class="p">)</span>
 <span class="k">assert</span> <span class="n">one</span><span class="o">.</span><span class="n">offline</span>
 </pre></div>
 </div>
 <p>If you wish to make Alyx database REST requests in a read-only environment, provide a database URL
 and set <code class="docutils literal notranslate"><span class="pre">cache_rest=None</span></code> to avoid saving REST responses on disk:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">one.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">ONE</span>
-<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://openalyx.internationalbrainlab.org&#39;</span><span class="p">,</span> <span class="n">cache_rest</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;local&#39;</span><span class="p">)</span>
+<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">'https://openalyx.internationalbrainlab.org'</span><span class="p">,</span> <span class="n">cache_rest</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">'local'</span><span class="p">)</span>
 <span class="k">assert</span> <span class="n">one</span><span class="o">.</span><span class="n">offline</span> <span class="ow">and</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">cache_mode</span> <span class="ow">is</span> <span class="kc">None</span>
 </pre></div>
 </div>
@@ -324,15 +351,15 @@ the function when there are large search results.</p>
 <h2>How do I search for sessions with the exact subject name (excluding partial matches)?<a class="headerlink" href="#how-do-i-search-for-sessions-with-the-exact-subject-name-excluding-partial-matches" title="Link to this heading"></a></h2>
 <p>When not in remote mode you can use a <a class="reference internal" href="#notebooks/one_search/one_search.html#Advanced-searching"><span class="xref myst">regular expression</span></a>
 to assert the start and end of the search string:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;local&#39;</span><span class="p">,</span> <span class="n">wildcards</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># Should be True by default</span>
-<span class="n">subject</span> <span class="o">=</span> <span class="s1">&#39;FD_04&#39;</span>
-<span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;^</span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s1">$&#39;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s1">'local'</span><span class="p">,</span> <span class="n">wildcards</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># Should be True by default</span>
+<span class="n">subject</span> <span class="o">=</span> <span class="s1">'FD_04'</span>
+<span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="sa">f</span><span class="s1">'^</span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s1">$'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>When in remote mode you can use a <a class="reference internal" href="#notebooks/useful_alyx_queries.html#exact"><span class="xref myst">Django exact query</span></a>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;remote&#39;</span><span class="p">)</span>
-<span class="n">subject</span> <span class="o">=</span> <span class="s1">&#39;FD_04&#39;</span>
-<span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">django</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;subject__nickname__exact,</span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s1">'remote'</span><span class="p">)</span>
+<span class="n">subject</span> <span class="o">=</span> <span class="s1">'FD_04'</span>
+<span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">django</span><span class="o">=</span><span class="sa">f</span><span class="s1">'subject__nickname__exact,</span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -351,11 +378,11 @@ queries are generally case-insensitive.  See the ‘gotcha’ section of
 <p>You can first filter sessions by those that the supplied datasets with QC level WARNING or less:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">()</span>
 <span class="c1"># In local and remote mode</span>
-<span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">datasets</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;trials.table.pqt&#39;</span><span class="p">,</span> <span class="s1">&#39;spikes.times.npy&#39;</span><span class="p">],</span> <span class="n">dataset_qc_lte</span><span class="o">=</span><span class="s1">&#39;WARNING&#39;</span><span class="p">)</span>
+<span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">datasets</span><span class="o">=</span><span class="p">[</span><span class="s1">'trials.table.pqt'</span><span class="p">,</span> <span class="s1">'spikes.times.npy'</span><span class="p">],</span> <span class="n">dataset_qc_lte</span><span class="o">=</span><span class="s1">'WARNING'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>You can then load the datasets with list_datasets and load_datasets:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dsets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">qc</span><span class="o">=</span><span class="s1">&#39;WARNING&#39;</span><span class="p">,</span> <span class="n">ignore_qc_not_set</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dsets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">qc</span><span class="o">=</span><span class="s1">'WARNING'</span><span class="p">,</span> <span class="n">ignore_qc_not_set</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">data</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">dsets</span><span class="p">)</span>
 </pre></div>
 </div>

@@ -145,27 +145,27 @@ Providing a client name string to the constructor allows one to set up multiple 
 </ol>
 <p>To modify the settings for a pre-established client, call the <cite>Globus.setup</cite> method with the client
 name:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">globus</span> <span class="o">=</span> <span class="n">Globus</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="s1">&#39;default&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">globus</span> <span class="o">=</span> <span class="n">Globus</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="s1">'default'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>You can update the list of endpoints using the <cite>fetch_endpoints_from_alyx</cite> method:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">globus</span> <span class="o">=</span> <span class="n">Globus</span><span class="p">(</span><span class="s1">&#39;admin&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">globus</span> <span class="o">=</span> <span class="n">Globus</span><span class="p">(</span><span class="s1">'admin'</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">remote_endpoints</span> <span class="o">=</span> <span class="n">globus</span><span class="o">.</span><span class="n">fetch_endpoints_from_alyx</span><span class="p">(</span><span class="n">alyx</span><span class="o">=</span><span class="n">AlyxClient</span><span class="p">())</span>
 </pre></div>
 </div>
 <p>The endpoints are stored in the <cite>endpoints</cite> property</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">globus</span><span class="o">.</span><span class="n">endpoints</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">globus</span><span class="o">.</span><span class="n">endpoints</span><span class="p">[</span><span class="s1">&#39;local&#39;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">globus</span><span class="o">.</span><span class="n">endpoints</span><span class="p">[</span><span class="s1">'local'</span><span class="p">])</span>
 </pre></div>
 </div>
 <p class="rubric">Examples</p>
 <p>Get the full Globus file path</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">relative_path</span> <span class="o">=</span> <span class="s1">&#39;subject/2020-01-01/001/alf/_ibl_trials.table.pqt&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">full_path</span> <span class="o">=</span> <span class="n">globus</span><span class="o">.</span><span class="n">to_address</span><span class="p">(</span><span class="n">relative_path</span><span class="p">,</span> <span class="s1">&#39;flatiron_cortexlab&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">relative_path</span> <span class="o">=</span> <span class="s1">'subject/2020-01-01/001/alf/_ibl_trials.table.pqt'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">full_path</span> <span class="o">=</span> <span class="n">globus</span><span class="o">.</span><span class="n">to_address</span><span class="p">(</span><span class="n">relative_path</span><span class="p">,</span> <span class="s1">'flatiron_cortexlab'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Log in with a limited time token</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">globus</span> <span class="o">=</span> <span class="n">Globus</span><span class="p">(</span><span class="s1">&#39;admin&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">globus</span> <span class="o">=</span> <span class="n">Globus</span><span class="p">(</span><span class="s1">'admin'</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">globus</span><span class="o">.</span><span class="n">login</span><span class="p">(</span><span class="n">stay_logged_in</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -176,26 +176,26 @@ name:</p>
 </div>
 <p>Asynchronously transfer data between Alyx repositories</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">alyx</span> <span class="o">=</span> <span class="n">AlyxClient</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">glo</span> <span class="o">=</span> <span class="n">Globus</span><span class="p">(</span><span class="s1">&#39;admin&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">glo</span><span class="o">.</span><span class="n">add_endpoint</span><span class="p">(</span><span class="s1">&#39;flatiron_cortexlab&#39;</span><span class="p">,</span> <span class="n">alyx</span><span class="o">=</span><span class="n">alyx</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">glo</span><span class="o">.</span><span class="n">add_endpoint</span><span class="p">(</span><span class="s1">&#39;cortex_lab_SR&#39;</span><span class="p">,</span> <span class="n">alyx</span><span class="o">=</span><span class="n">alyx</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">task_id</span> <span class="o">=</span> <span class="n">glo</span><span class="o">.</span><span class="n">transfer_data</span><span class="p">(</span><span class="s1">&#39;path/to/file&#39;</span><span class="p">,</span> <span class="s1">&#39;flatiron_cortexlab&#39;</span><span class="p">,</span> <span class="s1">&#39;cortex_lab_SR&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">glo</span> <span class="o">=</span> <span class="n">Globus</span><span class="p">(</span><span class="s1">'admin'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">glo</span><span class="o">.</span><span class="n">add_endpoint</span><span class="p">(</span><span class="s1">'flatiron_cortexlab'</span><span class="p">,</span> <span class="n">alyx</span><span class="o">=</span><span class="n">alyx</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">glo</span><span class="o">.</span><span class="n">add_endpoint</span><span class="p">(</span><span class="s1">'cortex_lab_SR'</span><span class="p">,</span> <span class="n">alyx</span><span class="o">=</span><span class="n">alyx</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">task_id</span> <span class="o">=</span> <span class="n">glo</span><span class="o">.</span><span class="n">transfer_data</span><span class="p">(</span><span class="s1">'path/to/file'</span><span class="p">,</span> <span class="s1">'flatiron_cortexlab'</span><span class="p">,</span> <span class="s1">'cortex_lab_SR'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Synchronously transfer data to an alternate local location</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">root_path</span> <span class="o">=</span> <span class="s1">&#39;/path/to/new/location&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">glo</span><span class="o">.</span><span class="n">add_endpoint</span><span class="p">(</span><span class="n">get_local_endpoint_id</span><span class="p">(),</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;alternate_local&#39;</span><span class="p">,</span> <span class="n">root_path</span><span class="o">=</span><span class="n">root_path</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">folder</span> <span class="o">=</span> <span class="s1">&#39;camera/ZFM-01867/2021-03-23/002&#39;</span>  <span class="c1"># An example folder to download</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">task</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">glo</span><span class="o">.</span><span class="n">transfer_data</span><span class="p">,</span> <span class="n">folder</span><span class="p">,</span> <span class="s1">&#39;integration&#39;</span><span class="p">,</span> <span class="s1">&#39;integration_local&#39;</span><span class="p">,</span>
-<span class="gp">... </span>               <span class="n">label</span><span class="o">=</span><span class="s1">&#39;alternate data&#39;</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">root_path</span> <span class="o">=</span> <span class="s1">'/path/to/new/location'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">glo</span><span class="o">.</span><span class="n">add_endpoint</span><span class="p">(</span><span class="n">get_local_endpoint_id</span><span class="p">(),</span> <span class="n">label</span><span class="o">=</span><span class="s1">'alternate_local'</span><span class="p">,</span> <span class="n">root_path</span><span class="o">=</span><span class="n">root_path</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">folder</span> <span class="o">=</span> <span class="s1">'camera/ZFM-01867/2021-03-23/002'</span>  <span class="c1"># An example folder to download</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">task</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">glo</span><span class="o">.</span><span class="n">transfer_data</span><span class="p">,</span> <span class="n">folder</span><span class="p">,</span> <span class="s1">'integration'</span><span class="p">,</span> <span class="s1">'integration_local'</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">label</span><span class="o">=</span><span class="s1">'alternate data'</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">task_id</span> <span class="o">=</span> <span class="n">glo</span><span class="o">.</span><span class="n">run_task</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>  <span class="c1"># Submit task to Globus and await completion</span>
 </pre></div>
 </div>
 <p>Temporarily change local data root path and synchronously download file</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">glo</span><span class="o">.</span><span class="n">endpoints</span><span class="p">[</span><span class="s1">&#39;local&#39;</span><span class="p">][</span><span class="s1">&#39;root_path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;/path/to/new/location&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">file</span> <span class="o">=</span> <span class="n">glo</span><span class="o">.</span><span class="n">download_file</span><span class="p">(</span><span class="s1">&#39;path/to/file.ext&#39;</span><span class="p">,</span> <span class="s1">&#39;source_endpoint&#39;</span><span class="p">)</span>
-<span class="go">Path(&#39;/path/to/new/location/path/to/file.ext&#39;)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">glo</span><span class="o">.</span><span class="n">endpoints</span><span class="p">[</span><span class="s1">'local'</span><span class="p">][</span><span class="s1">'root_path'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'/path/to/new/location'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">file</span> <span class="o">=</span> <span class="n">glo</span><span class="o">.</span><span class="n">download_file</span><span class="p">(</span><span class="s1">'path/to/file.ext'</span><span class="p">,</span> <span class="s1">'source_endpoint'</span><span class="p">)</span>
+<span class="go">Path('/path/to/new/location/path/to/file.ext')</span>
 </pre></div>
 </div>
 <p>Await multiple tasks to complete by passing a list of Globus transfer IDs</p>
@@ -327,10 +327,10 @@ token if available.</p>
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">glo</span> <span class="o">=</span> <span class="n">Globus</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">glo</span><span class="o">.</span><span class="n">add_endpoint</span><span class="p">(</span><span class="s1">&#39;0ec47586-3a19-11eb-b173-0ee0d5d9299f&#39;</span><span class="p">,</span>
-<span class="gp">... </span>                 <span class="n">label</span><span class="o">=</span><span class="s1">&#39;foobar&#39;</span><span class="p">,</span> <span class="n">root_path</span><span class="o">=</span><span class="s1">&#39;/foo&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">glo</span><span class="o">.</span><span class="n">to_address</span><span class="p">(</span><span class="s1">&#39;bar/baz.ext&#39;</span><span class="p">,</span> <span class="s1">&#39;foobar&#39;</span><span class="p">)</span>
-<span class="go">&#39;/foo/bar/baz.ext&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">glo</span><span class="o">.</span><span class="n">add_endpoint</span><span class="p">(</span><span class="s1">'0ec47586-3a19-11eb-b173-0ee0d5d9299f'</span><span class="p">,</span>
+<span class="gp">... </span>                 <span class="n">label</span><span class="o">=</span><span class="s1">'foobar'</span><span class="p">,</span> <span class="n">root_path</span><span class="o">=</span><span class="s1">'/foo'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">glo</span><span class="o">.</span><span class="n">to_address</span><span class="p">(</span><span class="s1">'bar/baz.ext'</span><span class="p">,</span> <span class="s1">'foobar'</span><span class="p">)</span>
+<span class="go">'/foo/bar/baz.ext'</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -363,16 +363,16 @@ directories).</p></li>
 <p>TODO Return None for failed files</p>
 <p class="rubric">Examples</p>
 <p>Download a single file</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">file</span> <span class="o">=</span> <span class="n">Globus</span><span class="p">()</span><span class="o">.</span><span class="n">download_file</span><span class="p">(</span><span class="s1">&#39;path/to/file&#39;</span><span class="p">,</span> <span class="s1">&#39;0ec47586-3a19-11eb-b173-0ee0d5d9299f&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">file</span> <span class="o">=</span> <span class="n">Globus</span><span class="p">()</span><span class="o">.</span><span class="n">download_file</span><span class="p">(</span><span class="s1">'path/to/file'</span><span class="p">,</span> <span class="s1">'0ec47586-3a19-11eb-b173-0ee0d5d9299f'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Download multiple files and verify checksum</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;relative/file/path.ext&#39;</span><span class="p">,</span> <span class="s1">&#39;foo.bar&#39;</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">files</span> <span class="o">=</span> <span class="n">Globus</span><span class="p">()</span><span class="o">.</span><span class="n">download_file</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="s1">&#39;source_endpoint_name&#39;</span><span class="p">,</span> <span class="n">verify_checksum</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'relative/file/path.ext'</span><span class="p">,</span> <span class="s1">'foo.bar'</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">files</span> <span class="o">=</span> <span class="n">Globus</span><span class="p">()</span><span class="o">.</span><span class="n">download_file</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="s1">'source_endpoint_name'</span><span class="p">,</span> <span class="n">verify_checksum</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Download a folder</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">files</span> <span class="o">=</span> <span class="n">Globus</span><span class="p">()</span><span class="o">.</span><span class="n">download_file</span><span class="p">(</span><span class="s1">&#39;folder/path&#39;</span><span class="p">,</span> <span class="s1">&#39;source_endpoint_name&#39;</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">files</span> <span class="o">=</span> <span class="n">Globus</span><span class="p">()</span><span class="o">.</span><span class="n">download_file</span><span class="p">(</span><span class="s1">'folder/path'</span><span class="p">,</span> <span class="s1">'source_endpoint_name'</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -448,17 +448,17 @@ directories).</p></li>
 <p class="rubric">Examples</p>
 <p>Transfer two files (asynchronous)</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">glo</span> <span class="o">=</span> <span class="n">Globus</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;file.ext&#39;</span><span class="p">,</span> <span class="s1">&#39;foo.bar&#39;</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">task_id</span> <span class="o">=</span> <span class="n">glo</span><span class="o">.</span><span class="n">transfer_data</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="s1">&#39;source_endpoint&#39;</span><span class="p">,</span> <span class="s1">&#39;destination_endpoint&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'file.ext'</span><span class="p">,</span> <span class="s1">'foo.bar'</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">task_id</span> <span class="o">=</span> <span class="n">glo</span><span class="o">.</span><span class="n">transfer_data</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="s1">'source_endpoint'</span><span class="p">,</span> <span class="s1">'destination_endpoint'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Transfer a file (synchronous)
 &gt;&gt;&gt; file = ‘file.ext’
 &gt;&gt;&gt; task_id = glo.run_task(lambda: glo.transfer_data(file, ‘src_endpoint’, ‘dst_endpoint’))</p>
 <p>Transfer a folder (asynchronous)</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">folder</span> <span class="o">=</span> <span class="s1">&#39;path/to/folder&#39;</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">folder</span> <span class="o">=</span> <span class="s1">'path/to/folder'</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">task_id</span> <span class="o">=</span> <span class="n">glo</span><span class="o">.</span><span class="n">transfer_data</span><span class="p">(</span>
-<span class="gp">... </span>   <span class="n">folder</span><span class="p">,</span> <span class="s1">&#39;source_endpoint&#39;</span><span class="p">,</span> <span class="s1">&#39;destination_endpoint&#39;</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">... </span>   <span class="n">folder</span><span class="p">,</span> <span class="s1">'source_endpoint'</span><span class="p">,</span> <span class="s1">'destination_endpoint'</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -489,17 +489,17 @@ directories).</p></li>
 <p class="rubric">Examples</p>
 <p>Delete two files, ingnoring those that don’t exist (asynchronous)</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">glo</span> <span class="o">=</span> <span class="n">Globus</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;file.ext&#39;</span><span class="p">,</span> <span class="s1">&#39;foo.bar&#39;</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">task_id</span> <span class="o">=</span> <span class="n">glo</span><span class="o">.</span><span class="n">delete_data</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="s1">&#39;endpoint_name&#39;</span><span class="p">,</span> <span class="n">ignore_missing</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'file.ext'</span><span class="p">,</span> <span class="s1">'foo.bar'</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">task_id</span> <span class="o">=</span> <span class="n">glo</span><span class="o">.</span><span class="n">delete_data</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="s1">'endpoint_name'</span><span class="p">,</span> <span class="n">ignore_missing</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Delete a file (synchronous)</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">task_id</span> <span class="o">=</span> <span class="n">glo</span><span class="o">.</span><span class="n">run_task</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">glo</span><span class="o">.</span><span class="n">delete_data</span><span class="p">(</span><span class="s1">&#39;file.ext&#39;</span><span class="p">,</span> <span class="s1">&#39;endpoint_name&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">task_id</span> <span class="o">=</span> <span class="n">glo</span><span class="o">.</span><span class="n">run_task</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">glo</span><span class="o">.</span><span class="n">delete_data</span><span class="p">(</span><span class="s1">'file.ext'</span><span class="p">,</span> <span class="s1">'endpoint_name'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Recursively delete a folder (asynchronous)</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">folder</span> <span class="o">=</span> <span class="s1">&#39;path/to/folder&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">task_id</span> <span class="o">=</span> <span class="n">glo</span><span class="o">.</span><span class="n">delete_data</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="s1">&#39;endpoint_name&#39;</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">folder</span> <span class="o">=</span> <span class="s1">'path/to/folder'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">task_id</span> <span class="o">=</span> <span class="n">glo</span><span class="o">.</span><span class="n">delete_data</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="s1">'endpoint_name'</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -663,23 +663,23 @@ on a Linux computer a remote Windows should first be made into a PureWindowsPath
 </ul>
 <p class="rubric">Examples</p>
 <p>A Windows path (on Windows OS)</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">as_globus_path</span><span class="p">(</span><span class="s1">&#39;E:\FlatIron\integration&#39;</span><span class="p">)</span>
-<span class="go">&#39;/E/FlatIron/integration&#39;</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">as_globus_path</span><span class="p">(</span><span class="s1">'E:\FlatIron\integration'</span><span class="p">)</span>
+<span class="go">'/E/FlatIron/integration'</span>
 </pre></div>
 </div>
 <p>When explicitly a POSIX path, remains unchanged</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">as_globus_path</span><span class="p">(</span><span class="n">PurePosixPath</span><span class="p">(</span><span class="s1">&#39;E:\FlatIron\integration&#39;</span><span class="p">))</span>
-<span class="go">&#39;E:\FlatIron\integration&#39;</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">as_globus_path</span><span class="p">(</span><span class="n">PurePosixPath</span><span class="p">(</span><span class="s1">'E:\FlatIron\integration'</span><span class="p">))</span>
+<span class="go">'E:\FlatIron\integration'</span>
 </pre></div>
 </div>
 <p>A relative POSIX path (on <a href="#id4"><span class="problematic" id="id5">*</span></a>nix OS)</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">as_globus_path</span><span class="p">(</span><span class="s1">&#39;../data/integration&#39;</span><span class="p">)</span>
-<span class="go">&#39;/mnt/data/integration&#39;</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">as_globus_path</span><span class="p">(</span><span class="s1">'../data/integration'</span><span class="p">)</span>
+<span class="go">'/mnt/data/integration'</span>
 </pre></div>
 </div>
 <p>A valid Globus path remains unchanged</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">as_globus_path</span><span class="p">(</span><span class="s1">&#39;/E/FlatIron/integration&#39;</span><span class="p">)</span>
-<span class="go">&#39;/E/FlatIron/integration&#39;</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">as_globus_path</span><span class="p">(</span><span class="s1">'/E/FlatIron/integration'</span><span class="p">)</span>
+<span class="go">'/E/FlatIron/integration'</span>
 </pre></div>
 </div>
 </dd></dl>

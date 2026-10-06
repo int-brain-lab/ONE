@@ -132,11 +132,11 @@ one_modes.ipynb"><button id="github">Github link</button></a><section id="ONE-AP
 <span class="kn">from</span><span class="w"> </span><span class="nn">one.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">ONE</span>
 
 <span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">one</span><span class="p">,</span> <span class="n">one</span><span class="o">.</span><span class="n">mode</span><span class="p">)</span>  <span class="c1"># online, &#39;remote&#39; mode</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">one</span><span class="p">,</span> <span class="n">one</span><span class="o">.</span><span class="n">mode</span><span class="p">)</span>  <span class="c1"># online, 'remote' mode</span>
 <span class="k">assert</span> <span class="ow">not</span> <span class="n">one</span><span class="o">.</span><span class="n">offline</span>
 
-<span class="n">one_offline</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">cache_dir</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;C:\data&#39;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">one_offline</span><span class="p">,</span> <span class="n">one_offline</span><span class="o">.</span><span class="n">mode</span><span class="p">)</span>  <span class="c1"># offline, &#39;local&#39; mode</span>
+<span class="n">one_offline</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">cache_dir</span><span class="o">=</span><span class="sa">r</span><span class="s1">'C:\data'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">one_offline</span><span class="p">,</span> <span class="n">one_offline</span><span class="o">.</span><span class="n">mode</span><span class="p">)</span>  <span class="c1"># offline, 'local' mode</span>
 <span class="k">assert</span> <span class="n">one_offline</span><span class="o">.</span><span class="n">offline</span>
 </pre></div>
 </div>
@@ -172,7 +172,7 @@ c:\users\user\documents\github\one\one\api.py:186: UserWarning: No cache tables 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">lab</span><span class="o">=</span><span class="s1">&#39;cortexlab&#39;</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">&#39;remote&#39;</span><span class="p">)</span>  <span class="c1"># Search Alyx instead of the local cache</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">lab</span><span class="o">=</span><span class="s1">'cortexlab'</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">'remote'</span><span class="p">)</span>  <span class="c1"># Search Alyx instead of the local cache</span>
 </pre></div>
 </div>
 </div>
@@ -195,7 +195,7 @@ c:\users\user\documents\github\one\one\api.py:186: UserWarning: No cache tables 
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Cache subjects list for 24 hours</span>
-<span class="n">subjects</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">expires</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+<span class="n">subjects</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">'subjects'</span><span class="p">,</span> <span class="s1">'list'</span><span class="p">,</span> <span class="n">expires</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
@@ -205,7 +205,7 @@ c:\users\user\documents\github\one\one\api.py:186: UserWarning: No cache tables 
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">webclient</span><span class="o">.</span><span class="n">no_cache</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="p">):</span>
-    <span class="n">eids</span><span class="p">,</span> <span class="n">det</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">lab</span><span class="o">=</span><span class="s1">&#39;cortexlab&#39;</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">&#39;remote&#39;</span><span class="p">)</span>
+    <span class="n">eids</span><span class="p">,</span> <span class="n">det</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">lab</span><span class="o">=</span><span class="s1">'cortexlab'</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">'remote'</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -214,7 +214,7 @@ c:\users\user\documents\github\one\one\api.py:186: UserWarning: No cache tables 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ses</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">lab</span><span class="o">=</span><span class="s1">&#39;cortexlab&#39;</span><span class="p">,</span> <span class="n">no_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ses</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">'sessions'</span><span class="p">,</span> <span class="s1">'list'</span><span class="p">,</span> <span class="n">lab</span><span class="o">=</span><span class="s1">'cortexlab'</span><span class="p">,</span> <span class="n">no_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -224,7 +224,7 @@ c:\users\user\documents\github\one\one\api.py:186: UserWarning: No cache tables 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">cache_rest</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;remote&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">cache_rest</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">'remote'</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>

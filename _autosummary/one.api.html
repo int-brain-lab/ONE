@@ -183,6 +183,8 @@ cache_dir.</p></li>
 <li><p><strong>base_url</strong> (<em>str</em>) – An Alyx database URL.  The URL must start with ‘http’.</p></li>
 <li><p><strong>username</strong> (<em>str</em>) – An Alyx database login username.</p></li>
 <li><p><strong>password</strong> (<em>str</em>) – An Alyx database password.</p></li>
+<li><p><strong>token</strong> (<em>str</em><em>, </em><em>dict</em>) – An Alyx REST API token, used in place of a password and shown on the database’s /me
+page.  The username is optional with a token, as the database reports whose it is.</p></li>
 <li><p><strong>cache_rest</strong> (<em>str</em>) – If not in ‘local’ mode, this determines which http request types to cache.  Default is
 ‘GET’.  Use None to deactivate cache (not recommended).</p></li>
 </ul>
@@ -330,30 +332,30 @@ session.</p></li>
 </dl>
 <p class="rubric">Examples</p>
 <p>Search for sessions with ‘training’ in the task protocol.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="s1">&#39;training&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="s1">'training'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Search for sessions by subject ‘MFD_04’.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="s1">&#39;MFD_04&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="s1">'MFD_04'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Do an exact search for sessions by subject ‘FD_04’.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">one</span><span class="o">.</span><span class="n">wildcards</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;the wildcards flag must be True for regex expressions&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="s1">&#39;^FD_04$&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">one</span><span class="o">.</span><span class="n">wildcards</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">'the wildcards flag must be True for regex expressions'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="s1">'^FD_04$'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Search for sessions on a given date, in a given lab, containing trials and spike data.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
-<span class="gp">... </span>   <span class="n">date</span><span class="o">=</span><span class="s1">&#39;2023-01-01&#39;</span><span class="p">,</span> <span class="n">lab</span><span class="o">=</span><span class="s1">&#39;churchlandlab&#39;</span><span class="p">,</span>
-<span class="gp">... </span>   <span class="n">datasets</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;trials.table.pqt&#39;</span><span class="p">,</span> <span class="s1">&#39;spikes.times.npy&#39;</span><span class="p">])</span>
+<span class="gp">... </span>   <span class="n">date</span><span class="o">=</span><span class="s1">'2023-01-01'</span><span class="p">,</span> <span class="n">lab</span><span class="o">=</span><span class="s1">'churchlandlab'</span><span class="p">,</span>
+<span class="gp">... </span>   <span class="n">datasets</span><span class="o">=</span><span class="p">[</span><span class="s1">'trials.table.pqt'</span><span class="p">,</span> <span class="s1">'spikes.times.npy'</span><span class="p">])</span>
 </pre></div>
 </div>
 <p>Search for sessions containing trials and spike data where QC for both are WARNING or less.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">dataset_qc_lte</span><span class="o">=</span><span class="s1">&#39;WARNING&#39;</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;trials&#39;</span><span class="p">,</span> <span class="s1">&#39;spikes&#39;</span><span class="p">])</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">dataset_qc_lte</span><span class="o">=</span><span class="s1">'WARNING'</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="p">[</span><span class="s1">'trials'</span><span class="p">,</span> <span class="s1">'spikes'</span><span class="p">])</span>
 </pre></div>
 </div>
 <p>Search for sessions with any datasets that have a QC of PASS or NOT_SET.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">dataset_qc_lte</span><span class="o">=</span><span class="s1">&#39;PASS&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">dataset_qc_lte</span><span class="o">=</span><span class="s1">'PASS'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p class="rubric">Notes</p>
@@ -454,15 +456,15 @@ only, otherwise the index is a MultIndex with levels (eid, id).</p></li>
 </pre></div>
 </div>
 <p>List all datasets for an experiment that match a collection name</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">probe_datasets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;*probe*&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">probe_datasets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">'*probe*'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>List datasets for an experiment that have ‘wheel’ in the filename</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">datasets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;*wheel*&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">datasets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">'*wheel*'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>List datasets for an experiment that are part of a ‘wheel’ or ‘trial(s)’ object</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">datasets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;object&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;wheel&#39;</span><span class="p">,</span> <span class="s1">&#39;trial?&#39;</span><span class="p">]})</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">datasets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="p">{</span><span class="s1">'object'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'wheel'</span><span class="p">,</span> <span class="s1">'trial?'</span><span class="p">]})</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -504,19 +506,19 @@ otherwise a numpy array of unique collections</p></li>
 </pre></div>
 </div>
 <p>List all collections for a given experiment and revision</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">revised</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_collections</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="s1">&#39;2020-01-01&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">revised</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_collections</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="s1">'2020-01-01'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>List all collections that have ‘probe’ in the name.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">collections</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_collections</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;*probe*&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">collections</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_collections</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">'*probe*'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>List collections for an experiment that have datasets with ‘wheel’ in the name</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">collections</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_collections</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;*wheel*&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">collections</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_collections</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">'*wheel*'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>List collections for an experiment that contain numpy datasets</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">collections</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_collections</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;extension&#39;</span><span class="p">:</span> <span class="s1">&#39;npy&#39;</span><span class="p">})</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">collections</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_collections</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="p">{</span><span class="s1">'extension'</span><span class="p">:</span> <span class="s1">'npy'</span><span class="p">})</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -557,11 +559,11 @@ otherwise a numpy array of unique collections.</p></li>
 </pre></div>
 </div>
 <p>List all revisions for a given experiment that contain the trials object</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">revisions</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_revisions</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;object&#39;</span><span class="p">:</span> <span class="s1">&#39;trials&#39;</span><span class="p">})</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">revisions</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_revisions</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="p">{</span><span class="s1">'object'</span><span class="p">:</span> <span class="s1">'trials'</span><span class="p">})</span>
 </pre></div>
 </div>
 <p>List all revisions for a given experiment that start with 2020 or 2021</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">revisions</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_revisions</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;202[01]*&#39;</span><span class="p">])</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">revisions</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_revisions</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="p">[</span><span class="s1">'202[01]*'</span><span class="p">])</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -601,16 +603,16 @@ see the <a class="reference internal" href="one.alf.spec.html#one.alf.spec.descr
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">load_object</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;moves&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">load_object</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;trials&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">load_object</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;spikes&#39;</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;*probe01&#39;</span><span class="p">)</span>  <span class="c1"># wildcards is True</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">load_object</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;spikes&#39;</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;.*probe01&#39;</span><span class="p">)</span>  <span class="c1"># wildcards is False</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">load_object</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;spikes&#39;</span><span class="p">,</span> <span class="n">namespace</span><span class="o">=</span><span class="s1">&#39;ibl&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">load_object</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;spikes&#39;</span><span class="p">,</span> <span class="n">timescale</span><span class="o">=</span><span class="s1">&#39;ephysClock&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">load_object</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">'moves'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">load_object</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">'trials'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">load_object</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">'spikes'</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">'*probe01'</span><span class="p">)</span>  <span class="c1"># wildcards is True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">load_object</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">'spikes'</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">'.*probe01'</span><span class="p">)</span>  <span class="c1"># wildcards is False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">load_object</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">'spikes'</span><span class="p">,</span> <span class="n">namespace</span><span class="o">=</span><span class="s1">'ibl'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">load_object</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">'spikes'</span><span class="p">,</span> <span class="n">timescale</span><span class="o">=</span><span class="s1">'ephysClock'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Load specific attributes:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">load_object</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;spikes&#39;</span><span class="p">,</span> <span class="n">attribute</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;times*&#39;</span><span class="p">,</span> <span class="s1">&#39;clusters&#39;</span><span class="p">])</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">load_object</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">'spikes'</span><span class="p">,</span> <span class="n">attribute</span><span class="o">=</span><span class="p">[</span><span class="s1">'times*'</span><span class="p">,</span> <span class="s1">'clusters'</span><span class="p">])</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -647,18 +649,18 @@ will be re-downloaded.</p></li>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">intervals</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;_ibl_trials.intervals.npy&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">intervals</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">'_ibl_trials.intervals.npy'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Load dataset without specifying extension</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">intervals</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;trials.intervals&#39;</span><span class="p">)</span>  <span class="c1"># wildcard mode only</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">intervals</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;.*trials.intervals.*&#39;</span><span class="p">)</span>  <span class="c1"># regex mode only</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">intervals</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">object</span><span class="o">=</span><span class="s1">&#39;trials&#39;</span><span class="p">,</span> <span class="n">attribute</span><span class="o">=</span><span class="s1">&#39;intervals&#39;</span><span class="p">))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">filepath</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;_ibl_trials.intervals.npy&#39;</span><span class="p">,</span> <span class="n">download_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">spike_times</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;spikes.times.npy&#39;</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe01&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">old_spikes</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;spikes.times.npy&#39;</span><span class="p">,</span>
-<span class="gp">... </span>                              <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe01&#39;</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="s1">&#39;2020-08-31&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">old_spikes</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;alf/probe01/#2020-08-31#/spikes.times.npy&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">intervals</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">'trials.intervals'</span><span class="p">)</span>  <span class="c1"># wildcard mode only</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">intervals</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">'.*trials.intervals.*'</span><span class="p">)</span>  <span class="c1"># regex mode only</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">intervals</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">object</span><span class="o">=</span><span class="s1">'trials'</span><span class="p">,</span> <span class="n">attribute</span><span class="o">=</span><span class="s1">'intervals'</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">filepath</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">'_ibl_trials.intervals.npy'</span><span class="p">,</span> <span class="n">download_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spike_times</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">'spikes.times.npy'</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">'alf/probe01'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">old_spikes</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">'spikes.times.npy'</span><span class="p">,</span>
+<span class="gp">... </span>                              <span class="n">collection</span><span class="o">=</span><span class="s1">'alf/probe01'</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="s1">'2020-08-31'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">old_spikes</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">'alf/probe01/#2020-08-31#/spikes.times.npy'</span><span class="p">)</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -817,9 +819,9 @@ see the one.alf.spec.describe function.</p></li>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">alf_collection</span> <span class="o">=</span> <span class="n">load_collection</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;alf&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">load_collection</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;*probe01&#39;</span><span class="p">,</span> <span class="nb">object</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;spikes&#39;</span><span class="p">,</span> <span class="s1">&#39;clusters&#39;</span><span class="p">])</span>  <span class="c1"># wildcards is True</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">files</span> <span class="o">=</span> <span class="n">load_collection</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">download_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># Base session dir</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">alf_collection</span> <span class="o">=</span> <span class="n">load_collection</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">'alf'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">load_collection</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">'*probe01'</span><span class="p">,</span> <span class="nb">object</span><span class="o">=</span><span class="p">[</span><span class="s1">'spikes'</span><span class="p">,</span> <span class="s1">'clusters'</span><span class="p">])</span>  <span class="c1"># wildcards is True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">files</span> <span class="o">=</span> <span class="n">load_collection</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">''</span><span class="p">,</span> <span class="n">download_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># Base session dir</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -998,15 +1000,15 @@ only, otherwise the index is a MultIndex with levels (eid, id).</p></li>
 </pre></div>
 </div>
 <p>List all datasets for an experiment that match a collection name</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">probe_datasets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;*probe*&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">probe_datasets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">'*probe*'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>List datasets for an experiment that have ‘wheel’ in the filename</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">datasets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;*wheel*&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">datasets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">'*wheel*'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>List datasets for an experiment that are part of a ‘wheel’ or ‘trial(s)’ object</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">datasets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;object&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;wheel&#39;</span><span class="p">,</span> <span class="s1">&#39;trial?&#39;</span><span class="p">]})</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">datasets</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="p">{</span><span class="s1">'object'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'wheel'</span><span class="p">,</span> <span class="s1">'trial?'</span><span class="p">]})</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -1036,7 +1038,7 @@ Supports asterisks as wildcards.</p></li>
 </dl>
 <p class="rubric">Examples</p>
 <p>List datasets aggregated over a specific subject’s sessions</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">trials</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_aggregates</span><span class="p">(</span><span class="s1">&#39;subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;SP026&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">trials</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">list_aggregates</span><span class="p">(</span><span class="s1">'subjects'</span><span class="p">,</span> <span class="s1">'SP026'</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -1072,7 +1074,7 @@ Supports asterisks as wildcards.</p></li>
 </dl>
 <p class="rubric">Examples</p>
 <p>Load a dataset aggregated over a specific subject’s sessions</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">trials</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_aggregate</span><span class="p">(</span><span class="s1">&#39;subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;SP026&#39;</span><span class="p">,</span> <span class="s1">&#39;_ibl_subjectTraining.table&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">trials</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_aggregate</span><span class="p">(</span><span class="s1">'subjects'</span><span class="p">,</span> <span class="s1">'SP026'</span><span class="p">,</span> <span class="s1">'_ibl_subjectTraining.table'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p class="rubric">Notes</p>
@@ -1131,7 +1133,7 @@ details dict or Path.</p></li>
 </pre></div>
 </div>
 <p>Get the probe ID for a given session ID and label</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="p">(</span><span class="n">pid</span><span class="p">,),</span> <span class="n">_</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">eid2pid</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;probe00&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="p">(</span><span class="n">pid</span><span class="p">,),</span> <span class="n">_</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">eid2pid</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'probe00'</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -1184,8 +1186,8 @@ matching insertion.</p></li>
 </ul>
 <p class="rubric">Examples</p>
 <p>List the insertions associated with a given data release</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tag</span> <span class="o">=</span> <span class="s1">&#39;2022_Q2_IBL_et_al_RepeatedSite&#39;</span>
-<span class="gp">... </span><span class="n">ins</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search_insertions</span><span class="p">(</span><span class="n">django</span><span class="o">=</span><span class="s1">&#39;datasets__tags__name,&#39;</span> <span class="o">+</span> <span class="n">tag</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tag</span> <span class="o">=</span> <span class="s1">'2022_Q2_IBL_et_al_RepeatedSite'</span>
+<span class="gp">... </span><span class="n">ins</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search_insertions</span><span class="p">(</span><span class="n">django</span><span class="o">=</span><span class="s1">'datasets__tags__name,'</span> <span class="o">+</span> <span class="n">tag</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -1245,20 +1247,20 @@ matching session.</p></li>
 </dl>
 <p class="rubric">Examples</p>
 <p>Search for sessions with ‘training’ in the task protocol.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="s1">&#39;training&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="s1">'training'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Search for sessions by subject ‘MFD_04’.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="s1">&#39;MFD_04&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="s1">'MFD_04'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Do an exact search for sessions by subject ‘FD_04’.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">one</span><span class="o">.</span><span class="n">wildcards</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;the wildcards flag must be True for regex expressions&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="s1">&#39;^FD_04$&#39;</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">&#39;local&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">one</span><span class="o">.</span><span class="n">wildcards</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">'the wildcards flag must be True for regex expressions'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="s1">'^FD_04$'</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">'local'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Search for sessions on a given date, in a given lab, containing trials and spike data.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">date</span><span class="o">=</span><span class="s1">&#39;2023-01-01&#39;</span><span class="p">,</span> <span class="n">lab</span><span class="o">=</span><span class="s1">&#39;churchlandlab&#39;</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;trials&#39;</span><span class="p">,</span> <span class="s1">&#39;spikes&#39;</span><span class="p">])</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">date</span><span class="o">=</span><span class="s1">'2023-01-01'</span><span class="p">,</span> <span class="n">lab</span><span class="o">=</span><span class="s1">'churchlandlab'</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="p">[</span><span class="s1">'trials'</span><span class="p">,</span> <span class="s1">'spikes'</span><span class="p">])</span>
 </pre></div>
 </div>
 <p class="rubric">Notes</p>

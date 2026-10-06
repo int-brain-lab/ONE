@@ -126,7 +126,7 @@ one_list.ipynb"><button id="github">Github link</button></a><section id="Listing
 </pre></div>
 </div>
 <div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>from one.api import ONE
-one = ONE(base_url=&#39;https://openalyx.internationalbrainlab.org&#39;)
+one = ONE(base_url='https://openalyx.internationalbrainlab.org')
 
 # All datasets in the database
 dsets = one.list_datasets()
@@ -172,7 +172,7 @@ contrast of left-side stimulus (0...1) nan if trial is on other side
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>eid = &#39;KS023/2019-12-10/001&#39;
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>eid = 'KS023/2019-12-10/001'
 
 # All datasets for specific session
 one.list_datasets(eid)
@@ -343,22 +343,22 @@ subjects = one.list_subjects()
 </pre></div>
 </div>
 <div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span># All datasets for specific session in alf/probe01 collection:
-datasets = one.list_datasets(eid, collection=&#39;alf/probe01&#39;)
+datasets = one.list_datasets(eid, collection='alf/probe01')
 
 # All datasets for a specific session in any probe collection:
-datasets = one.list_datasets(eid, collection=&#39;*probe*&#39;)
+datasets = one.list_datasets(eid, collection='*probe*')
 
-# All collections that contain datasets with &#39;spikes&#39; in the name:
-collections = one.list_collections(eid, filename=&#39;*spikes*&#39;)
+# All collections that contain datasets with 'spikes' in the name:
+collections = one.list_collections(eid, filename='*spikes*')
 
-# All datasets with &#39;raw&#39; in the name:
-datasets = one.list_datasets(eid, &#39;*raw*&#39;)
+# All datasets with 'raw' in the name:
+datasets = one.list_datasets(eid, '*raw*')
 
-# All datasets with a QC value less than or equal to &#39;WARNING&#39; (i.e. includes &#39;PASS&#39;, &#39;NOT_SET&#39; also):
-datasets = one.list_datasets(eid, qc=&#39;WARNING&#39;)
+# All datasets with a QC value less than or equal to 'WARNING' (i.e. includes 'PASS', 'NOT_SET' also):
+datasets = one.list_datasets(eid, qc='WARNING')
 
-# All QC&#39;d datasets with a value less than or equal to &#39;WARNING&#39; (i.e. &#39;WARNING&#39; or &#39;PASS&#39;):
-datasets = one.list_datasets(eid, qc=&#39;WARNING&#39;, ignore_qc_not_set=True)
+# All QC'd datasets with a value less than or equal to 'WARNING' (i.e. 'WARNING' or 'PASS'):
+datasets = one.list_datasets(eid, qc='WARNING', ignore_qc_not_set=True)
 </pre></div>
 </div>
 </div>
@@ -370,7 +370,7 @@ datasets = one.list_datasets(eid, qc=&#39;WARNING&#39;, ignore_qc_not_set=True)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>collections = one.list_collections(eid, collection=&#39;raw*&#39;, revision=&#39;2020-01-01&#39;)
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>collections = one.list_collections(eid, collection='raw*', revision='2020-01-01')
 </pre></div>
 </div>
 </div>
@@ -380,7 +380,7 @@ datasets = one.list_datasets(eid, qc=&#39;WARNING&#39;, ignore_qc_not_set=True)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>revisions = one.list_revisions(eid, revision=&#39;202[01]&#39;)
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>revisions = one.list_revisions(eid, revision='202[01]')
 </pre></div>
 </div>
 </div>
@@ -389,7 +389,7 @@ datasets = one.list_datasets(eid, qc=&#39;WARNING&#39;, ignore_qc_not_set=True)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>one.list_datasets(eid, [&#39;*spikes*&#39;, &#39;*clusters*&#39;])
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>one.list_datasets(eid, ['*spikes*', '*clusters*'])
 </pre></div>
 </div>
 </div>
@@ -426,7 +426,7 @@ datasets = one.list_datasets(eid, qc=&#39;WARNING&#39;, ignore_qc_not_set=True)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>one.list_datasets(eid, filename={&#39;attribute&#39;: [&#39;timestamps&#39;, &#39;intervals&#39;], &#39;extension&#39;: &#39;npy&#39;})
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>one.list_datasets(eid, filename={'attribute': ['timestamps', 'intervals'], 'extension': 'npy'})
 </pre></div>
 </div>
 </div>
@@ -452,7 +452,7 @@ datasets = one.list_datasets(eid, qc=&#39;WARNING&#39;, ignore_qc_not_set=True)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>datasets = one.list_datasets(eid, [&#39;*spikes*&#39;, &#39;*clusters*&#39;], qc=&#39;PASS&#39;, ignore_qc_not_set=False)
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>datasets = one.list_datasets(eid, ['*spikes*', '*clusters*'], qc='PASS', ignore_qc_not_set=False)
 data, records = one.load_datasets(eid, datasets)
 </pre></div>
 </div>
@@ -470,12 +470,12 @@ data, records = one.load_datasets(eid, datasets)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>collections = one.list_collections(eid, collection=&#39;alf/probe*&#39;)
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>collections = one.list_collections(eid, collection='alf/probe*')
 # Build a dictionary of collections containing bunches of objects
 data = {key: one.load_collection(eid, key) for key in collections}
 
 print(data.keys())
-print(data[&#39;alf/probe01&#39;].keys())
+print(data['alf/probe01'].keys())
 </pre></div>
 </div>
 </div>
@@ -501,8 +501,8 @@ dict_keys([&#39;spikes&#39;, &#39;channels&#39;, &#39;whitening&#39;, &#39;clust
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>collections = one.list_collections(eid, filename=&#39;clusters*&#39;)
-spikes = one.load_object(eid, &#39;spikes&#39;, collection=collections[0])
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>collections = one.list_collections(eid, filename='clusters*')
+spikes = one.load_object(eid, 'spikes', collection=collections[0])
 </pre></div>
 </div>
 </div>
@@ -518,8 +518,8 @@ spikes = one.load_object(eid, &#39;spikes&#39;, collection=collections[0])
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>subject = &#39;SWC_043&#39;
-subject_aggregates = one.list_aggregates(&#39;subjects&#39;, subject)
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>subject = 'SWC_043'
+subject_aggregates = one.list_aggregates('subjects', subject)
 </pre></div>
 </div>
 </div>

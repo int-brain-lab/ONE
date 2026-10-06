@@ -134,7 +134,7 @@ one_search.ipynb"><button id="github">Github link</button></a><section id="Searc
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">one.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">ONE</span>
-<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://openalyx.internationalbrainlab.org&#39;</span><span class="p">)</span>
+<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">'https://openalyx.internationalbrainlab.org'</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">search_terms</span><span class="p">())</span>
 </pre></div>
@@ -154,7 +154,7 @@ one_search.ipynb"><button id="github">Github link</button></a><section id="Searc
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pprint</span><span class="w"> </span><span class="kn">import</span> <span class="n">pprint</span>
-<span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">date_range</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;2023-10-25&#39;</span><span class="p">,</span> <span class="s1">&#39;2023-10-25&#39;</span><span class="p">])</span>
+<span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">date_range</span><span class="o">=</span><span class="p">[</span><span class="s1">'2023-10-25'</span><span class="p">,</span> <span class="s1">'2023-10-25'</span><span class="p">])</span>
 <span class="n">pprint</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">eids</span><span class="p">))</span>
 </pre></div>
 </div>
@@ -174,7 +174,7 @@ one_search.ipynb"><button id="github">Github link</button></a><section id="Searc
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">assert</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">date_range</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;2023-10-25&#39;</span><span class="p">,</span> <span class="s1">&#39;2023-10-25&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">date_range</span><span class="o">=</span><span class="s1">&#39;2023-10-25&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">assert</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">date_range</span><span class="o">=</span><span class="p">[</span><span class="s1">'2023-10-25'</span><span class="p">,</span> <span class="s1">'2023-10-25'</span><span class="p">])</span> <span class="o">==</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">date_range</span><span class="o">=</span><span class="s1">'2023-10-25'</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -183,7 +183,7 @@ one_search.ipynb"><button id="github">Github link</button></a><section id="Searc
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">eids</span><span class="p">,</span> <span class="n">details</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">date_range</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;2023-10-25&#39;</span><span class="p">,</span> <span class="s1">&#39;2023-10-25&#39;</span><span class="p">],</span> <span class="n">details</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">eids</span><span class="p">,</span> <span class="n">details</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">date_range</span><span class="o">=</span><span class="p">[</span><span class="s1">'2023-10-25'</span><span class="p">,</span> <span class="s1">'2023-10-25'</span><span class="p">],</span> <span class="n">details</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">pprint</span><span class="p">(</span><span class="n">details</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -227,7 +227,7 @@ one_search.ipynb"><button id="github">Github link</button></a><section id="Searc
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="s1">&#39;SWC_043&#39;</span><span class="p">,</span> <span class="n">datasets</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;spikes.times.npy&#39;</span><span class="p">,</span> <span class="s1">&#39;spikes.clusters.npy&#39;</span><span class="p">])</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="s1">'SWC_043'</span><span class="p">,</span> <span class="n">datasets</span><span class="o">=</span><span class="p">[</span><span class="s1">'spikes.times.npy'</span><span class="p">,</span> <span class="s1">'spikes.clusters.npy'</span><span class="p">])</span>
 <span class="n">pprint</span><span class="p">(</span><span class="n">eids</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -251,8 +251,8 @@ one_search.ipynb"><button id="github">Github link</button></a><section id="Searc
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">one</span><span class="o">.</span><span class="n">search_terms</span><span class="p">(</span><span class="s1">&#39;remote&#39;</span><span class="p">)</span>
-<span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">performance_gte</span><span class="o">=</span><span class="mi">70</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">&#39;remote&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">one</span><span class="o">.</span><span class="n">search_terms</span><span class="p">(</span><span class="s1">'remote'</span><span class="p">)</span>
+<span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">performance_gte</span><span class="o">=</span><span class="mi">70</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">'remote'</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -265,7 +265,7 @@ one_search.ipynb"><button id="github">Github link</button></a><section id="Searc
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">assert</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">task_protocol</span><span class="o">=</span><span class="s1">&#39;training&#39;</span><span class="p">,</span> <span class="n">date_range</span><span class="o">=</span><span class="s1">&#39;2020-03-23&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="s1">&#39;training&#39;</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="s1">&#39;2020-03-23&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">assert</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">task_protocol</span><span class="o">=</span><span class="s1">'training'</span><span class="p">,</span> <span class="n">date_range</span><span class="o">=</span><span class="s1">'2020-03-23'</span><span class="p">)</span> <span class="o">==</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="s1">'training'</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="s1">'2020-03-23'</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -401,9 +401,9 @@ case-sensitive in <a class="reference external" href="../one_modes.html">local m
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="s1">&#39;FD_04&#39;</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">&#39;local&#39;</span><span class="p">)</span>  <span class="c1"># includes sessions with subject &#39;MFD_04&#39;</span>
-<span class="k">assert</span> <span class="n">one</span><span class="o">.</span><span class="n">wildcards</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;the wildcards flag must be True for regex expressions&#39;</span>
-<span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="s1">&#39;^FD_04$&#39;</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">&#39;local&#39;</span><span class="p">)</span>  <span class="c1"># exact subject name match</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="s1">'FD_04'</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">'local'</span><span class="p">)</span>  <span class="c1"># includes sessions with subject 'MFD_04'</span>
+<span class="k">assert</span> <span class="n">one</span><span class="o">.</span><span class="n">wildcards</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">'the wildcards flag must be True for regex expressions'</span>
+<span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="s1">'^FD_04$'</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">'local'</span><span class="p">)</span>  <span class="c1"># exact subject name match</span>
 </pre></div>
 </div>
 </div>
@@ -413,9 +413,9 @@ case-sensitive in <a class="reference external" href="../one_modes.html">local m
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Sessions containing either leftCamera.times OR rightCamera.times:</span>
-<span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">proj</span><span class="o">=</span><span class="s1">&#39;brainwide&#39;</span><span class="p">,</span> <span class="n">datasets</span><span class="o">=</span><span class="s1">&#39;leftCamera\.times|rightCamera\.times&#39;</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">&#39;local&#39;</span><span class="p">)</span>
+<span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">proj</span><span class="o">=</span><span class="s1">'brainwide'</span><span class="p">,</span> <span class="n">datasets</span><span class="o">=</span><span class="s1">'leftCamera\.times|rightCamera\.times'</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">'local'</span><span class="p">)</span>
 <span class="c1"># XOR expressions are also possible:</span>
-<span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">proj</span><span class="o">=</span><span class="s1">&#39;brainwide&#39;</span><span class="p">,</span> <span class="n">datasets</span><span class="o">=</span><span class="s1">&#39;(leftCamera\.times|rightCamera\.times)</span><span class="si">{1}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">&#39;local&#39;</span><span class="p">)</span>
+<span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">proj</span><span class="o">=</span><span class="s1">'brainwide'</span><span class="p">,</span> <span class="n">datasets</span><span class="o">=</span><span class="s1">'(leftCamera\.times|rightCamera\.times)</span><span class="si">{1}</span><span class="s1">'</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">'local'</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -425,10 +425,10 @@ case-sensitive in <a class="reference external" href="../one_modes.html">local m
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
-<span class="n">subject</span> <span class="o">=</span> <span class="s1">&#39;NYU-14.1&#39;</span>
+<span class="n">subject</span> <span class="o">=</span> <span class="s1">'NYU-14.1'</span>
 <span class="k">if</span> <span class="n">one</span><span class="o">.</span><span class="n">wildcards</span><span class="p">:</span>
     <span class="n">subject</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">subject</span><span class="p">)</span>
-<span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="n">subject</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">&#39;local&#39;</span><span class="p">)</span>  <span class="c1"># &#39;NYU\\-14\\.1&#39;</span>
+<span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="n">subject</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">'local'</span><span class="p">)</span>  <span class="c1"># 'NYU\\-14\\.1'</span>
 </pre></div>
 </div>
 </div>
@@ -476,7 +476,7 @@ case-sensitive in <a class="reference external" href="../one_modes.html">local m
 <section id="Regex-systems-between-modes">
 <h4>Regex systems between modes<a class="headerlink" href="#Regex-systems-between-modes" title="Link to this heading"></a></h4>
 <p>Regex searches can be made in remote mode by using special <a class="reference external" href="../useful_alyx_queries.html#regex">Django queries</a>, for example,</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>eids = one.search(django=&#39;subject__nickname__regex,^FD_04$&#39;, query_type=&#39;remote&#39;)
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>eids = one.search(django='subject__nickname__regex,^FD_04$', query_type='remote')
 </pre></div>
 </div>
 <p>Regular expression syntax is different between modes, however: in remote mode the regex is parsed by a <a class="reference external" href="https://www.postgresql.org/docs/current/functions-matching.html">PostgreSQL</a> database, while in other modes it is done using Python’s <a class="reference external" href="https://docs.python.org/3/library/re.html#regular-expression-syntax">re.search</a>.</p>
@@ -490,10 +490,10 @@ case-sensitive in <a class="reference external" href="../one_modes.html">local m
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">assert</span> <span class="ow">not</span> <span class="n">one</span><span class="o">.</span><span class="n">offline</span><span class="p">,</span> <span class="s1">&#39;ONE must be online to query tags&#39;</span>
-<span class="n">tags</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;tags&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">assert</span> <span class="ow">not</span> <span class="n">one</span><span class="o">.</span><span class="n">offline</span><span class="p">,</span> <span class="s1">'ONE must be online to query tags'</span>
+<span class="n">tags</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">'tags'</span><span class="p">,</span> <span class="s1">'list'</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">tags</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">tag</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="n">tag</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">'</span><span class="si">%s</span><span class="s1">: </span><span class="si">%s</span><span class="s1">'</span> <span class="o">%</span> <span class="p">(</span><span class="n">tag</span><span class="p">[</span><span class="s1">'name'</span><span class="p">],</span> <span class="n">tag</span><span class="p">[</span><span class="s1">'description'</span><span class="p">]))</span>
 </pre></div>
 </div>
 </div>
@@ -535,8 +535,8 @@ RepeatedSite:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tag</span> <span class="o">=</span> <span class="s1">&#39;2021_Q1_IBL_et_al_Behaviour&#39;</span>
-<span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">django</span><span class="o">=</span><span class="s1">&#39;data_dataset_session_related__tags__name,&#39;</span> <span class="o">+</span> <span class="n">tag</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">&#39;remote&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tag</span> <span class="o">=</span> <span class="s1">'2021_Q1_IBL_et_al_Behaviour'</span>
+<span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">django</span><span class="o">=</span><span class="s1">'data_dataset_session_related__tags__name,'</span> <span class="o">+</span> <span class="n">tag</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">'remote'</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -553,8 +553,8 @@ RepeatedSite:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">one</span><span class="o">.</span><span class="n">search_terms</span><span class="p">(</span><span class="s1">&#39;remote&#39;</span><span class="p">,</span> <span class="s1">&#39;insertions&#39;</span><span class="p">)</span>
-<span class="n">pids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search_insertions</span><span class="p">(</span><span class="n">atlas_acronym</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;STR&#39;</span><span class="p">,</span> <span class="s1">&#39;CA3&#39;</span><span class="p">],</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">&#39;remote&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">one</span><span class="o">.</span><span class="n">search_terms</span><span class="p">(</span><span class="s1">'remote'</span><span class="p">,</span> <span class="s1">'insertions'</span><span class="p">)</span>
+<span class="n">pids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search_insertions</span><span class="p">(</span><span class="n">atlas_acronym</span><span class="o">=</span><span class="p">[</span><span class="s1">'STR'</span><span class="p">,</span> <span class="s1">'CA3'</span><span class="p">],</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">'remote'</span><span class="p">)</span>
 <br/></pre></div>
 </div>
 </div>

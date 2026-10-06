@@ -141,13 +141,13 @@ from pathlib import Path
 from one.alf.cache import make_parquet_db
 
 files = [
-    &#39;subject/2021-06-01/001/probes.description.json&#39;,
-    &#39;subject/2021-06-01/001/alf/probe00/spikes.times.npy&#39;,
-    &#39;subject/2021-06-01/001/alf/probe00/spikes.clusters.npy&#39;,
-    &#39;subject/2021-06-01/001/alf/probe01/spikes.times.npy&#39;,
-    &#39;subject/2021-06-01/001/alf/probe01/spikes.clusters.npy&#39;,
-    &#39;subject/2021-06-01/001/alf/probe01/#2021-07-05#/spikes.times.npy&#39;,
-    &#39;subject/2021-06-01/001/alf/probe01/#2021-07-05#/spikes.clusters.npy&#39;
+    'subject/2021-06-01/001/probes.description.json',
+    'subject/2021-06-01/001/alf/probe00/spikes.times.npy',
+    'subject/2021-06-01/001/alf/probe00/spikes.clusters.npy',
+    'subject/2021-06-01/001/alf/probe01/spikes.times.npy',
+    'subject/2021-06-01/001/alf/probe01/spikes.clusters.npy',
+    'subject/2021-06-01/001/alf/probe01/#2021-07-05#/spikes.times.npy',
+    'subject/2021-06-01/001/alf/probe01/#2021-07-05#/spikes.clusters.npy'
 ]
 
 temp_dir = TemporaryDirectory()  # Create a temporary directory in which to place Alyx files
@@ -204,7 +204,7 @@ one = ONE(cache_dir=temp_dir.name)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>alf_spec.describe(&#39;collection&#39;)
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>alf_spec.describe('collection')
 </pre></div>
 </div>
 </div>
@@ -228,7 +228,7 @@ Label examples include &#34;probe00&#34;, &#34;raw_video_data&#34;.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>one.list_datasets(&#39;subject/2021-06-01/001&#39;)
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>one.list_datasets('subject/2021-06-01/001')
 </pre></div>
 </div>
 </div>
@@ -252,7 +252,7 @@ Label examples include &#34;probe00&#34;, &#34;raw_video_data&#34;.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>one.list_datasets(&#39;subject/2021-06-01/001&#39;, collection=&#39;alf/probe01&#39;)
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>one.list_datasets('subject/2021-06-01/001', collection='alf/probe01')
 </pre></div>
 </div>
 </div>
@@ -261,7 +261,7 @@ Label examples include &#34;probe00&#34;, &#34;raw_video_data&#34;.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>one.list_datasets(&#39;subject/2021-06-01/001&#39;, collection=&#39;&#39;)
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>one.list_datasets('subject/2021-06-01/001', collection='')
 </pre></div>
 </div>
 </div>
@@ -279,7 +279,7 @@ Label examples include &#34;probe00&#34;, &#34;raw_video_data&#34;.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>revisions = one.list_revisions(&#39;subject/2021-06-01/001&#39;)
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>revisions = one.list_revisions('subject/2021-06-01/001')
 [x or None for x in revisions]
 </pre></div>
 </div>
@@ -298,7 +298,7 @@ Label examples include &#34;probe00&#34;, &#34;raw_video_data&#34;.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>collections = one.list_collections(&#39;subject/2021-06-01/001&#39;)
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>collections = one.list_collections('subject/2021-06-01/001')
 [x or None for x in collections]
 </pre></div>
 </div>
@@ -313,17 +313,17 @@ Label examples include &#34;probe00&#34;, &#34;raw_video_data&#34;.
 </pre></div></div>
 </div>
 <p>To load the ‘spikes’ object from the ‘alf/probe00’ collection</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">spikes</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="s1">&#39;subject/2021-06-01/001&#39;</span><span class="p">,</span> <span class="s1">&#39;spikes&#39;</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe00&#39;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">spikes</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="s1">'subject/2021-06-01/001'</span><span class="p">,</span> <span class="s1">'spikes'</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">'alf/probe00'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>To load the ‘spikes’ object from the ‘alf/probe01’ collection, and the last revision before or on July 1st</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">spikes</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="s1">&#39;subject/2021-06-01/001&#39;</span><span class="p">,</span> <span class="s1">&#39;spikes&#39;</span><span class="p">,</span>
-                         <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe01&#39;</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="s1">&#39;2021-07-01&#39;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">spikes</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="s1">'subject/2021-06-01/001'</span><span class="p">,</span> <span class="s1">'spikes'</span><span class="p">,</span>
+                         <span class="n">collection</span><span class="o">=</span><span class="s1">'alf/probe01'</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="s1">'2021-07-01'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>To load ‘spikes.times’ from collection ‘alf/probe00’</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">spike_times</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s1">&#39;subject/2021-06-01/001&#39;</span><span class="p">,</span> <span class="s1">&#39;spikes.times.npy&#39;</span><span class="p">,</span>
-                               <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe00&#39;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">spike_times</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s1">'subject/2021-06-01/001'</span><span class="p">,</span> <span class="s1">'spikes.times.npy'</span><span class="p">,</span>
+                               <span class="n">collection</span><span class="o">=</span><span class="s1">'alf/probe00'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p><a class="reference external" href="../alf_intro.html">Click here</a> for more information on the ALF specification. <a class="reference external" href="datasets_and_types.html">Click here</a> for information on creating and validating new dataset types.</p>

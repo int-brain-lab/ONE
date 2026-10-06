@@ -105,11 +105,14 @@
            <div itemprop="articleBody">
              
   <h1>Source code for one.tests.util</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Utilities functions for setting up test fixtures.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Utilities functions for setting up test fixtures."""</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">contextmanager</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">unittest</span><span class="w"> </span><span class="kn">import</span> <span class="n">mock</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">urllib.parse</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">uuid</span><span class="w"> </span><span class="kn">import</span> <span class="n">uuid4</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
@@ -124,19 +127,19 @@
 <div class="viewcode-block" id="set_up_env">
 <a class="viewcode-back" href="../../../_autosummary/one.tests.util.html#one.tests.util.set_up_env">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">set_up_env</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a temporary directory and copy cache fixtures over.</span>
+<span class="w">    </span><span class="sd">"""Create a temporary directory and copy cache fixtures over.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    tempfile.TemporaryDirectory</span>
 <span class="sd">        The temporary directory containing the test ONE caches</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">fixture</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;fixtures&#39;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">fixture</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">'fixtures'</span><span class="p">)</span>
     <span class="n">tempdir</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span>
     <span class="c1"># Copy cache files to temporary directory</span>
-    <span class="k">for</span> <span class="n">cache_file</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;datasets&#39;</span><span class="p">):</span>
-        <span class="n">filename</span> <span class="o">=</span> <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">fixture</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cache_file</span><span class="si">}</span><span class="s1">.pqt&#39;</span><span class="p">,</span> <span class="n">tempdir</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">cache_file</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">'sessions'</span><span class="p">,</span> <span class="s1">'datasets'</span><span class="p">):</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">fixture</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">cache_file</span><span class="si">}</span><span class="s1">.pqt'</span><span class="p">,</span> <span class="n">tempdir</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="k">assert</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
 
     <span class="c1"># Copy cached rest responses</span>
@@ -149,23 +152,23 @@
 <div class="viewcode-block" id="setup_rest_cache">
 <a class="viewcode-back" href="../../../_autosummary/one.tests.util.html#one.tests.util.setup_rest_cache">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">setup_rest_cache</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Copy REST cache fixtures to the .one parameter directory.</span>
+<span class="w">    </span><span class="sd">"""Copy REST cache fixtures to the .one parameter directory.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    cache_dir : str, pathlib.Path</span>
 <span class="sd">        The location of the ONE cache directory (e.g. ~/Downloads/ONE/alyx.example.com)</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">fixture</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;fixtures&#39;</span><span class="p">)</span>
-    <span class="n">rest_cache_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;.rest&#39;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">fixture</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">'fixtures'</span><span class="p">)</span>
+    <span class="n">rest_cache_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">'.rest'</span><span class="p">)</span>
 
     <span class="c1"># Ensure empty</span>
     <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">rest_cache_dir</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">rest_cache_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">set_hidden</span><span class="p">(</span><span class="n">rest_cache_dir</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
     <span class="c1"># Copy over fixtures</span>
-    <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">fixture</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;rest_responses&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">fixture</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">'rest_responses'</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">'*'</span><span class="p">):</span>
         <span class="n">filename</span> <span class="o">=</span> <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">rest_cache_dir</span><span class="p">)</span>
         <span class="k">assert</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span></div>
 
@@ -174,16 +177,16 @@
 <div class="viewcode-block" id="create_file_tree">
 <a class="viewcode-back" href="../../../_autosummary/one.tests.util.html#one.tests.util.create_file_tree">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">create_file_tree</span><span class="p">(</span><span class="n">one</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Touch all the files in the datasets table.</span>
+<span class="w">    </span><span class="sd">"""Touch all the files in the datasets table.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    one : one.api.One</span>
 <span class="sd">        An instance of One containing cache tables to use.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Create dset files from cache</span>
-    <span class="k">for</span> <span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">_</span><span class="p">),</span> <span class="n">rel_path</span> <span class="ow">in</span> <span class="n">one</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">datasets</span><span class="p">[</span><span class="s1">&#39;rel_path&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">_</span><span class="p">),</span> <span class="n">rel_path</span> <span class="ow">in</span> <span class="n">one</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">datasets</span><span class="p">[</span><span class="s1">'rel_path'</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">session_path</span> <span class="o">=</span> <span class="n">session_record2path</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">sessions</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">eid</span><span class="p">])</span>
         <span class="n">filepath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">session_path</span><span class="p">,</span> <span class="n">rel_path</span><span class="p">)</span>
         <span class="n">filepath</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -194,32 +197,32 @@
 <div class="viewcode-block" id="setup_test_params">
 <a class="viewcode-back" href="../../../_autosummary/one.tests.util.html#one.tests.util.setup_test_params">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">setup_test_params</span><span class="p">(</span><span class="n">token</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Copy cache parameter fixture to .one directory.</span>
+<span class="w">    </span><span class="sd">"""Copy cache parameter fixture to .one directory.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    token : bool</span>
-<span class="sd">        If true, save a token file so that client doesn&#39;t hit auth endpoint</span>
+<span class="sd">        If true, save a token file so that client doesn't hit auth endpoint</span>
 <span class="sd">    cache_dir : str, pathlib.Path</span>
 <span class="sd">        The cache_dir to save</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">params_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get_params_dir</span><span class="p">())</span>
     <span class="n">params_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">fixture</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;fixtures&#39;</span><span class="p">)</span>
-    <span class="n">test_pars</span> <span class="o">=</span> <span class="s1">&#39;.test.alyx.internationalbrainlab.org&#39;</span>
+    <span class="n">fixture</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">'fixtures'</span><span class="p">)</span>
+    <span class="n">test_pars</span> <span class="o">=</span> <span class="s1">'.test.alyx.internationalbrainlab.org'</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">next</span><span class="p">(</span><span class="n">params_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">test_pars</span><span class="p">),</span> <span class="kc">None</span><span class="p">):</span>
-        <span class="n">filename</span> <span class="o">=</span> <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">fixture</span> <span class="o">/</span> <span class="s1">&#39;params&#39;</span> <span class="o">/</span> <span class="n">test_pars</span><span class="p">,</span> <span class="n">params_dir</span> <span class="o">/</span> <span class="n">test_pars</span><span class="p">)</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">fixture</span> <span class="o">/</span> <span class="s1">'params'</span> <span class="o">/</span> <span class="n">test_pars</span><span class="p">,</span> <span class="n">params_dir</span> <span class="o">/</span> <span class="n">test_pars</span><span class="p">)</span>
         <span class="k">assert</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
 
         <span class="c1"># Add to cache map</span>
-        <span class="n">map_file</span> <span class="o">=</span> <span class="n">params_dir</span> <span class="o">/</span> <span class="s1">&#39;.caches&#39;</span>
+        <span class="n">map_file</span> <span class="o">=</span> <span class="n">params_dir</span> <span class="o">/</span> <span class="s1">'.caches'</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">map_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-            <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">fixture</span> <span class="o">/</span> <span class="s1">&#39;params&#39;</span> <span class="o">/</span> <span class="s1">&#39;.caches&#39;</span><span class="p">,</span> <span class="n">map_file</span><span class="p">)</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">fixture</span> <span class="o">/</span> <span class="s1">'params'</span> <span class="o">/</span> <span class="s1">'.caches'</span><span class="p">,</span> <span class="n">map_file</span><span class="p">)</span>
             <span class="k">assert</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">map_file</span><span class="p">,</span> <span class="s1">&#39;r+&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">map_file</span><span class="p">,</span> <span class="s1">'r+'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;CLIENT_MAP&#39;</span><span class="p">][</span><span class="n">test_pars</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">cache_dir</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">'CLIENT_MAP'</span><span class="p">][</span><span class="n">test_pars</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">cache_dir</span> <span class="ow">or</span> <span class="s1">''</span><span class="p">)</span>
             <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
             <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
             <span class="n">f</span><span class="o">.</span><span class="n">truncate</span><span class="p">()</span>
@@ -227,19 +230,19 @@
     <span class="c1"># Add token to file so db not hit</span>
     <span class="k">if</span> <span class="n">token</span><span class="p">:</span>
         <span class="n">pars</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="n">test_pars</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">pars</span><span class="p">,</span> <span class="s1">&#39;TOKEN&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
-            <span class="n">one</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">pars</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;TOKEN&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;token&#39;</span><span class="p">:</span> <span class="s1">&#39;T0k3N&#39;</span><span class="p">}),</span> <span class="n">test_pars</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span></div>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">pars</span><span class="p">,</span> <span class="s1">'TOKEN'</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+            <span class="n">one</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">pars</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'TOKEN'</span><span class="p">,</span> <span class="p">{</span><span class="s1">'token'</span><span class="p">:</span> <span class="s1">'T0k3N'</span><span class="p">}),</span> <span class="n">test_pars</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span></div>
 
 
 
 <div class="viewcode-block" id="revisions_datasets_table">
 <a class="viewcode-back" href="../../../_autosummary/one.tests.util.html#one.tests.util.revisions_datasets_table">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">revisions_datasets_table</span><span class="p">(</span><span class="n">collections</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;alf/probe00&#39;</span><span class="p">,</span> <span class="s1">&#39;alf/probe01&#39;</span><span class="p">),</span>
-                             <span class="n">revisions</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;2020-01-08&#39;</span><span class="p">,</span> <span class="s1">&#39;2021-07-06&#39;</span><span class="p">),</span>
-                             <span class="nb">object</span><span class="o">=</span><span class="s1">&#39;spikes&#39;</span><span class="p">,</span>
-                             <span class="n">attributes</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;times&#39;</span><span class="p">,</span> <span class="s1">&#39;waveforems&#39;</span><span class="p">),</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">revisions_datasets_table</span><span class="p">(</span><span class="n">collections</span><span class="o">=</span><span class="p">(</span><span class="s1">''</span><span class="p">,</span> <span class="s1">'alf/probe00'</span><span class="p">,</span> <span class="s1">'alf/probe01'</span><span class="p">),</span>
+                             <span class="n">revisions</span><span class="o">=</span><span class="p">(</span><span class="s1">''</span><span class="p">,</span> <span class="s1">'2020-01-08'</span><span class="p">,</span> <span class="s1">'2021-07-06'</span><span class="p">),</span>
+                             <span class="nb">object</span><span class="o">=</span><span class="s1">'spikes'</span><span class="p">,</span>
+                             <span class="n">attributes</span><span class="o">=</span><span class="p">(</span><span class="s1">'times'</span><span class="p">,</span> <span class="s1">'waveforems'</span><span class="p">),</span>
                              <span class="n">touch_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a datasets cache DataFrame containing datasets with revision folders.</span>
+<span class="w">    </span><span class="sd">"""Return a datasets cache DataFrame containing datasets with revision folders.</span>
 
 <span class="sd">    As there are no revised datasets on the test databases, this function acts as a fixture for</span>
 <span class="sd">    testing the filtering of datasets by a revision.</span>
@@ -262,20 +265,20 @@
 <span class="sd">    pd.DataFrame</span>
 <span class="sd">        A datasets cache table containing datasets made from the input names.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">rel_path</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">attributes</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">collec</span> <span class="ow">in</span> <span class="n">collections</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">rev</span> <span class="ow">in</span> <span class="p">(</span><span class="sa">f</span><span class="s1">&#39;#</span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s1">#&#39;</span> <span class="k">if</span> <span class="n">x</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">revisions</span><span class="p">):</span>
-                <span class="n">rel_path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">(</span><span class="n">collec</span><span class="p">,</span> <span class="n">rev</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">object</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s1">.npy&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">rev</span> <span class="ow">in</span> <span class="p">(</span><span class="sa">f</span><span class="s1">'#</span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s1">#'</span> <span class="k">if</span> <span class="n">x</span> <span class="k">else</span> <span class="s1">''</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">revisions</span><span class="p">):</span>
+                <span class="n">rel_path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">'/'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">(</span><span class="n">collec</span><span class="p">,</span> <span class="n">rev</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="nb">object</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s1">.npy'</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span><span class="p">))</span>
     <span class="n">d</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">&#39;rel_path&#39;</span><span class="p">:</span> <span class="n">rel_path</span><span class="p">,</span>
-        <span class="s1">&#39;file_size&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-        <span class="s1">&#39;hash&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s1">&#39;exists&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="s1">&#39;qc&#39;</span><span class="p">:</span> <span class="s1">&#39;NOT_SET&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;eid&#39;</span><span class="p">:</span> <span class="n">uuid4</span><span class="p">(),</span>
-        <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">uuid4</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">rel_path</span><span class="p">)</span>
+        <span class="s1">'rel_path'</span><span class="p">:</span> <span class="n">rel_path</span><span class="p">,</span>
+        <span class="s1">'file_size'</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s1">'hash'</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s1">'exists'</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s1">'qc'</span><span class="p">:</span> <span class="s1">'NOT_SET'</span><span class="p">,</span>
+        <span class="s1">'eid'</span><span class="p">:</span> <span class="n">uuid4</span><span class="p">(),</span>
+        <span class="s1">'id'</span><span class="p">:</span> <span class="p">(</span><span class="n">uuid4</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">rel_path</span><span class="p">)</span>
     <span class="p">}</span>
 
     <span class="k">if</span> <span class="n">touch_path</span><span class="p">:</span>
@@ -284,28 +287,28 @@
             <span class="n">path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">path</span><span class="o">.</span><span class="n">touch</span><span class="p">()</span>
 
-    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">d</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">({</span><span class="s1">&#39;qc&#39;</span><span class="p">:</span> <span class="n">QC_TYPE</span><span class="p">})</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s1">&#39;eid&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">])</span></div>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">d</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">({</span><span class="s1">'qc'</span><span class="p">:</span> <span class="n">QC_TYPE</span><span class="p">})</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s1">'eid'</span><span class="p">,</span> <span class="s1">'id'</span><span class="p">])</span></div>
 
 
 
 <div class="viewcode-block" id="create_schema_cache">
 <a class="viewcode-back" href="../../../_autosummary/one.tests.util.html#one.tests.util.create_schema_cache">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">create_schema_cache</span><span class="p">(</span><span class="n">param_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Save REST cache file for docs/ endpoint.</span>
+<span class="w">    </span><span class="sd">"""Save REST cache file for docs/ endpoint.</span>
 
-<span class="sd">    Ensures the database isn&#39;t hit when the rest_schemas property is accessed.</span>
+<span class="sd">    Ensures the database isn't hit when the rest_schemas property is accessed.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    param_dir : str, pathlib.Path</span>
 <span class="sd">        The location of the parameter directory.  If None, the default one is used.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">actions</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">([</span><span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="s1">&#39;read&#39;</span><span class="p">,</span> <span class="s1">&#39;create&#39;</span><span class="p">,</span> <span class="s1">&#39;update&#39;</span><span class="p">,</span> <span class="s1">&#39;partial_update&#39;</span><span class="p">,</span> <span class="s1">&#39;delete&#39;</span><span class="p">])</span>
-    <span class="n">endpoints</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;cache&#39;</span><span class="p">,</span> <span class="s1">&#39;dataset-types&#39;</span><span class="p">,</span> <span class="s1">&#39;datasets&#39;</span><span class="p">,</span> <span class="s1">&#39;downloads&#39;</span><span class="p">,</span> <span class="s1">&#39;insertions&#39;</span><span class="p">,</span> <span class="s1">&#39;sessions&#39;</span><span class="p">]</span>
-    <span class="n">path_parts</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;.rest&#39;</span><span class="p">,</span> <span class="s1">&#39;test.alyx.internationalbrainlab.org&#39;</span><span class="p">,</span> <span class="s1">&#39;https&#39;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">actions</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">([</span><span class="s1">'list'</span><span class="p">,</span> <span class="s1">'read'</span><span class="p">,</span> <span class="s1">'create'</span><span class="p">,</span> <span class="s1">'update'</span><span class="p">,</span> <span class="s1">'partial_update'</span><span class="p">,</span> <span class="s1">'delete'</span><span class="p">])</span>
+    <span class="n">endpoints</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'cache'</span><span class="p">,</span> <span class="s1">'dataset-types'</span><span class="p">,</span> <span class="s1">'datasets'</span><span class="p">,</span> <span class="s1">'downloads'</span><span class="p">,</span> <span class="s1">'insertions'</span><span class="p">,</span> <span class="s1">'sessions'</span><span class="p">]</span>
+    <span class="n">path_parts</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'.rest'</span><span class="p">,</span> <span class="s1">'test.alyx.internationalbrainlab.org'</span><span class="p">,</span> <span class="s1">'https'</span><span class="p">)</span>
     <span class="n">rest_cache_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">param_dir</span> <span class="ow">or</span> <span class="n">one</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get_params_dir</span><span class="p">())</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="o">*</span><span class="n">path_parts</span><span class="p">)</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">rest_cache_dir</span> <span class="o">/</span> <span class="s1">&#39;1baff95c2d0e31059720a3716ad5b5a34b61a207&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">rest_cache_dir</span> <span class="o">/</span> <span class="s1">'1baff95c2d0e31059720a3716ad5b5a34b61a207'</span><span class="p">,</span> <span class="s1">'r'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="n">actions</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">endpoints</span><span class="p">},</span> <span class="n">f</span><span class="p">)</span></div>
 
 
@@ -313,7 +316,7 @@
 <div class="viewcode-block" id="get_file">
 <a class="viewcode-back" href="../../../_autosummary/one.tests.util.html#one.tests.util.get_file">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_file</span><span class="p">(</span><span class="n">root</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">str_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A stub function for `iblutil.io.params.getfile`.</span>
+<span class="w">    </span><span class="sd">"""A stub function for `iblutil.io.params.getfile`.</span>
 
 <span class="sd">    Allows the injection of a different param dir.</span>
 
@@ -329,8 +332,8 @@
 <span class="sd">    str</span>
 <span class="sd">        The parameter file path</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;.&#39;</span> <span class="o">+</span> <span class="n">p</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">Path</span><span class="p">(</span><span class="n">str_id</span><span class="p">)</span><span class="o">.</span><span class="n">parts</span><span class="p">]</span>
+<span class="sd">    """</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'.'</span> <span class="o">+</span> <span class="n">p</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">'.'</span><span class="p">)</span> <span class="k">else</span> <span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">Path</span><span class="p">(</span><span class="n">str_id</span><span class="p">)</span><span class="o">.</span><span class="n">parts</span><span class="p">]</span>
     <span class="n">pfile</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="o">*</span><span class="n">parts</span><span class="p">)</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">pfile</span></div>
 
@@ -339,23 +342,58 @@
 <div class="viewcode-block" id="caches_str2int">
 <a class="viewcode-back" href="../../../_autosummary/one.tests.util.html#one.tests.util.caches_str2int">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">caches_str2int</span><span class="p">(</span><span class="n">caches</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert str ids to int ids for cache tables.</span>
+<span class="w">    </span><span class="sd">"""Convert str ids to int ids for cache tables.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    caches : Bunch</span>
 <span class="sd">        A bunch of cache tables (from One._cache)</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">for</span> <span class="n">table</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;datasets&#39;</span><span class="p">):</span>
+<span class="sd">    """</span>
+    <span class="k">for</span> <span class="n">table</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">'sessions'</span><span class="p">,</span> <span class="s1">'datasets'</span><span class="p">):</span>
         <span class="n">index</span> <span class="o">=</span> <span class="n">caches</span><span class="p">[</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">index</span>
         <span class="n">names</span> <span class="o">=</span> <span class="p">(</span><span class="n">index</span><span class="o">.</span><span class="n">name</span><span class="p">,)</span> <span class="k">if</span> <span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="k">else</span> <span class="n">index</span><span class="o">.</span><span class="n">names</span>
         <span class="n">cache</span> <span class="o">=</span> <span class="n">caches</span><span class="p">[</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">str2np</span><span class="p">(</span><span class="n">cache</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
-                <span class="n">cache</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">col</span>
-        <span class="n">int_cols</span> <span class="o">=</span> <span class="n">cache</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;_\d</span><span class="si">{1}</span><span class="s1">$&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">sort_values</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                <span class="n">cache</span><span class="p">[</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">'</span><span class="p">]</span> <span class="o">=</span> <span class="n">col</span>
+        <span class="n">int_cols</span> <span class="o">=</span> <span class="n">cache</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="sa">r</span><span class="s1">'_\d</span><span class="si">{1}</span><span class="s1">$'</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">sort_values</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
         <span class="n">caches</span><span class="p">[</span><span class="n">table</span><span class="p">]</span> <span class="o">=</span> <span class="n">cache</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">int_cols</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="mock_http_download">
+<a class="viewcode-back" href="../../../_autosummary/one.tests.util.html#one.tests.util.mock_http_download">[docs]</a>
+<span class="nd">@contextmanager</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">mock_http_download</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="sa">b</span><span class="s1">'mock file contents'</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Stand in for the HTTP transfer so download tests need no data server access.</span>
+
+<span class="sd">    The test database's file records point at the private FlatIron tree. Only the bytes on the</span>
+<span class="sd">    wire are simulated; URL validation, the hash check and UUID stripping still run.</span>
+
+<span class="sd">    The mismatch handler is stubbed out too: a fabricated file never matches the recorded hash,</span>
+<span class="sd">    and the handler would flag the file record on Alyx, writing to the shared test database.</span>
+
+<span class="sd">    Yields</span>
+<span class="sd">    ------</span>
+<span class="sd">    unittest.mock.MagicMock</span>
+<span class="sd">        The patched `_tag_mismatched_file_record`.</span>
+
+<span class="sd">    """</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">iblutil.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">hashfile</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">download</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">chunks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">clobber</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="s1">''</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s1">''</span><span class="p">,</span>
+                 <span class="n">target_dir</span><span class="o">=</span><span class="s1">''</span><span class="p">,</span> <span class="n">return_md5</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlsplit</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s1">'/'</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">target_dir</span> <span class="ow">or</span> <span class="s1">''</span><span class="p">)</span>
+        <span class="n">target</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">file</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">file</span><span class="o">.</span><span class="n">write_bytes</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">hashfile</span><span class="o">.</span><span class="n">md5</span><span class="p">(</span><span class="n">file</span><span class="p">))</span> <span class="k">if</span> <span class="n">return_md5</span> <span class="k">else</span> <span class="n">file</span>
+
+    <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">'one.webclient.http_download_file'</span><span class="p">,</span> <span class="n">new</span><span class="o">=</span><span class="n">download</span><span class="p">),</span> \
+            <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">'one.api.OneAlyx._tag_mismatched_file_record'</span><span class="p">)</span> <span class="k">as</span> <span class="n">tag</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">tag</span></div>
 
 </pre></div>
 

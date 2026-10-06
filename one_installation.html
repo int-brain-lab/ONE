@@ -53,7 +53,9 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">ONE installation and setup</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#installation">1. Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#setup">2. Setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#create-an-account-on-the-public-database">Create an account on the public database</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#connect-to-ibl-public-database">Connect to IBL Public database</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#signing-in-without-a-password">Signing in without a password</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#using-local-folder-structure">Using local folder structure</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#connecting-to-specific-database-relevant-for-ibl-users">Connecting to specific database (relevant for IBL users)</a></li>
 </ul>
@@ -136,12 +138,59 @@ installed, so you can skip this step!</p>
 <h2>2. Setup<a class="headerlink" href="#setup" title="Link to this heading"></a></h2>
 <p>To start using ONE, we must first configure some settings that tell ONE whether it should connect to a database or
 use a local file system</p>
+<section id="create-an-account-on-the-public-database">
+<h3>Create an account on the public database<a class="headerlink" href="#create-an-account-on-the-public-database" title="Link to this heading"></a></h3>
+<p>The public IBL database, <a class="reference external" href="https://openalyx.internationalbrainlab.org">Open Alyx</a>, needs an account.
+It is free, it takes a minute, and it is yours: accounts survive data releases, so you register once
+and keep the same credentials as new data is published.</p>
+<p>Go to <a class="reference external" href="https://openalyx.internationalbrainlab.org/signup">openalyx.internationalbrainlab.org/signup</a>
+and either</p>
+<ul class="simple">
+<li><p><strong>register with an email address</strong>, choosing a username and password. You will be sent a link to
+confirm the address before the account becomes active; or</p></li>
+<li><p><strong>sign in with <a class="reference external" href="https://orcid.org">ORCiD</a></strong>, if you have an ORCiD iD. No password is involved -
+ORCiD vouches for you - so see
+signing in without a password below for how to authenticate ONE.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Your account is private to you. Public accounts cannot see other users of the database.</p>
+</div>
+</section>
 <section id="connect-to-ibl-public-database">
 <h3>Connect to IBL Public database<a class="headerlink" href="#connect-to-ibl-public-database" title="Link to this heading"></a></h3>
 <p>By default ONE is configured to connect to the public IBL database, this can be setup by typing the following</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">one.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">ONE</span>
 <span class="n">ONE</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">silent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># silent means use default parameters for the IBL public database</span>
-<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">()</span>
+<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">()</span>  <span class="c1"># you will be asked for your username, then your password</span>
+</pre></div>
+</div>
+<p>The first call asks for the username you registered with and then for your password. Both are
+remembered afterwards - ONE stores an access token, not your password - so later sessions are just
+<code class="docutils literal notranslate"><span class="pre">one</span> <span class="pre">=</span> <span class="pre">ONE()</span></code>. To avoid the username prompt entirely, pass it to the setup:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ONE</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">silent</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="s1">'cajal'</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>ONE writes these settings to a parameter file for you. Do not edit that file by hand; re-run
+<code class="docutils literal notranslate"><span class="pre">ONE.setup()</span></code> instead.</p>
+</div>
+</section>
+<section id="signing-in-without-a-password">
+<span id="id1"></span><h3>Signing in without a password<a class="headerlink" href="#signing-in-without-a-password" title="Link to this heading"></a></h3>
+<p>An account created through ORCiD has no password, so there is nothing to type at the password
+prompt. Such an account authenticates with an <strong>API token</strong> instead:</p>
+<ol class="arabic simple">
+<li><p>Sign in to <a class="reference external" href="https://openalyx.internationalbrainlab.org">openalyx.internationalbrainlab.org</a> and
+open the <a class="reference external" href="https://openalyx.internationalbrainlab.org/me">/me</a> page, which shows your token.</p></li>
+<li><p>Run <code class="docutils literal notranslate"><span class="pre">one</span> <span class="pre">=</span> <span class="pre">ONE()</span></code>, leave the password prompt blank, and paste the token when asked for one.</p></li>
+</ol>
+<p>The token is a credential: treat it like a password, and regenerate it from the same page if it
+leaks. In a script, or anywhere there is no one to answer a prompt, pass it directly - the database
+is asked whose token it is, so the username is optional:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">one.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">ONE</span>
+<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">token</span><span class="o">=</span><span class="s1">'a1b2c3...'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>If you are having an issue at this stage, or need to re-configure ONE, please see <a class="reference internal" href="FAQ.html#i-made-a-mistake-during-setup-and-now-can-t-call-setup-how-do-i-fix-it"><span class="std std-ref">this FAQ page</span></a>.</p>
@@ -150,7 +199,7 @@ use a local file system</p>
 <h3>Using local folder structure<a class="headerlink" href="#using-local-folder-structure" title="Link to this heading"></a></h3>
 <p>ONE can also be used independently of a database by using a local cache directory. This can be setup in the following way</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">one.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">One</span>
-<span class="n">one</span> <span class="o">=</span> <span class="n">One</span><span class="p">(</span><span class="n">cache_dir</span><span class="o">=</span><span class="s1">&#39;/home/user/downlaods/ONE/behavior_paper&#39;</span><span class="p">)</span>
+<span class="n">one</span> <span class="o">=</span> <span class="n">One</span><span class="p">(</span><span class="n">cache_dir</span><span class="o">=</span><span class="s1">'/home/user/downlaods/ONE/behavior_paper'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>For more information about using ONE with a local cache directory please refer to this <a class="reference internal" href="notebooks/data_sharing.html"><span class="doc std std-doc">section</span></a>.</p>
@@ -159,7 +208,7 @@ use a local file system</p>
 <h3>Connecting to specific database (relevant for IBL users)<a class="headerlink" href="#connecting-to-specific-database-relevant-for-ibl-users" title="Link to this heading"></a></h3>
 <p>To connect to a specific database, for example the internal IBL Alyx database, a base-url argument must be given</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">one.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">ONE</span>
-<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://alyx.internationalbrainlab.org&#39;</span><span class="p">)</span>
+<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">'https://alyx.internationalbrainlab.org'</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -182,7 +231,7 @@ default database configured in your settings,</p>
 </pre></div>
 </div>
 <p>To change your default database, or re-run the setup for a given database, you can use the following</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ONE</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://test.alyx.internationalbrainlab.org&#39;</span><span class="p">,</span> <span class="n">make_default</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ONE</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">'https://test.alyx.internationalbrainlab.org'</span><span class="p">,</span> <span class="n">make_default</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>

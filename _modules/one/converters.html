@@ -105,7 +105,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for one.converters</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;A module for inter-converting experiment identifiers.</span>
+<span></span><span class="sd">"""A module for inter-converting experiment identifiers.</span>
 
 <span class="sd">There are multiple ways to uniquely identify an experiment:</span>
 <span class="sd">    - eid (UUID) : An experiment UUID (or 36 char hexadecimal string)</span>
@@ -113,7 +113,7 @@
 <span class="sd">    - path (Path) : A pathlib ALF path of the form `&lt;lab&gt;/Subjects/&lt;subject&gt;/&lt;date&gt;/&lt;number&gt;`</span>
 <span class="sd">    - ref (str) : An experiment reference string of the form `yyyy-mm-dd_n_subject`</span>
 <span class="sd">    - url (str) : A remote http session path of the form `&lt;lab&gt;/Subjects/&lt;subject&gt;/&lt;date&gt;/&lt;number&gt;`</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">functools</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
@@ -136,7 +136,7 @@
 <div class="viewcode-block" id="recurse">
 <a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.recurse">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">recurse</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Decorator to call decorated function recursively if first arg is non-string iterable.</span>
+<span class="w">    </span><span class="sd">"""Decorator to call decorated function recursively if first arg is non-string iterable.</span>
 
 <span class="sd">    Allows decorated methods to accept both single values, and lists/tuples of values.  When</span>
 <span class="sd">    given the latter, a list is returned.  This decorator is intended to work on class methods,</span>
@@ -153,7 +153,7 @@
 <span class="sd">    function</span>
 <span class="sd">        The decorated method.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">wrapper_decorator</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
@@ -172,27 +172,27 @@
 <div class="viewcode-block" id="parse_values">
 <a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.parse_values">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">parse_values</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert str values in reference dict to appropriate type.</span>
+<span class="w">    </span><span class="sd">"""Convert str values in reference dict to appropriate type.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; parse_values(lambda x: x)({&#39;date&#39;: &#39;2020-01-01&#39;, &#39;sequence&#39;: &#39;001&#39;}, parse=True)</span>
-<span class="sd">    {&#39;date&#39;: datetime.date(2020, 1, 1), &#39;sequence&#39;: 1}</span>
+<span class="sd">    &gt;&gt;&gt; parse_values(lambda x: x)({'date': '2020-01-01', 'sequence': '001'}, parse=True)</span>
+<span class="sd">    {'date': datetime.date(2020, 1, 1), 'sequence': 1}</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">parse_ref</span><span class="p">(</span><span class="n">ref</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">ref</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ref</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ref</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">10</span><span class="p">:</span>
-                    <span class="n">ref</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">ref</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ref</span><span class="p">[</span><span class="s1">'date'</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ref</span><span class="p">[</span><span class="s1">'date'</span><span class="p">])</span> <span class="o">==</span> <span class="mi">10</span><span class="p">:</span>
+                    <span class="n">ref</span><span class="p">[</span><span class="s1">'date'</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">ref</span><span class="p">[</span><span class="s1">'date'</span><span class="p">])</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">ref</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">ref</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
-            <span class="n">ref</span><span class="p">[</span><span class="s1">&#39;sequence&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ref</span><span class="p">[</span><span class="s1">&#39;sequence&#39;</span><span class="p">])</span>
+                    <span class="n">ref</span><span class="p">[</span><span class="s1">'date'</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">ref</span><span class="p">[</span><span class="s1">'date'</span><span class="p">])</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+            <span class="n">ref</span><span class="p">[</span><span class="s1">'sequence'</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ref</span><span class="p">[</span><span class="s1">'sequence'</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">ref</span>
 
     <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">wrapper_decorator</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="n">parse</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;as_dict&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="ow">and</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;parse&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">parse</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'as_dict'</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="ow">and</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">'parse'</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
         <span class="n">ref</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">parse</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">ref</span>
@@ -207,7 +207,7 @@
 <div class="viewcode-block" id="ConversionMixin">
 <a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ConversionMixin</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A mixin providing methods to inter-convert experiment identifiers.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""A mixin providing methods to inter-convert experiment identifiers."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="kc">None</span>
@@ -219,7 +219,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">to_eid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                <span class="nb">id</span><span class="p">:</span> <span class="n">Listable</span><span class="p">(</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">UUID</span><span class="p">,</span> <span class="nb">dict</span><span class="p">])</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                <span class="n">cache_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Listable</span><span class="p">(</span><span class="n">UUID</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Given any kind of experiment identifier, return a corresponding eid string.</span>
+<span class="w">        </span><span class="sd">"""Given any kind of experiment identifier, return a corresponding eid string.</span>
 
 <span class="sd">        NB: Currently does not support integer IDs.</span>
 
@@ -240,7 +240,7 @@
 <span class="sd">        ValueError</span>
 <span class="sd">            Input ID invalid</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># TODO Could add np2str here</span>
         <span class="c1"># if isinstance(id, (list, tuple)):  # Recurse</span>
         <span class="c1">#     return [self.to_eid(i, cache_dir) for i in id]</span>
@@ -251,13 +251,13 @@
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_exp_ref</span><span class="p">(</span><span class="nb">id</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ref2eid</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-            <span class="k">assert</span> <span class="p">{</span><span class="s1">&#39;subject&#39;</span><span class="p">,</span> <span class="s1">&#39;number&#39;</span><span class="p">,</span> <span class="s1">&#39;lab&#39;</span><span class="p">}</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="p">{</span><span class="s1">'subject'</span><span class="p">,</span> <span class="s1">'number'</span><span class="p">,</span> <span class="s1">'lab'</span><span class="p">}</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
             <span class="n">root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">cache_dir</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">)</span>
             <span class="nb">id</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span>
-                <span class="nb">id</span><span class="p">[</span><span class="s1">&#39;lab&#39;</span><span class="p">],</span>
-                <span class="s1">&#39;Subjects&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="p">[</span><span class="s1">&#39;subject&#39;</span><span class="p">],</span>
-                <span class="nb">str</span><span class="p">(</span><span class="nb">id</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;date&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">id</span><span class="p">[</span><span class="s1">&#39;start_time&#39;</span><span class="p">][:</span><span class="mi">10</span><span class="p">]),</span>
-                <span class="p">(</span><span class="s1">&#39;</span><span class="si">%03d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">id</span><span class="p">[</span><span class="s1">&#39;number&#39;</span><span class="p">]))</span>
+                <span class="nb">id</span><span class="p">[</span><span class="s1">'lab'</span><span class="p">],</span>
+                <span class="s1">'Subjects'</span><span class="p">,</span> <span class="nb">id</span><span class="p">[</span><span class="s1">'subject'</span><span class="p">],</span>
+                <span class="nb">str</span><span class="p">(</span><span class="nb">id</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'date'</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">id</span><span class="p">[</span><span class="s1">'start_time'</span><span class="p">][:</span><span class="mi">10</span><span class="p">]),</span>
+                <span class="p">(</span><span class="s1">'</span><span class="si">%03d</span><span class="s1">'</span> <span class="o">%</span> <span class="nb">id</span><span class="p">[</span><span class="s1">'number'</span><span class="p">]))</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">path2eid</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
@@ -267,18 +267,18 @@
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">36</span><span class="p">:</span>
                 <span class="nb">id</span> <span class="o">=</span> <span class="nb">id</span><span class="p">[</span><span class="o">-</span><span class="mi">36</span><span class="p">:]</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">is_uuid_string</span><span class="p">(</span><span class="nb">id</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid experiment ID&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Invalid experiment ID'</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">UUID</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Unrecognized experiment ID&#39;</span><span class="p">)</span></div>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Unrecognized experiment ID'</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ConversionMixin.eid2path">
 <a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.eid2path">[docs]</a>
     <span class="nd">@recurse</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">eid2path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eid</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Listable</span><span class="p">(</span><span class="n">ALFPath</span><span class="p">)]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;From an experiment id or a list of experiment ids, gets the local cache path.</span>
+<span class="w">        </span><span class="sd">"""From an experiment id or a list of experiment ids, gets the local cache path.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -290,19 +290,19 @@
 <span class="sd">        one.alf.path.ALFPath</span>
 <span class="sd">            A session path.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># If not valid return None</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">is_uuid</span><span class="p">(</span><span class="n">eid</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">eid</span><span class="si">}</span><span class="s2"> is not a valid eID/UUID string&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">eid</span><span class="si">}</span><span class="s1"> is not a valid eID/UUID string'</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">eid</span> <span class="o">=</span> <span class="n">UUID</span><span class="p">(</span><span class="n">eid</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;sessions&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">'sessions'</span><span class="p">]</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span>
 
         <span class="c1"># load path from cache</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">ses</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;sessions&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">eid</span><span class="p">]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
-            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ses</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">),</span> <span class="s1">&#39;Duplicate eids in sessions table&#39;</span>
+            <span class="n">ses</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">'sessions'</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">eid</span><span class="p">]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ses</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">),</span> <span class="s1">'Duplicate eids in sessions table'</span>
             <span class="k">return</span> <span class="n">session_record2path</span><span class="p">(</span><span class="n">ses</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="k">return</span></div>
@@ -312,7 +312,7 @@
 <a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.path2eid">[docs]</a>
     <span class="nd">@recurse</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">path2eid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_obj</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;From a local path, gets the experiment id.</span>
+<span class="w">        </span><span class="sd">"""From a local path, gets the experiment id.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -324,10 +324,10 @@
 <span class="sd">        eid, list</span>
 <span class="sd">            Experiment ID (eid) or list of eids.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># else ensure the path ends with mouse,date, number</span>
         <span class="n">session_path</span> <span class="o">=</span> <span class="n">get_session_path</span><span class="p">(</span><span class="n">path_obj</span><span class="p">)</span>
-        <span class="n">sessions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;sessions&#39;</span><span class="p">]</span>
+        <span class="n">sessions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">'sessions'</span><span class="p">]</span>
 
         <span class="c1"># if path does not have a date and a number, or cache is empty return None</span>
         <span class="k">if</span> <span class="n">session_path</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">sessions</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -336,7 +336,7 @@
         <span class="c1"># reduce session records from cache</span>
         <span class="n">toDate</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">fromisoformat</span>
         <span class="n">subject</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">number</span> <span class="o">=</span> <span class="n">session_path</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">:]</span>
-        <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">((</span><span class="s1">&#39;subject&#39;</span><span class="p">,</span> <span class="s1">&#39;date&#39;</span><span class="p">,</span> <span class="s1">&#39;number&#39;</span><span class="p">),</span> <span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">toDate</span><span class="p">(</span><span class="n">date</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">number</span><span class="p">))):</span>
+        <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">((</span><span class="s1">'subject'</span><span class="p">,</span> <span class="s1">'date'</span><span class="p">,</span> <span class="s1">'number'</span><span class="p">),</span> <span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">toDate</span><span class="p">(</span><span class="n">date</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">number</span><span class="p">))):</span>
             <span class="n">sessions</span> <span class="o">=</span> <span class="n">sessions</span><span class="p">[</span><span class="n">sessions</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">==</span> <span class="n">val</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">sessions</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">return</span>
@@ -351,7 +351,7 @@
 <a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.path2record">[docs]</a>
     <span class="nd">@recurse</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">path2record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert a file or session path to a dataset or session cache record.</span>
+<span class="w">        </span><span class="sd">"""Convert a file or session path to a dataset or session cache record.</span>
 
 <span class="sd">        NB: Assumes &lt;lab&gt;/Subjects/&lt;subject&gt;/&lt;date&gt;/&lt;number&gt; pattern.</span>
 
@@ -365,27 +365,27 @@
 <span class="sd">        pandas.Series</span>
 <span class="sd">            A cache file record.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">path</span> <span class="o">=</span> <span class="n">ALFPath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
         <span class="n">is_session</span> <span class="o">=</span> <span class="n">is_session_path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;sessions&#39;</span> <span class="k">if</span> <span class="n">is_session</span> <span class="k">else</span> <span class="s1">&#39;datasets&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">'sessions'</span> <span class="k">if</span> <span class="n">is_session</span> <span class="k">else</span> <span class="s1">'datasets'</span><span class="p">]</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
             <span class="k">return</span>  <span class="c1"># short circuit: no records in the cache</span>
 
         <span class="k">if</span> <span class="n">is_session_path</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
             <span class="n">lab</span><span class="p">,</span> <span class="n">subject</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">number</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">session_parts</span>
-            <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;sessions&#39;</span><span class="p">]</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">'sessions'</span><span class="p">]</span>
             <span class="n">rec</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span>
-                <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;lab&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">lab</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;subject&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">subject</span><span class="p">)</span> <span class="o">&amp;</span>
-                <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;number&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">number</span><span class="p">))</span> <span class="o">&amp;</span>
-                <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">date</span><span class="p">))</span>
+                <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">'lab'</span><span class="p">]</span> <span class="o">==</span> <span class="n">lab</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">'subject'</span><span class="p">]</span> <span class="o">==</span> <span class="n">subject</span><span class="p">)</span> <span class="o">&amp;</span>
+                <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">'number'</span><span class="p">]</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">number</span><span class="p">))</span> <span class="o">&amp;</span>
+                <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">'date'</span><span class="p">]</span> <span class="o">==</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">date</span><span class="p">))</span>
             <span class="p">]</span>
             <span class="k">return</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">rec</span><span class="o">.</span><span class="n">empty</span> <span class="k">else</span> <span class="n">rec</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
 
-        <span class="c1"># If there&#39;s a UUID in the path, use that to fetch the record</span>
-        <span class="n">name_parts</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">stem</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+        <span class="c1"># If there's a UUID in the path, use that to fetch the record</span>
+        <span class="n">name_parts</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">stem</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'.'</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">is_uuid_string</span><span class="p">(</span><span class="n">uuid</span> <span class="o">:=</span> <span class="n">name_parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">&#39;datasets&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">IndexSlice</span><span class="p">[:,</span> <span class="n">UUID</span><span class="p">(</span><span class="n">uuid</span><span class="p">)],</span> <span class="p">:]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s1">'datasets'</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">IndexSlice</span><span class="p">[:,</span> <span class="n">UUID</span><span class="p">(</span><span class="n">uuid</span><span class="p">)],</span> <span class="p">:]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
             <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
                 <span class="k">return</span>
 
@@ -396,19 +396,19 @@
             <span class="k">return</span>
 
         <span class="c1"># Find row where relative path matches</span>
-        <span class="n">rec</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;rel_path&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">path</span><span class="o">.</span><span class="n">relative_to_session</span><span class="p">()</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()]</span>
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">rec</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;Multiple records found&#39;</span>
+        <span class="n">rec</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">'rel_path'</span><span class="p">]</span> <span class="o">==</span> <span class="n">path</span><span class="o">.</span><span class="n">relative_to_session</span><span class="p">()</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()]</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">rec</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">'Multiple records found'</span>
         <span class="k">if</span> <span class="n">rec</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
         <span class="c1"># Convert slice to series and reinstate eid index if dropped</span>
-        <span class="k">return</span> <span class="n">rec</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">rec</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]))</span></div>
+        <span class="k">return</span> <span class="n">rec</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">rec</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">'id'</span><span class="p">)[</span><span class="mi">0</span><span class="p">]))</span></div>
 
 
 <div class="viewcode-block" id="ConversionMixin.path2url">
 <a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.path2url">[docs]</a>
     <span class="nd">@recurse</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">path2url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Given a local file path, constructs the URL of the remote file.</span>
+<span class="w">        </span><span class="sd">"""Given a local file path, constructs the URL of the remote file.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -420,7 +420,7 @@
 <span class="sd">        str</span>
 <span class="sd">            A remote URL string</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">record</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path2record</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">record</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span>
@@ -430,7 +430,7 @@
 <div class="viewcode-block" id="ConversionMixin.record2url">
 <a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.record2url">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">record2url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert a session or dataset record to a remote URL.</span>
+<span class="w">        </span><span class="sd">"""Convert a session or dataset record to a remote URL.</span>
 
 <span class="sd">        NB: Requires online instance</span>
 
@@ -444,38 +444,38 @@
 <span class="sd">        str, list</span>
 <span class="sd">            A dataset URL or list if input is DataFrame</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">webclient</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_web_client&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="n">webclient</span><span class="p">,</span> <span class="s1">&#39;No Web client found for instance&#39;</span>
+<span class="sd">        """</span>
+        <span class="n">webclient</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">'_web_client'</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">webclient</span><span class="p">,</span> <span class="s1">'No Web client found for instance'</span>
         <span class="c1"># FIXME Should be OneAlyx converter only</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
             <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">record2url</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">record</span><span class="o">.</span><span class="n">iterrows</span><span class="p">()]</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
-            <span class="n">is_session_record</span> <span class="o">=</span> <span class="s1">&#39;rel_path&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">record</span>
+            <span class="n">is_session_record</span> <span class="o">=</span> <span class="s1">'rel_path'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">record</span>
             <span class="k">if</span> <span class="n">is_session_record</span><span class="p">:</span>
                 <span class="c1"># NB: This assumes the root path is in the webclient URL</span>
-                <span class="n">session_spec</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{lab}</span><span class="s1">/Subjects/</span><span class="si">{subject}</span><span class="s1">/</span><span class="si">{date}</span><span class="s1">/</span><span class="si">{number:03d}</span><span class="s1">&#39;</span>
-                <span class="n">url</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;session_path&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">session_spec</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">record</span><span class="p">)</span>
+                <span class="n">session_spec</span> <span class="o">=</span> <span class="s1">'</span><span class="si">{lab}</span><span class="s1">/Subjects/</span><span class="si">{subject}</span><span class="s1">/</span><span class="si">{date}</span><span class="s1">/</span><span class="si">{number:03d}</span><span class="s1">'</span>
+                <span class="n">url</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'session_path'</span><span class="p">)</span> <span class="ow">or</span> <span class="n">session_spec</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">record</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">webclient</span><span class="o">.</span><span class="n">rel_path2url</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;record must be pandas.DataFrame or pandas.Series, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">record</span><span class="p">)</span><span class="si">}</span><span class="s1"> instead&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="s1">&#39;session_path&#39;</span> <span class="ow">in</span> <span class="n">record</span><span class="p">:</span>
+                <span class="sa">f</span><span class="s1">'record must be pandas.DataFrame or pandas.Series, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">record</span><span class="p">)</span><span class="si">}</span><span class="s1"> instead'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">'session_path'</span> <span class="ow">in</span> <span class="n">record</span><span class="p">:</span>
             <span class="c1"># Check for session_path field (aggregate datasets have no eid in name)</span>
-            <span class="n">session_path</span> <span class="o">=</span> <span class="n">record</span><span class="p">[</span><span class="s1">&#39;session_path&#39;</span><span class="p">]</span>
+            <span class="n">session_path</span> <span class="o">=</span> <span class="n">record</span><span class="p">[</span><span class="s1">'session_path'</span><span class="p">]</span>
             <span class="n">uuid</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">UUID</span><span class="p">)</span> <span class="k">else</span> <span class="n">record</span><span class="o">.</span><span class="n">name</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
             <span class="n">eid</span><span class="p">,</span> <span class="n">uuid</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">name</span>  <span class="c1"># must be (eid, did)</span>
             <span class="n">session_path</span> <span class="o">=</span> <span class="n">get_alf_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eid2path</span><span class="p">(</span><span class="n">eid</span><span class="p">))</span>
-        <span class="n">url</span> <span class="o">=</span> <span class="n">PurePosixALFPath</span><span class="p">(</span><span class="n">session_path</span><span class="p">,</span> <span class="n">record</span><span class="p">[</span><span class="s1">&#39;rel_path&#39;</span><span class="p">])</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">PurePosixALFPath</span><span class="p">(</span><span class="n">session_path</span><span class="p">,</span> <span class="n">record</span><span class="p">[</span><span class="s1">'rel_path'</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">webclient</span><span class="o">.</span><span class="n">rel_path2url</span><span class="p">(</span><span class="n">url</span><span class="o">.</span><span class="n">with_uuid</span><span class="p">(</span><span class="n">uuid</span><span class="p">)</span><span class="o">.</span><span class="n">as_posix</span><span class="p">())</span></div>
 
 
 <div class="viewcode-block" id="ConversionMixin.record2path">
 <a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.record2path">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">record2path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ALFPath</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Given a set of dataset records, returns the corresponding paths.</span>
+<span class="w">        </span><span class="sd">"""Given a set of dataset records, returns the corresponding paths.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -487,17 +487,17 @@
 <span class="sd">        one.alf.path.ALFPath</span>
 <span class="sd">            File path for the record.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
             <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">record2path</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">iterrows</span><span class="p">()]</span>
         <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;record must be pandas.DataFrame or pandas.Series, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span><span class="si">}</span><span class="s1"> instead&#39;</span><span class="p">)</span>
+                <span class="sa">f</span><span class="s1">'record must be pandas.DataFrame or pandas.Series, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span><span class="si">}</span><span class="s1"> instead'</span><span class="p">)</span>
         <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
         <span class="n">eid</span><span class="p">,</span> <span class="n">uuid</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">name</span>  <span class="c1"># must be (eid, did)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">session_path</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eid2path</span><span class="p">(</span><span class="n">eid</span><span class="p">)):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Failed to determine session path for eid &quot;</span><span class="si">{</span><span class="n">eid</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
-        <span class="n">file</span> <span class="o">=</span> <span class="n">session_path</span> <span class="o">/</span> <span class="n">dataset</span><span class="p">[</span><span class="s1">&#39;rel_path&#39;</span><span class="p">]</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Failed to determine session path for eid "</span><span class="si">{</span><span class="n">eid</span><span class="si">}</span><span class="s1">"'</span><span class="p">)</span>
+        <span class="n">file</span> <span class="o">=</span> <span class="n">session_path</span> <span class="o">/</span> <span class="n">dataset</span><span class="p">[</span><span class="s1">'rel_path'</span><span class="p">]</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid_filenames</span><span class="p">:</span>
             <span class="n">file</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">with_uuid</span><span class="p">(</span><span class="n">uuid</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">file</span></div>
@@ -508,14 +508,14 @@
     <span class="nd">@recurse</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">eid2ref</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eid</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Iter</span><span class="p">],</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> \
             <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">List</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get human-readable session ref from path.</span>
+<span class="w">        </span><span class="sd">"""Get human-readable session ref from path.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        eid : str, uuid.UUID</span>
 <span class="sd">            The experiment uuid to find reference for.</span>
 <span class="sd">        as_dict : bool</span>
-<span class="sd">            If false a string is returned in the form &#39;subject_sequence_yyyy-mm-dd&#39;.</span>
+<span class="sd">            If false a string is returned in the form 'subject_sequence_yyyy-mm-dd'.</span>
 <span class="sd">        parse : bool</span>
 <span class="sd">            If true, the reference date and sequence are parsed from strings to their respective</span>
 <span class="sd">            data types.</span>
@@ -523,34 +523,34 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        dict, str, list</span>
-<span class="sd">            One or more objects with keys (&#39;subject&#39;, &#39;date&#39;, &#39;sequence&#39;), or strings with the</span>
+<span class="sd">            One or more objects with keys ('subject', 'date', 'sequence'), or strings with the</span>
 <span class="sd">            form yyyy-mm-dd_n_subject.</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
-<span class="sd">        &gt;&gt;&gt; eid = &#39;4e0b3320-47b7-416e-b842-c34dc9004cf8&#39;</span>
+<span class="sd">        &gt;&gt;&gt; eid = '4e0b3320-47b7-416e-b842-c34dc9004cf8'</span>
 <span class="sd">        &gt;&gt;&gt; one.eid2ref(eid)</span>
-<span class="sd">        {&#39;subject&#39;: &#39;flowers&#39;, &#39;date&#39;: datetime.date(2018, 7, 13), &#39;sequence&#39;: 1}</span>
+<span class="sd">        {'subject': 'flowers', 'date': datetime.date(2018, 7, 13), 'sequence': 1}</span>
 <span class="sd">        &gt;&gt;&gt; one.eid2ref(eid, parse=False)</span>
-<span class="sd">        {&#39;subject&#39;: &#39;flowers&#39;, &#39;date&#39;: &#39;2018-07-13&#39;, &#39;sequence&#39;: &#39;001&#39;}</span>
+<span class="sd">        {'subject': 'flowers', 'date': '2018-07-13', 'sequence': '001'}</span>
 <span class="sd">        &gt;&gt;&gt; one.eid2ref(eid, as_dict=False)</span>
-<span class="sd">        &#39;2018-07-13_1_flowers&#39;</span>
+<span class="sd">        '2018-07-13_1_flowers'</span>
 <span class="sd">        &gt;&gt;&gt; one.eid2ref(eid, as_dict=False, parse=False)</span>
-<span class="sd">        &#39;2018-07-13_001_flowers&#39;</span>
-<span class="sd">        &gt;&gt;&gt; one.eid2ref([eid, &#39;7dc3c44b-225f-4083-be3d-07b8562885f4&#39;])</span>
-<span class="sd">        [{&#39;subject&#39;: &#39;flowers&#39;, &#39;date&#39;: datetime.date(2018, 7, 13), &#39;sequence&#39;: 1},</span>
-<span class="sd">         {&#39;subject&#39;: &#39;KS005&#39;, &#39;date&#39;: datetime.date(2019, 4, 11), &#39;sequence&#39;: 1}]</span>
+<span class="sd">        '2018-07-13_001_flowers'</span>
+<span class="sd">        &gt;&gt;&gt; one.eid2ref([eid, '7dc3c44b-225f-4083-be3d-07b8562885f4'])</span>
+<span class="sd">        [{'subject': 'flowers', 'date': datetime.date(2018, 7, 13), 'sequence': 1},</span>
+<span class="sd">         {'subject': 'KS005', 'date': datetime.date(2019, 4, 11), 'sequence': 1}]</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_details</span><span class="p">(</span><span class="n">eid</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">parse</span><span class="p">:</span>
-            <span class="n">ref</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;subject&#39;</span><span class="p">:</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;subject&#39;</span><span class="p">],</span> <span class="s1">&#39;date&#39;</span><span class="p">:</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">],</span> <span class="s1">&#39;sequence&#39;</span><span class="p">:</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;number&#39;</span><span class="p">]}</span>
-            <span class="n">format_str</span> <span class="o">=</span> <span class="s1">&#39;{date:%Y-%m-</span><span class="si">%d</span><span class="s1">}_</span><span class="si">{sequence:d}</span><span class="s1">_</span><span class="si">{subject:s}</span><span class="s1">&#39;</span>
+            <span class="n">ref</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'subject'</span><span class="p">:</span> <span class="n">d</span><span class="p">[</span><span class="s1">'subject'</span><span class="p">],</span> <span class="s1">'date'</span><span class="p">:</span> <span class="n">d</span><span class="p">[</span><span class="s1">'date'</span><span class="p">],</span> <span class="s1">'sequence'</span><span class="p">:</span> <span class="n">d</span><span class="p">[</span><span class="s1">'number'</span><span class="p">]}</span>
+            <span class="n">format_str</span> <span class="o">=</span> <span class="s1">'{date:%Y-%m-</span><span class="si">%d</span><span class="s1">}_</span><span class="si">{sequence:d}</span><span class="s1">_</span><span class="si">{subject:s}</span><span class="s1">'</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">ref</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s1">&#39;subject&#39;</span><span class="p">:</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;subject&#39;</span><span class="p">],</span> <span class="s1">&#39;date&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]),</span> <span class="s1">&#39;sequence&#39;</span><span class="p">:</span> <span class="s1">&#39;</span><span class="si">%03d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;number&#39;</span><span class="p">]</span>
+                <span class="s1">'subject'</span><span class="p">:</span> <span class="n">d</span><span class="p">[</span><span class="s1">'subject'</span><span class="p">],</span> <span class="s1">'date'</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">'date'</span><span class="p">]),</span> <span class="s1">'sequence'</span><span class="p">:</span> <span class="s1">'</span><span class="si">%03d</span><span class="s1">'</span> <span class="o">%</span> <span class="n">d</span><span class="p">[</span><span class="s1">'number'</span><span class="p">]</span>
             <span class="p">}</span>
-            <span class="n">format_str</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{date:s}</span><span class="s1">_</span><span class="si">{sequence:s}</span><span class="s1">_</span><span class="si">{subject:s}</span><span class="s1">&#39;</span>
+            <span class="n">format_str</span> <span class="o">=</span> <span class="s1">'</span><span class="si">{date:s}</span><span class="s1">_</span><span class="si">{sequence:s}</span><span class="s1">_</span><span class="si">{subject:s}</span><span class="s1">'</span>
         <span class="k">return</span> <span class="n">Bunch</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span> <span class="k">if</span> <span class="n">as_dict</span> <span class="k">else</span> <span class="n">format_str</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">ref</span><span class="p">)</span></div>
 
 
@@ -558,12 +558,12 @@
 <a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.ref2eid">[docs]</a>
     <span class="nd">@recurse</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">ref2eid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Mapping</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Iter</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns experiment uuid, given one or more experiment references.</span>
+<span class="w">        </span><span class="sd">"""Returns experiment uuid, given one or more experiment references.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        ref : str, dict, list</span>
-<span class="sd">            One or more objects with keys (&#39;subject&#39;, &#39;date&#39;, &#39;sequence&#39;), or strings with</span>
+<span class="sd">            One or more objects with keys ('subject', 'date', 'sequence'), or strings with</span>
 <span class="sd">            the form yyyy-mm-dd_n_subject.</span>
 
 <span class="sd">        Returns</span>
@@ -573,23 +573,23 @@
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
-<span class="sd">        &gt;&gt;&gt; base = &#39;https://test.alyx.internationalbrainlab.org&#39;</span>
-<span class="sd">        &gt;&gt;&gt; one = ONE(username=&#39;test_user&#39;, password=&#39;TapetesBloc18&#39;, base_url=base)</span>
+<span class="sd">        &gt;&gt;&gt; base = 'https://test.alyx.internationalbrainlab.org'</span>
+<span class="sd">        &gt;&gt;&gt; one = ONE(username='test_user', password='TapetesBloc18', base_url=base)</span>
 <span class="sd">        Connected to...</span>
-<span class="sd">        &gt;&gt;&gt; ref = {&#39;date&#39;: datetime(2018, 7, 13).date(), &#39;sequence&#39;: 1, &#39;subject&#39;: &#39;flowers&#39;}</span>
+<span class="sd">        &gt;&gt;&gt; ref = {'date': datetime(2018, 7, 13).date(), 'sequence': 1, 'subject': 'flowers'}</span>
 <span class="sd">        &gt;&gt;&gt; one.ref2eid(ref)</span>
-<span class="sd">        UUID(&#39;4e0b3320-47b7-416e-b842-c34dc9004cf8&#39;)</span>
-<span class="sd">        &gt;&gt;&gt; one.ref2eid([&#39;2018-07-13_1_flowers&#39;, &#39;2019-04-11_1_KS005&#39;])</span>
-<span class="sd">        [UUID(&#39;4e0b3320-47b7-416e-b842-c34dc9004cf8&#39;),</span>
-<span class="sd">         UUID(&#39;7dc3c44b-225f-4083-be3d-07b8562885f4&#39;)]</span>
+<span class="sd">        UUID('4e0b3320-47b7-416e-b842-c34dc9004cf8')</span>
+<span class="sd">        &gt;&gt;&gt; one.ref2eid(['2018-07-13_1_flowers', '2019-04-11_1_KS005'])</span>
+<span class="sd">        [UUID('4e0b3320-47b7-416e-b842-c34dc9004cf8'),</span>
+<span class="sd">         UUID('7dc3c44b-225f-4083-be3d-07b8562885f4')]</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">ref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ref2dict</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">parse</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># Ensure dict</span>
         <span class="n">session</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
-            <span class="n">subject</span><span class="o">=</span><span class="n">ref</span><span class="p">[</span><span class="s1">&#39;subject&#39;</span><span class="p">],</span>
-            <span class="n">date_range</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">ref</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]),</span>
-            <span class="n">number</span><span class="o">=</span><span class="n">ref</span><span class="p">[</span><span class="s1">&#39;sequence&#39;</span><span class="p">])</span>
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">session</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;session not found&#39;</span>
+            <span class="n">subject</span><span class="o">=</span><span class="n">ref</span><span class="p">[</span><span class="s1">'subject'</span><span class="p">],</span>
+            <span class="n">date_range</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">ref</span><span class="p">[</span><span class="s1">'date'</span><span class="p">]),</span>
+            <span class="n">number</span><span class="o">=</span><span class="n">ref</span><span class="p">[</span><span class="s1">'sequence'</span><span class="p">])</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">session</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">'session not found'</span>
         <span class="k">return</span> <span class="n">session</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
 
 
@@ -597,12 +597,12 @@
 <a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.ref2path">[docs]</a>
     <span class="nd">@recurse</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">ref2path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert one or more experiment references to session path(s).</span>
+<span class="w">        </span><span class="sd">"""Convert one or more experiment references to session path(s).</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        ref : str, dict, list</span>
-<span class="sd">            One or more objects with keys (&#39;subject&#39;, &#39;date&#39;, &#39;sequence&#39;), or strings with</span>
+<span class="sd">            One or more objects with keys ('subject', 'date', 'sequence'), or strings with</span>
 <span class="sd">            the form yyyy-mm-dd_n_subject.</span>
 
 <span class="sd">        Returns</span>
@@ -612,17 +612,17 @@
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
-<span class="sd">        &gt;&gt;&gt; base = &#39;https://test.alyx.internationalbrainlab.org&#39;</span>
-<span class="sd">        &gt;&gt;&gt; one = ONE(username=&#39;test_user&#39;, password=&#39;TapetesBloc18&#39;, base_url=base)</span>
+<span class="sd">        &gt;&gt;&gt; base = 'https://test.alyx.internationalbrainlab.org'</span>
+<span class="sd">        &gt;&gt;&gt; one = ONE(username='test_user', password='TapetesBloc18', base_url=base)</span>
 <span class="sd">        Connected to...</span>
-<span class="sd">        &gt;&gt;&gt; ref = {&#39;subject&#39;: &#39;flowers&#39;, &#39;date&#39;: datetime(2018, 7, 13).date(), &#39;sequence&#39;: 1}</span>
+<span class="sd">        &gt;&gt;&gt; ref = {'subject': 'flowers', 'date': datetime(2018, 7, 13).date(), 'sequence': 1}</span>
 <span class="sd">        &gt;&gt;&gt; one.ref2path(ref)</span>
-<span class="sd">        WindowsPath(&#39;E:/FlatIron/zadorlab/Subjects/flowers/2018-07-13/001&#39;)</span>
-<span class="sd">        &gt;&gt;&gt; one.ref2path([&#39;2018-07-13_1_flowers&#39;, &#39;2019-04-11_1_KS005&#39;])</span>
-<span class="sd">        [WindowsPath(&#39;E:/FlatIron/zadorlab/Subjects/flowers/2018-07-13/001&#39;),</span>
-<span class="sd">         WindowsPath(&#39;E:/FlatIron/cortexlab/Subjects/KS005/2019-04-11/001&#39;)]</span>
+<span class="sd">        WindowsPath('E:/FlatIron/zadorlab/Subjects/flowers/2018-07-13/001')</span>
+<span class="sd">        &gt;&gt;&gt; one.ref2path(['2018-07-13_1_flowers', '2019-04-11_1_KS005'])</span>
+<span class="sd">        [WindowsPath('E:/FlatIron/zadorlab/Subjects/flowers/2018-07-13/001'),</span>
+<span class="sd">         WindowsPath('E:/FlatIron/cortexlab/Subjects/KS005/2019-04-11/001')]</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">eid2path</span> <span class="o">=</span> <span class="n">unwrap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eid2path</span><span class="p">)</span>
         <span class="n">ref2eid</span> <span class="o">=</span> <span class="n">unwrap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ref2eid</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">eid2path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref2eid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref</span><span class="p">))</span></div>
@@ -633,7 +633,7 @@
     <span class="nd">@staticmethod</span>
     <span class="nd">@parse_values</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">path2ref</span><span class="p">(</span><span class="n">path_str</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">Iter</span><span class="p">],</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Bunch</span><span class="p">,</span> <span class="n">List</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a human-readable experiment reference, given a session path.</span>
+<span class="w">        </span><span class="sd">"""Returns a human-readable experiment reference, given a session path.</span>
 
 <span class="sd">        The path need not exist.</span>
 
@@ -647,40 +647,40 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        dict, str, list</span>
-<span class="sd">            One or more objects with keys (&#39;subject&#39;, &#39;date&#39;, &#39;sequence&#39;).</span>
+<span class="sd">            One or more objects with keys ('subject', 'date', 'sequence').</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
-<span class="sd">        &gt;&gt;&gt; path_str = Path(&#39;E:/FlatIron/Subjects/zadorlab/flowers/2018-07-13/001&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; path_str = Path('E:/FlatIron/Subjects/zadorlab/flowers/2018-07-13/001')</span>
 <span class="sd">        &gt;&gt;&gt; path2ref(path_str)</span>
-<span class="sd">        {&#39;subject&#39;: &#39;flowers&#39;, &#39;date&#39;: datetime.date(2018, 7, 13), &#39;sequence&#39;: 1}</span>
+<span class="sd">        {'subject': 'flowers', 'date': datetime.date(2018, 7, 13), 'sequence': 1}</span>
 <span class="sd">        &gt;&gt;&gt; path2ref(path_str, parse=False)</span>
-<span class="sd">        {&#39;subject&#39;: &#39;flowers&#39;, &#39;date&#39;: &#39;2018-07-13&#39;, &#39;sequence&#39;: &#39;001&#39;}</span>
-<span class="sd">        &gt;&gt;&gt; path_str2 = Path(&#39;E:/FlatIron/Subjects/churchlandlab/CSHL046/2020-06-20/002&#39;)</span>
+<span class="sd">        {'subject': 'flowers', 'date': '2018-07-13', 'sequence': '001'}</span>
+<span class="sd">        &gt;&gt;&gt; path_str2 = Path('E:/FlatIron/Subjects/churchlandlab/CSHL046/2020-06-20/002')</span>
 <span class="sd">        &gt;&gt;&gt; path2ref([path_str, path_str2])</span>
-<span class="sd">        [{&#39;subject&#39;: &#39;flowers&#39;, &#39;date&#39;: datetime.date(2018, 7, 13), &#39;sequence&#39;: 1},</span>
-<span class="sd">         {&#39;subject&#39;: &#39;CSHL046&#39;, &#39;date&#39;: datetime.date(2020, 6, 20), &#39;sequence&#39;: 2}]</span>
+<span class="sd">        [{'subject': 'flowers', 'date': datetime.date(2018, 7, 13), 'sequence': 1},</span>
+<span class="sd">         {'subject': 'CSHL046', 'date': datetime.date(2020, 6, 20), 'sequence': 2}]</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path_str</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
             <span class="k">return</span> <span class="p">[</span><span class="n">unwrap</span><span class="p">(</span><span class="n">ConversionMixin</span><span class="o">.</span><span class="n">path2ref</span><span class="p">)(</span><span class="n">x</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="n">as_dict</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">path_str</span><span class="p">]</span>
-        <span class="n">pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;(?P&lt;subject&gt;[\w-]+)([</span><span class="se">\\</span><span class="s1">/])(?P&lt;date&gt;\d</span><span class="si">{4}</span><span class="s1">-\d</span><span class="si">{2}</span><span class="s1">-\d</span><span class="si">{2}</span><span class="s1">)(\2)(?P&lt;sequence&gt;\d{1,3})&#39;</span>
+        <span class="n">pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">'(?P&lt;subject&gt;[\w-]+)([</span><span class="se">\\</span><span class="s1">/])(?P&lt;date&gt;\d</span><span class="si">{4}</span><span class="s1">-\d</span><span class="si">{2}</span><span class="s1">-\d</span><span class="si">{2}</span><span class="s1">)(\2)(?P&lt;sequence&gt;\d{1,3})'</span>
         <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">path_str</span><span class="p">))</span>
-        <span class="k">if</span> <span class="n">match</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^0\d$&#39;</span><span class="p">,</span> <span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>  <span class="c1"># e.g. &#39;02&#39; not valid</span>
+        <span class="k">if</span> <span class="n">match</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">'^0\d$'</span><span class="p">,</span> <span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>  <span class="c1"># e.g. '02' not valid</span>
             <span class="n">ref</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">groupdict</span><span class="p">()</span>
-            <span class="k">return</span> <span class="n">Bunch</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span> <span class="k">if</span> <span class="n">as_dict</span> <span class="k">else</span> <span class="s1">&#39;</span><span class="si">{date:s}</span><span class="s1">_</span><span class="si">{sequence:s}</span><span class="s1">_</span><span class="si">{subject:s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">ref</span><span class="p">)</span></div>
+            <span class="k">return</span> <span class="n">Bunch</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span> <span class="k">if</span> <span class="n">as_dict</span> <span class="k">else</span> <span class="s1">'</span><span class="si">{date:s}</span><span class="s1">_</span><span class="si">{sequence:s}</span><span class="s1">_</span><span class="si">{subject:s}</span><span class="s1">'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">ref</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ConversionMixin.is_exp_ref">
 <a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.is_exp_ref">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">is_exp_ref</span><span class="p">(</span><span class="n">ref</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Iter</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">bool</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns True is ref is a valid experiment reference.</span>
+<span class="w">        </span><span class="sd">"""Returns True is ref is a valid experiment reference.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        ref : str, dict, list</span>
-<span class="sd">            One or more objects with keys (&#39;subject&#39;, &#39;date&#39;, &#39;sequence&#39;), or strings with</span>
+<span class="sd">            One or more objects with keys ('subject', 'date', 'sequence'), or strings with</span>
 <span class="sd">            the form yyyy-mm-dd_n_subject.</span>
 
 <span class="sd">        Returns</span>
@@ -690,24 +690,24 @@
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
-<span class="sd">        &gt;&gt;&gt; ref = {&#39;date&#39;: datetime(2018, 7, 13).date(), &#39;sequence&#39;: 1, &#39;subject&#39;: &#39;flowers&#39;}</span>
+<span class="sd">        &gt;&gt;&gt; ref = {'date': datetime(2018, 7, 13).date(), 'sequence': 1, 'subject': 'flowers'}</span>
 <span class="sd">        &gt;&gt;&gt; is_exp_ref(ref)</span>
 <span class="sd">        True</span>
-<span class="sd">        &gt;&gt;&gt; is_exp_ref(&#39;2018-07-13_001_flowers&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; is_exp_ref('2018-07-13_001_flowers')</span>
 <span class="sd">        True</span>
-<span class="sd">        &gt;&gt;&gt; is_exp_ref(&#39;invalid_ref&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; is_exp_ref('invalid_ref')</span>
 <span class="sd">        False</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
             <span class="k">return</span> <span class="p">[</span><span class="n">ConversionMixin</span><span class="o">.</span><span class="n">is_exp_ref</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ref</span><span class="p">]</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="p">(</span><span class="n">Bunch</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)):</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="p">{</span><span class="s1">&#39;subject&#39;</span><span class="p">,</span> <span class="s1">&#39;date&#39;</span><span class="p">,</span> <span class="s1">&#39;sequence&#39;</span><span class="p">}</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">ref</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">{</span><span class="s1">'subject'</span><span class="p">,</span> <span class="s1">'date'</span><span class="p">,</span> <span class="s1">'sequence'</span><span class="p">}</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">ref</span><span class="p">):</span>
                 <span class="k">return</span> <span class="kc">False</span>
-            <span class="n">ref</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{date}</span><span class="s1">_</span><span class="si">{sequence}</span><span class="s1">_</span><span class="si">{subject}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">ref</span><span class="p">)</span>
+            <span class="n">ref</span> <span class="o">=</span> <span class="s1">'</span><span class="si">{date}</span><span class="s1">_</span><span class="si">{sequence}</span><span class="s1">_</span><span class="si">{subject}</span><span class="s1">'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">ref</span><span class="p">)</span>
         <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">False</span>
-        <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\d</span><span class="si">{4}</span><span class="s1">(-\d</span><span class="si">{2}</span><span class="s1">)</span><span class="si">{2}</span><span class="s1">_(\d{1,3})_\w+&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span></div>
+        <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">'\d</span><span class="si">{4}</span><span class="s1">(-\d</span><span class="si">{2}</span><span class="s1">)</span><span class="si">{2}</span><span class="s1">_(\d{1,3})_\w+'</span><span class="p">)</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span></div>
 
 
 <div class="viewcode-block" id="ConversionMixin.ref2dict">
@@ -715,7 +715,7 @@
     <span class="nd">@staticmethod</span>
     <span class="nd">@parse_values</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">ref2dict</span><span class="p">(</span><span class="n">ref</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Iter</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Bunch</span><span class="p">,</span> <span class="n">List</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a Bunch (dict-like) from a reference string (or list thereof).</span>
+<span class="w">        </span><span class="sd">"""Returns a Bunch (dict-like) from a reference string (or list thereof).</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -725,24 +725,24 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        iblutil.util.Bunch</span>
-<span class="sd">            A Bunch in with keys (&#39;subject&#39;, &#39;sequence&#39;, &#39;date&#39;).</span>
+<span class="sd">            A Bunch in with keys ('subject', 'sequence', 'date').</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
-<span class="sd">        &gt;&gt;&gt; ref2dict(&#39;2018-07-13_1_flowers&#39;)</span>
-<span class="sd">        {&#39;date&#39;: datetime.date(2018, 7, 13), &#39;sequence&#39;: 1, &#39;subject&#39;: &#39;flowers&#39;}</span>
-<span class="sd">        &gt;&gt;&gt; ref2dict(&#39;2018-07-13_001_flowers&#39;, parse=False)</span>
-<span class="sd">        {&#39;date&#39;: &#39;2018-07-13&#39;, &#39;sequence&#39;: &#39;001&#39;, &#39;subject&#39;: &#39;flowers&#39;}</span>
-<span class="sd">        &gt;&gt;&gt; ref2dict([&#39;2018-07-13_1_flowers&#39;, &#39;2020-01-23_002_ibl_witten_01&#39;])</span>
-<span class="sd">        [{&#39;date&#39;: datetime.date(2018, 7, 13), &#39;sequence&#39;: 1, &#39;subject&#39;: &#39;flowers&#39;},</span>
-<span class="sd">         {&#39;date&#39;: datetime.date(2020, 1, 23), &#39;sequence&#39;: 2, &#39;subject&#39;: &#39;ibl_witten_01&#39;}]</span>
+<span class="sd">        &gt;&gt;&gt; ref2dict('2018-07-13_1_flowers')</span>
+<span class="sd">        {'date': datetime.date(2018, 7, 13), 'sequence': 1, 'subject': 'flowers'}</span>
+<span class="sd">        &gt;&gt;&gt; ref2dict('2018-07-13_001_flowers', parse=False)</span>
+<span class="sd">        {'date': '2018-07-13', 'sequence': '001', 'subject': 'flowers'}</span>
+<span class="sd">        &gt;&gt;&gt; ref2dict(['2018-07-13_1_flowers', '2020-01-23_002_ibl_witten_01'])</span>
+<span class="sd">        [{'date': datetime.date(2018, 7, 13), 'sequence': 1, 'subject': 'flowers'},</span>
+<span class="sd">         {'date': datetime.date(2020, 1, 23), 'sequence': 2, 'subject': 'ibl_witten_01'}]</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
             <span class="k">return</span> <span class="p">[</span><span class="n">ConversionMixin</span><span class="o">.</span><span class="n">ref2dict</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ref</span><span class="p">]</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="p">(</span><span class="n">Bunch</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)):</span>
             <span class="k">return</span> <span class="n">Bunch</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span>  <span class="c1"># Short circuit</span>
-        <span class="n">ref</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">([</span><span class="s1">&#39;date&#39;</span><span class="p">,</span> <span class="s1">&#39;sequence&#39;</span><span class="p">,</span> <span class="s1">&#39;subject&#39;</span><span class="p">],</span> <span class="n">ref</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)))</span>
+        <span class="n">ref</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">([</span><span class="s1">'date'</span><span class="p">,</span> <span class="s1">'sequence'</span><span class="p">,</span> <span class="s1">'subject'</span><span class="p">],</span> <span class="n">ref</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'_'</span><span class="p">,</span> <span class="mi">2</span><span class="p">)))</span>
         <span class="k">return</span> <span class="n">Bunch</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span></div>
 
 
@@ -750,36 +750,36 @@
 <a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ConversionMixin.dict2ref">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">dict2ref</span><span class="p">(</span><span class="n">ref_dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert an experiment reference dict to a string in the format yyyy-mm-dd_n_subject.</span>
+<span class="w">        </span><span class="sd">"""Convert an experiment reference dict to a string in the format yyyy-mm-dd_n_subject.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        ref_dict : dict, Bunch, list, tuple</span>
-<span class="sd">            A map with the keys (&#39;subject&#39;, &#39;date&#39;, &#39;sequence&#39;).</span>
+<span class="sd">            A map with the keys ('subject', 'date', 'sequence').</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        str, list:</span>
 <span class="sd">            An experiment reference string, or list thereof.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ref_dict</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
             <span class="k">return</span> <span class="p">[</span><span class="n">ConversionMixin</span><span class="o">.</span><span class="n">dict2ref</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ref_dict</span><span class="p">]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">ref_dict</span><span class="p">:</span>
             <span class="k">return</span>
-        <span class="k">if</span> <span class="s1">&#39;sequence&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ref_dict</span> <span class="ow">and</span> <span class="s1">&#39;number&#39;</span> <span class="ow">in</span> <span class="n">ref_dict</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">'sequence'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ref_dict</span> <span class="ow">and</span> <span class="s1">'number'</span> <span class="ow">in</span> <span class="n">ref_dict</span><span class="p">:</span>
             <span class="n">ref_dict</span> <span class="o">=</span> <span class="n">ref_dict</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-            <span class="n">ref_dict</span><span class="p">[</span><span class="s1">&#39;sequence&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ref_dict</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;number&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="s1">&#39;date&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ref_dict</span> <span class="ow">and</span> <span class="s1">&#39;start_time&#39;</span> <span class="ow">in</span> <span class="n">ref_dict</span><span class="p">:</span>
+            <span class="n">ref_dict</span><span class="p">[</span><span class="s1">'sequence'</span><span class="p">]</span> <span class="o">=</span> <span class="n">ref_dict</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">'number'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">'date'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ref_dict</span> <span class="ow">and</span> <span class="s1">'start_time'</span> <span class="ow">in</span> <span class="n">ref_dict</span><span class="p">:</span>
             <span class="n">ref_dict</span> <span class="o">=</span> <span class="n">ref_dict</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ref_dict</span><span class="p">[</span><span class="s1">&#39;start_time&#39;</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
-                <span class="n">ref_dict</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ref_dict</span><span class="p">[</span><span class="s1">&#39;start_time&#39;</span><span class="p">][:</span><span class="mi">10</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ref_dict</span><span class="p">[</span><span class="s1">'start_time'</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">ref_dict</span><span class="p">[</span><span class="s1">'date'</span><span class="p">]</span> <span class="o">=</span> <span class="n">ref_dict</span><span class="p">[</span><span class="s1">'start_time'</span><span class="p">][:</span><span class="mi">10</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">ref_dict</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ref_dict</span><span class="p">[</span><span class="s1">&#39;start_time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+                <span class="n">ref_dict</span><span class="p">[</span><span class="s1">'date'</span><span class="p">]</span> <span class="o">=</span> <span class="n">ref_dict</span><span class="p">[</span><span class="s1">'start_time'</span><span class="p">]</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
         <span class="n">parsed</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ref_dict</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
-        <span class="n">format_str</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;{date:%Y-%m-</span><span class="si">%d</span><span class="s1">}_</span><span class="si">{sequence:d}</span><span class="s1">_</span><span class="si">{subject:s}</span><span class="s1">&#39;</span>
+        <span class="n">format_str</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'{date:%Y-%m-</span><span class="si">%d</span><span class="s1">}_</span><span class="si">{sequence:d}</span><span class="s1">_</span><span class="si">{subject:s}</span><span class="s1">'</span>
                       <span class="k">if</span> <span class="n">parsed</span>
-                      <span class="k">else</span> <span class="s1">&#39;</span><span class="si">{date:s}</span><span class="s1">_</span><span class="si">{sequence:s}</span><span class="s1">_</span><span class="si">{subject:s}</span><span class="s1">&#39;</span><span class="p">)</span>
+                      <span class="k">else</span> <span class="s1">'</span><span class="si">{date:s}</span><span class="s1">_</span><span class="si">{sequence:s}</span><span class="s1">_</span><span class="si">{subject:s}</span><span class="s1">'</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">format_str</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">ref_dict</span><span class="p">)</span></div>
 </div>
 
@@ -788,7 +788,7 @@
 <div class="viewcode-block" id="one_path_from_dataset">
 <a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.one_path_from_dataset">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">one_path_from_dataset</span><span class="p">(</span><span class="n">dset</span><span class="p">,</span> <span class="n">one_cache</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns local one file path from a dset record or a list of dsets records from REST.</span>
+<span class="w">    </span><span class="sd">"""Returns local one file path from a dset record or a list of dsets records from REST.</span>
 
 <span class="sd">    Unlike `to_eid`, this function does not require ONE, and the dataset may not exist.</span>
 
@@ -804,15 +804,15 @@
 <span class="sd">    one.alf.path.ALFPath</span>
 <span class="sd">        The local path for a given dataset.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">path_from_dataset</span><span class="p">(</span><span class="n">dset</span><span class="p">,</span> <span class="n">root_path</span><span class="o">=</span><span class="n">one_cache</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="path_from_dataset">
 <a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.path_from_dataset">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">path_from_dataset</span><span class="p">(</span><span class="n">dset</span><span class="p">,</span> <span class="n">root_path</span><span class="o">=</span><span class="n">PurePosixALFPath</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">),</span> <span class="n">repository</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the local file path from a dset record from a REST query.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">path_from_dataset</span><span class="p">(</span><span class="n">dset</span><span class="p">,</span> <span class="n">root_path</span><span class="o">=</span><span class="n">PurePosixALFPath</span><span class="p">(</span><span class="s1">'/'</span><span class="p">),</span> <span class="n">repository</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Returns the local file path from a dset record from a REST query.</span>
 
 <span class="sd">    Unlike `to_eid`, this function does not require ONE, and the dataset may not exist.</span>
 
@@ -833,22 +833,22 @@
 <span class="sd">    one.alf.path.ALFPath, list</span>
 <span class="sd">        File path or list of paths.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dset</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">path_from_dataset</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dset</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">repository</span><span class="p">:</span>
-        <span class="n">fr</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">fr</span> <span class="k">for</span> <span class="n">fr</span> <span class="ow">in</span> <span class="n">dset</span><span class="p">[</span><span class="s1">&#39;file_records&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">fr</span><span class="p">[</span><span class="s1">&#39;data_repository&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">repository</span><span class="p">))</span>
+        <span class="n">fr</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">fr</span> <span class="k">for</span> <span class="n">fr</span> <span class="ow">in</span> <span class="n">dset</span><span class="p">[</span><span class="s1">'file_records'</span><span class="p">]</span> <span class="k">if</span> <span class="n">fr</span><span class="p">[</span><span class="s1">'data_repository'</span><span class="p">]</span> <span class="o">==</span> <span class="n">repository</span><span class="p">))</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">fr</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">fr</span> <span class="k">for</span> <span class="n">fr</span> <span class="ow">in</span> <span class="n">dset</span><span class="p">[</span><span class="s1">&#39;file_records&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">fr</span><span class="p">[</span><span class="s1">&#39;data_url&#39;</span><span class="p">]))</span>
-    <span class="n">uuid</span> <span class="o">=</span> <span class="n">dset</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">36</span><span class="p">:]</span> <span class="k">if</span> <span class="n">uuid</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">fr</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">fr</span> <span class="k">for</span> <span class="n">fr</span> <span class="ow">in</span> <span class="n">dset</span><span class="p">[</span><span class="s1">'file_records'</span><span class="p">]</span> <span class="k">if</span> <span class="n">fr</span><span class="p">[</span><span class="s1">'data_url'</span><span class="p">]))</span>
+    <span class="n">uuid</span> <span class="o">=</span> <span class="n">dset</span><span class="p">[</span><span class="s1">'url'</span><span class="p">][</span><span class="o">-</span><span class="mi">36</span><span class="p">:]</span> <span class="k">if</span> <span class="n">uuid</span> <span class="k">else</span> <span class="kc">None</span>
     <span class="k">return</span> <span class="n">path_from_filerecord</span><span class="p">(</span><span class="n">fr</span><span class="p">,</span> <span class="n">root_path</span><span class="o">=</span><span class="n">root_path</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="path_from_filerecord">
 <a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.path_from_filerecord">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">path_from_filerecord</span><span class="p">(</span><span class="n">fr</span><span class="p">,</span> <span class="n">root_path</span><span class="o">=</span><span class="n">PurePosixALFPath</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">),</span> <span class="n">uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns a data file Path constructed from an Alyx file record.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">path_from_filerecord</span><span class="p">(</span><span class="n">fr</span><span class="p">,</span> <span class="n">root_path</span><span class="o">=</span><span class="n">PurePosixALFPath</span><span class="p">(</span><span class="s1">'/'</span><span class="p">),</span> <span class="n">uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Returns a data file Path constructed from an Alyx file record.</span>
 
 <span class="sd">    The Path type returned depends on the type of root_path: If root_path is a string an ALFPath</span>
 <span class="sd">    object is returned, otherwise if the root_path is a PurePath, a PureALFPath is returned.</span>
@@ -867,13 +867,13 @@
 <span class="sd">    one.alf.path.ALFPath</span>
 <span class="sd">        A filepath as a pathlib object.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fr</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">path_from_filerecord</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fr</span><span class="p">]</span>
-    <span class="n">repo_path</span> <span class="o">=</span> <span class="p">(</span><span class="n">p</span> <span class="o">:=</span> <span class="n">fr</span><span class="p">[</span><span class="s1">&#39;data_repository_path&#39;</span><span class="p">])[</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;/&#39;</span><span class="p">:]</span>  <span class="c1"># Remove slash at start, if any</span>
-    <span class="n">file_path</span> <span class="o">=</span> <span class="n">PurePosixALFPath</span><span class="p">(</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">fr</span><span class="p">[</span><span class="s1">&#39;relative_path&#39;</span><span class="p">])</span>
+    <span class="n">repo_path</span> <span class="o">=</span> <span class="p">(</span><span class="n">p</span> <span class="o">:=</span> <span class="n">fr</span><span class="p">[</span><span class="s1">'data_repository_path'</span><span class="p">])[</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'/'</span><span class="p">:]</span>  <span class="c1"># Remove slash at start, if any</span>
+    <span class="n">file_path</span> <span class="o">=</span> <span class="n">PurePosixALFPath</span><span class="p">(</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">fr</span><span class="p">[</span><span class="s1">'relative_path'</span><span class="p">])</span>
     <span class="k">if</span> <span class="n">root_path</span><span class="p">:</span>
-        <span class="c1"># NB: this function won&#39;t cast any PurePaths</span>
+        <span class="c1"># NB: this function won't cast any PurePaths</span>
         <span class="n">root_path</span> <span class="o">=</span> <span class="n">ensure_alf_path</span><span class="p">(</span><span class="n">root_path</span><span class="p">)</span>
         <span class="n">file_path</span> <span class="o">=</span> <span class="n">root_path</span> <span class="o">/</span> <span class="n">file_path</span>
     <span class="k">return</span> <span class="n">file_path</span><span class="o">.</span><span class="n">with_uuid</span><span class="p">(</span><span class="n">uuid</span><span class="p">)</span> <span class="k">if</span> <span class="n">uuid</span> <span class="k">else</span> <span class="n">file_path</span></div>
@@ -883,7 +883,7 @@
 <div class="viewcode-block" id="session_record2path">
 <a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.session_record2path">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">session_record2path</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">root_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a session record into a path.</span>
+<span class="w">    </span><span class="sd">"""Convert a session record into a path.</span>
 
 <span class="sd">    If a lab key is present, the path will be in the form</span>
 <span class="sd">    root_dir/lab/Subjects/subject/yyyy-mm-dd/nnn, otherwise root_dir/subject/yyyy-mm-dd/nnn.</span>
@@ -891,7 +891,7 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    session : Mapping</span>
-<span class="sd">        A session record with keys (&#39;subject&#39;, &#39;date&#39;, &#39;number&#39;[, &#39;lab&#39;]).</span>
+<span class="sd">        A session record with keys ('subject', 'date', 'number'[, 'lab']).</span>
 <span class="sd">    root_dir : str, pathlib.Path, pathlib.PurePath</span>
 <span class="sd">        A root directory to prepend.</span>
 
@@ -902,19 +902,19 @@
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; session_record2path({&#39;subject&#39;: &#39;ALK01&#39;, &#39;date&#39;: &#39;2020-01-01&#39;, &#39;number&#39;: 1})</span>
-<span class="sd">    PurePosixPath(&#39;ALK01/2020-01-01/001&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; session_record2path({'subject': 'ALK01', 'date': '2020-01-01', 'number': 1})</span>
+<span class="sd">    PurePosixPath('ALK01/2020-01-01/001')</span>
 
-<span class="sd">    &gt;&gt;&gt; record = {&#39;date&#39;: datetime.datetime.fromisoformat(&#39;2020-01-01&#39;).date(),</span>
-<span class="sd">    ...           &#39;number&#39;: &#39;001&#39;, &#39;lab&#39;: &#39;foo&#39;, &#39;subject&#39;: &#39;ALK01&#39;}</span>
-<span class="sd">    &gt;&gt;&gt; session_record2path(record, Path(&#39;/home/user&#39;))</span>
-<span class="sd">    Path(&#39;/home/user/foo/Subjects/ALK01/2020-01-01/001&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; record = {'date': datetime.datetime.fromisoformat('2020-01-01').date(),</span>
+<span class="sd">    ...           'number': '001', 'lab': 'foo', 'subject': 'ALK01'}</span>
+<span class="sd">    &gt;&gt;&gt; session_record2path(record, Path('/home/user'))</span>
+<span class="sd">    Path('/home/user/foo/Subjects/ALK01/2020-01-01/001')</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">rel_path</span> <span class="o">=</span> <span class="n">PurePosixALFPath</span><span class="p">(</span>
-        <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;lab&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;lab&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;Subjects&#39;</span> <span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;lab&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
-        <span class="n">session</span><span class="p">[</span><span class="s1">&#39;subject&#39;</span><span class="p">],</span> <span class="nb">str</span><span class="p">(</span><span class="n">session</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]),</span> <span class="nb">str</span><span class="p">(</span><span class="n">session</span><span class="p">[</span><span class="s1">&#39;number&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+        <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'lab'</span><span class="p">)</span> <span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'lab'</span><span class="p">)</span> <span class="k">else</span> <span class="s1">''</span><span class="p">,</span>
+        <span class="s1">'Subjects'</span> <span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'lab'</span><span class="p">)</span> <span class="k">else</span> <span class="s1">''</span><span class="p">,</span>
+        <span class="n">session</span><span class="p">[</span><span class="s1">'subject'</span><span class="p">],</span> <span class="nb">str</span><span class="p">(</span><span class="n">session</span><span class="p">[</span><span class="s1">'date'</span><span class="p">]),</span> <span class="nb">str</span><span class="p">(</span><span class="n">session</span><span class="p">[</span><span class="s1">'number'</span><span class="p">])</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">root_dir</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">rel_path</span>
@@ -925,7 +925,7 @@
 <div class="viewcode-block" id="ses2records">
 <a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.ses2records">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">ses2records</span><span class="p">(</span><span class="n">ses</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract session cache record and datasets cache from a remote session data record.</span>
+<span class="w">    </span><span class="sd">"""Extract session cache record and datasets cache from a remote session data record.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -939,35 +939,38 @@
 <span class="sd">    pd.DataFrame</span>
 <span class="sd">        Datasets frame.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Extract session record</span>
     <span class="c1"># id used for session_info field of probe insertion</span>
-    <span class="n">eid</span> <span class="o">=</span> <span class="n">UUID</span><span class="p">(</span><span class="n">ses</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">ses</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">36</span><span class="p">:])</span>
-    <span class="n">session_keys</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;subject&#39;</span><span class="p">,</span> <span class="s1">&#39;start_time&#39;</span><span class="p">,</span> <span class="s1">&#39;lab&#39;</span><span class="p">,</span> <span class="s1">&#39;number&#39;</span><span class="p">,</span> <span class="s1">&#39;task_protocol&#39;</span><span class="p">,</span> <span class="s1">&#39;projects&#39;</span><span class="p">)</span>
+    <span class="n">eid</span> <span class="o">=</span> <span class="n">UUID</span><span class="p">(</span><span class="n">ses</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'id'</span><span class="p">)</span> <span class="ow">or</span> <span class="n">ses</span><span class="p">[</span><span class="s1">'url'</span><span class="p">][</span><span class="o">-</span><span class="mi">36</span><span class="p">:])</span>
+    <span class="n">session_keys</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'subject'</span><span class="p">,</span> <span class="s1">'start_time'</span><span class="p">,</span> <span class="s1">'lab'</span><span class="p">,</span> <span class="s1">'number'</span><span class="p">,</span> <span class="s1">'task_protocol'</span><span class="p">,</span> <span class="s1">'projects'</span><span class="p">)</span>
     <span class="n">session_data</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">ses</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">session_keys</span><span class="p">}</span>
+    <span class="c1"># Base sessions have no number. The cache column is a plain integer, so a null one fails the</span>
+    <span class="c1"># type cast when the record is merged in.</span>
+    <span class="n">session_data</span><span class="p">[</span><span class="s1">'number'</span><span class="p">]</span> <span class="o">=</span> <span class="n">session_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'number'</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span>
     <span class="n">session</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">session_data</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">eid</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s1">&#39;start_time&#39;</span><span class="p">:</span> <span class="s1">&#39;date&#39;</span><span class="p">})</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">session_data</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">eid</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s1">'start_time'</span><span class="p">:</span> <span class="s1">'date'</span><span class="p">})</span>
     <span class="p">)</span>
-    <span class="n">session</span><span class="p">[</span><span class="s1">&#39;projects&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;projects&#39;</span><span class="p">))</span>
-    <span class="n">session</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">session</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+    <span class="n">session</span><span class="p">[</span><span class="s1">'projects'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">','</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">'projects'</span><span class="p">))</span>
+    <span class="n">session</span><span class="p">[</span><span class="s1">'date'</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">session</span><span class="p">[</span><span class="s1">'date'</span><span class="p">])</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
 
     <span class="c1"># Extract datasets table</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_to_record</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
-        <span class="n">did</span> <span class="o">=</span> <span class="n">UUID</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">])</span>
-        <span class="n">rec</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">file_size</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;file_size&#39;</span><span class="p">],</span> <span class="nb">hash</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;hash&#39;</span><span class="p">],</span> <span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">did</span><span class="p">)</span>
-        <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;eid&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">name</span>
-        <span class="n">file_path</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlsplit</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;data_url&#39;</span><span class="p">],</span> <span class="n">allow_fragments</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+        <span class="n">did</span> <span class="o">=</span> <span class="n">UUID</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">'id'</span><span class="p">])</span>
+        <span class="n">rec</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">file_size</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">'file_size'</span><span class="p">],</span> <span class="nb">hash</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">'hash'</span><span class="p">],</span> <span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">did</span><span class="p">)</span>
+        <span class="n">rec</span><span class="p">[</span><span class="s1">'eid'</span><span class="p">]</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlsplit</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">'data_url'</span><span class="p">],</span> <span class="n">allow_fragments</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">'/'</span><span class="p">)</span>
         <span class="n">file_path</span> <span class="o">=</span> <span class="n">get_alf_path</span><span class="p">(</span><span class="n">remove_uuid_string</span><span class="p">(</span><span class="n">file_path</span><span class="p">))</span>
         <span class="n">session_path</span> <span class="o">=</span> <span class="n">get_session_path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
-        <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;rel_path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_path</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">session_path</span><span class="p">):]</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
-        <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;default_revision&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;default_revision&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;True&#39;</span>
-        <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;qc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;qc&#39;</span><span class="p">,</span> <span class="s1">&#39;NOT_SET&#39;</span><span class="p">)</span>
+        <span class="n">rec</span><span class="p">[</span><span class="s1">'rel_path'</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_path</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">session_path</span><span class="p">):]</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">'/'</span><span class="p">)</span>
+        <span class="n">rec</span><span class="p">[</span><span class="s1">'default_revision'</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">'default_revision'</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'True'</span>
+        <span class="n">rec</span><span class="p">[</span><span class="s1">'qc'</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'qc'</span><span class="p">,</span> <span class="s1">'NOT_SET'</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">rec</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">ses</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;data_dataset_session_related&#39;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">ses</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'data_dataset_session_related'</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">session</span><span class="p">,</span> <span class="n">EMPTY_DATASETS_FRAME</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="n">records</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="n">_to_record</span><span class="p">,</span> <span class="n">ses</span><span class="p">[</span><span class="s1">&#39;data_dataset_session_related&#39;</span><span class="p">])</span>
-    <span class="n">index</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;eid&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">]</span>
+    <span class="n">records</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="n">_to_record</span><span class="p">,</span> <span class="n">ses</span><span class="p">[</span><span class="s1">'data_dataset_session_related'</span><span class="p">])</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'eid'</span><span class="p">,</span> <span class="s1">'id'</span><span class="p">]</span>
     <span class="n">dtypes</span> <span class="o">=</span> <span class="n">EMPTY_DATASETS_FRAME</span><span class="o">.</span><span class="n">dtypes</span>
     <span class="n">datasets</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">records</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtypes</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">session</span><span class="p">,</span> <span class="n">datasets</span></div>
@@ -977,12 +980,12 @@
 <div class="viewcode-block" id="datasets2records">
 <a class="viewcode-back" href="../../_autosummary/one.converters.html#one.converters.datasets2records">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">datasets2records</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">additional</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract datasets DataFrame from one or more Alyx dataset records.</span>
+<span class="w">    </span><span class="sd">"""Extract datasets DataFrame from one or more Alyx dataset records.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    datasets : dict, list</span>
-<span class="sd">        One or more records from the Alyx &#39;datasets&#39; endpoint.</span>
+<span class="sd">        One or more records from the Alyx 'datasets' endpoint.</span>
 <span class="sd">    additional : list of str</span>
 <span class="sd">        A set of optional fields to extract from dataset records.</span>
 
@@ -993,28 +996,28 @@
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; datasets = ONE().alyx.rest(&#39;datasets&#39;, &#39;list&#39;, subject=&#39;foobar&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; datasets = ONE().alyx.rest('datasets', 'list', subject='foobar')</span>
 <span class="sd">    &gt;&gt;&gt; df = datasets2records(datasets)</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">records</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">ensure_list</span><span class="p">(</span><span class="n">datasets</span><span class="p">):</span>
-        <span class="n">file_record</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;file_records&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;data_url&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;exists&#39;</span><span class="p">]),</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">file_record</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s1">'file_records'</span><span class="p">]</span> <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="s1">'data_url'</span><span class="p">]</span> <span class="ow">and</span> <span class="n">x</span><span class="p">[</span><span class="s1">'exists'</span><span class="p">]),</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">file_record</span><span class="p">:</span>
             <span class="k">continue</span>  <span class="c1"># Ignore files that are not accessible</span>
-        <span class="n">rec</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">file_size</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;file_size&#39;</span><span class="p">],</span> <span class="nb">hash</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;hash&#39;</span><span class="p">],</span> <span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">UUID</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">36</span><span class="p">:])</span>
-        <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;eid&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">UUID</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;session&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">36</span><span class="p">:])</span> <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;session&#39;</span><span class="p">]</span> <span class="k">else</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span>
-        <span class="n">data_url</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlsplit</span><span class="p">(</span><span class="n">file_record</span><span class="p">[</span><span class="s1">&#39;data_url&#39;</span><span class="p">],</span> <span class="n">allow_fragments</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-        <span class="n">file_path</span> <span class="o">=</span> <span class="n">get_alf_path</span><span class="p">(</span><span class="n">data_url</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">))</span>
+        <span class="n">rec</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">file_size</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">'file_size'</span><span class="p">],</span> <span class="nb">hash</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">'hash'</span><span class="p">],</span> <span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">rec</span><span class="p">[</span><span class="s1">'id'</span><span class="p">]</span> <span class="o">=</span> <span class="n">UUID</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">'url'</span><span class="p">][</span><span class="o">-</span><span class="mi">36</span><span class="p">:])</span>
+        <span class="n">rec</span><span class="p">[</span><span class="s1">'eid'</span><span class="p">]</span> <span class="o">=</span> <span class="n">UUID</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">'session'</span><span class="p">][</span><span class="o">-</span><span class="mi">36</span><span class="p">:])</span> <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s1">'session'</span><span class="p">]</span> <span class="k">else</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span>
+        <span class="n">data_url</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlsplit</span><span class="p">(</span><span class="n">file_record</span><span class="p">[</span><span class="s1">'data_url'</span><span class="p">],</span> <span class="n">allow_fragments</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="n">get_alf_path</span><span class="p">(</span><span class="n">data_url</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">'/'</span><span class="p">))</span>
         <span class="n">file_path</span> <span class="o">=</span> <span class="n">remove_uuid_string</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
-        <span class="n">session_path</span> <span class="o">=</span> <span class="n">get_session_path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">session_path</span> <span class="o">=</span> <span class="n">get_session_path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span> <span class="ow">or</span> <span class="s1">''</span>
         <span class="k">if</span> <span class="n">session_path</span><span class="p">:</span>
             <span class="n">session_path</span> <span class="o">=</span> <span class="n">session_path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
-        <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;rel_path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_path</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">session_path</span><span class="p">):]</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
-        <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;default_revision&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;default_dataset&#39;</span><span class="p">]</span>
-        <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;qc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;qc&#39;</span><span class="p">)</span>
+        <span class="n">rec</span><span class="p">[</span><span class="s1">'rel_path'</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_path</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">session_path</span><span class="p">):]</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">'/'</span><span class="p">)</span>
+        <span class="n">rec</span><span class="p">[</span><span class="s1">'default_revision'</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">'default_dataset'</span><span class="p">]</span>
+        <span class="n">rec</span><span class="p">[</span><span class="s1">'qc'</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'qc'</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">additional</span> <span class="ow">or</span> <span class="p">[]:</span>
             <span class="n">rec</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
         <span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rec</span><span class="p">)</span>

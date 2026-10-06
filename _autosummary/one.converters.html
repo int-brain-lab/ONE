@@ -210,8 +210,8 @@ iterated over.</p>
 <span class="sig-name descname"><span class="pre">parse_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/converters.html#parse_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.converters.parse_values" title="Link to this definition"></a></dt>
 <dd><p>Convert str values in reference dict to appropriate type.</p>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">parse_values</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">)({</span><span class="s1">&#39;date&#39;</span><span class="p">:</span> <span class="s1">&#39;2020-01-01&#39;</span><span class="p">,</span> <span class="s1">&#39;sequence&#39;</span><span class="p">:</span> <span class="s1">&#39;001&#39;</span><span class="p">},</span> <span class="n">parse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="go">{&#39;date&#39;: datetime.date(2020, 1, 1), &#39;sequence&#39;: 1}</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">parse_values</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">)({</span><span class="s1">'date'</span><span class="p">:</span> <span class="s1">'2020-01-01'</span><span class="p">,</span> <span class="s1">'sequence'</span><span class="p">:</span> <span class="s1">'001'</span><span class="p">},</span> <span class="n">parse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">{'date': datetime.date(2020, 1, 1), 'sequence': 1}</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -371,18 +371,18 @@ form yyyy-mm-dd_n_subject.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eid</span> <span class="o">=</span> <span class="s1">&#39;4e0b3320-47b7-416e-b842-c34dc9004cf8&#39;</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eid</span> <span class="o">=</span> <span class="s1">'4e0b3320-47b7-416e-b842-c34dc9004cf8'</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">one</span><span class="o">.</span><span class="n">eid2ref</span><span class="p">(</span><span class="n">eid</span><span class="p">)</span>
-<span class="go">{&#39;subject&#39;: &#39;flowers&#39;, &#39;date&#39;: datetime.date(2018, 7, 13), &#39;sequence&#39;: 1}</span>
+<span class="go">{'subject': 'flowers', 'date': datetime.date(2018, 7, 13), 'sequence': 1}</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">one</span><span class="o">.</span><span class="n">eid2ref</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">parse</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="go">{&#39;subject&#39;: &#39;flowers&#39;, &#39;date&#39;: &#39;2018-07-13&#39;, &#39;sequence&#39;: &#39;001&#39;}</span>
+<span class="go">{'subject': 'flowers', 'date': '2018-07-13', 'sequence': '001'}</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">one</span><span class="o">.</span><span class="n">eid2ref</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="go">&#39;2018-07-13_1_flowers&#39;</span>
+<span class="go">'2018-07-13_1_flowers'</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">one</span><span class="o">.</span><span class="n">eid2ref</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">parse</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="go">&#39;2018-07-13_001_flowers&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">one</span><span class="o">.</span><span class="n">eid2ref</span><span class="p">([</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;7dc3c44b-225f-4083-be3d-07b8562885f4&#39;</span><span class="p">])</span>
-<span class="go">[{&#39;subject&#39;: &#39;flowers&#39;, &#39;date&#39;: datetime.date(2018, 7, 13), &#39;sequence&#39;: 1},</span>
-<span class="go"> {&#39;subject&#39;: &#39;KS005&#39;, &#39;date&#39;: datetime.date(2019, 4, 11), &#39;sequence&#39;: 1}]</span>
+<span class="go">'2018-07-13_001_flowers'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">one</span><span class="o">.</span><span class="n">eid2ref</span><span class="p">([</span><span class="n">eid</span><span class="p">,</span> <span class="s1">'7dc3c44b-225f-4083-be3d-07b8562885f4'</span><span class="p">])</span>
+<span class="go">[{'subject': 'flowers', 'date': datetime.date(2018, 7, 13), 'sequence': 1},</span>
+<span class="go"> {'subject': 'KS005', 'date': datetime.date(2019, 4, 11), 'sequence': 1}]</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -404,15 +404,15 @@ the form yyyy-mm-dd_n_subject.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">base</span> <span class="o">=</span> <span class="s1">&#39;https://test.alyx.internationalbrainlab.org&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="s1">&#39;test_user&#39;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s1">&#39;TapetesBloc18&#39;</span><span class="p">,</span> <span class="n">base_url</span><span class="o">=</span><span class="n">base</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">base</span> <span class="o">=</span> <span class="s1">'https://test.alyx.internationalbrainlab.org'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="s1">'test_user'</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s1">'TapetesBloc18'</span><span class="p">,</span> <span class="n">base_url</span><span class="o">=</span><span class="n">base</span><span class="p">)</span>
 <span class="go">Connected to...</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ref</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;date&#39;</span><span class="p">:</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2018</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">(),</span> <span class="s1">&#39;sequence&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;subject&#39;</span><span class="p">:</span> <span class="s1">&#39;flowers&#39;</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ref</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'date'</span><span class="p">:</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2018</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">(),</span> <span class="s1">'sequence'</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">'subject'</span><span class="p">:</span> <span class="s1">'flowers'</span><span class="p">}</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">one</span><span class="o">.</span><span class="n">ref2eid</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span>
-<span class="go">UUID(&#39;4e0b3320-47b7-416e-b842-c34dc9004cf8&#39;)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">one</span><span class="o">.</span><span class="n">ref2eid</span><span class="p">([</span><span class="s1">&#39;2018-07-13_1_flowers&#39;</span><span class="p">,</span> <span class="s1">&#39;2019-04-11_1_KS005&#39;</span><span class="p">])</span>
-<span class="go">[UUID(&#39;4e0b3320-47b7-416e-b842-c34dc9004cf8&#39;),</span>
-<span class="go"> UUID(&#39;7dc3c44b-225f-4083-be3d-07b8562885f4&#39;)]</span>
+<span class="go">UUID('4e0b3320-47b7-416e-b842-c34dc9004cf8')</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">one</span><span class="o">.</span><span class="n">ref2eid</span><span class="p">([</span><span class="s1">'2018-07-13_1_flowers'</span><span class="p">,</span> <span class="s1">'2019-04-11_1_KS005'</span><span class="p">])</span>
+<span class="go">[UUID('4e0b3320-47b7-416e-b842-c34dc9004cf8'),</span>
+<span class="go"> UUID('7dc3c44b-225f-4083-be3d-07b8562885f4')]</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -434,15 +434,15 @@ the form yyyy-mm-dd_n_subject.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">base</span> <span class="o">=</span> <span class="s1">&#39;https://test.alyx.internationalbrainlab.org&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="s1">&#39;test_user&#39;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s1">&#39;TapetesBloc18&#39;</span><span class="p">,</span> <span class="n">base_url</span><span class="o">=</span><span class="n">base</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">base</span> <span class="o">=</span> <span class="s1">'https://test.alyx.internationalbrainlab.org'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="s1">'test_user'</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s1">'TapetesBloc18'</span><span class="p">,</span> <span class="n">base_url</span><span class="o">=</span><span class="n">base</span><span class="p">)</span>
 <span class="go">Connected to...</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ref</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;subject&#39;</span><span class="p">:</span> <span class="s1">&#39;flowers&#39;</span><span class="p">,</span> <span class="s1">&#39;date&#39;</span><span class="p">:</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2018</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">(),</span> <span class="s1">&#39;sequence&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ref</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'subject'</span><span class="p">:</span> <span class="s1">'flowers'</span><span class="p">,</span> <span class="s1">'date'</span><span class="p">:</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2018</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">(),</span> <span class="s1">'sequence'</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">one</span><span class="o">.</span><span class="n">ref2path</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span>
-<span class="go">WindowsPath(&#39;E:/FlatIron/zadorlab/Subjects/flowers/2018-07-13/001&#39;)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">one</span><span class="o">.</span><span class="n">ref2path</span><span class="p">([</span><span class="s1">&#39;2018-07-13_1_flowers&#39;</span><span class="p">,</span> <span class="s1">&#39;2019-04-11_1_KS005&#39;</span><span class="p">])</span>
-<span class="go">[WindowsPath(&#39;E:/FlatIron/zadorlab/Subjects/flowers/2018-07-13/001&#39;),</span>
-<span class="go"> WindowsPath(&#39;E:/FlatIron/cortexlab/Subjects/KS005/2019-04-11/001&#39;)]</span>
+<span class="go">WindowsPath('E:/FlatIron/zadorlab/Subjects/flowers/2018-07-13/001')</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">one</span><span class="o">.</span><span class="n">ref2path</span><span class="p">([</span><span class="s1">'2018-07-13_1_flowers'</span><span class="p">,</span> <span class="s1">'2019-04-11_1_KS005'</span><span class="p">])</span>
+<span class="go">[WindowsPath('E:/FlatIron/zadorlab/Subjects/flowers/2018-07-13/001'),</span>
+<span class="go"> WindowsPath('E:/FlatIron/cortexlab/Subjects/KS005/2019-04-11/001')]</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -467,15 +467,15 @@ the form yyyy-mm-dd_n_subject.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">path_str</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;E:/FlatIron/Subjects/zadorlab/flowers/2018-07-13/001&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">path_str</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">'E:/FlatIron/Subjects/zadorlab/flowers/2018-07-13/001'</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">path2ref</span><span class="p">(</span><span class="n">path_str</span><span class="p">)</span>
-<span class="go">{&#39;subject&#39;: &#39;flowers&#39;, &#39;date&#39;: datetime.date(2018, 7, 13), &#39;sequence&#39;: 1}</span>
+<span class="go">{'subject': 'flowers', 'date': datetime.date(2018, 7, 13), 'sequence': 1}</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">path2ref</span><span class="p">(</span><span class="n">path_str</span><span class="p">,</span> <span class="n">parse</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="go">{&#39;subject&#39;: &#39;flowers&#39;, &#39;date&#39;: &#39;2018-07-13&#39;, &#39;sequence&#39;: &#39;001&#39;}</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">path_str2</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;E:/FlatIron/Subjects/churchlandlab/CSHL046/2020-06-20/002&#39;</span><span class="p">)</span>
+<span class="go">{'subject': 'flowers', 'date': '2018-07-13', 'sequence': '001'}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path_str2</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">'E:/FlatIron/Subjects/churchlandlab/CSHL046/2020-06-20/002'</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">path2ref</span><span class="p">([</span><span class="n">path_str</span><span class="p">,</span> <span class="n">path_str2</span><span class="p">])</span>
-<span class="go">[{&#39;subject&#39;: &#39;flowers&#39;, &#39;date&#39;: datetime.date(2018, 7, 13), &#39;sequence&#39;: 1},</span>
-<span class="go"> {&#39;subject&#39;: &#39;CSHL046&#39;, &#39;date&#39;: datetime.date(2020, 6, 20), &#39;sequence&#39;: 2}]</span>
+<span class="go">[{'subject': 'flowers', 'date': datetime.date(2018, 7, 13), 'sequence': 1},</span>
+<span class="go"> {'subject': 'CSHL046', 'date': datetime.date(2020, 6, 20), 'sequence': 2}]</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -497,12 +497,12 @@ the form yyyy-mm-dd_n_subject.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ref</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;date&#39;</span><span class="p">:</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2018</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">(),</span> <span class="s1">&#39;sequence&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;subject&#39;</span><span class="p">:</span> <span class="s1">&#39;flowers&#39;</span><span class="p">}</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ref</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'date'</span><span class="p">:</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2018</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">(),</span> <span class="s1">'sequence'</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">'subject'</span><span class="p">:</span> <span class="s1">'flowers'</span><span class="p">}</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">is_exp_ref</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span>
 <span class="go">True</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">is_exp_ref</span><span class="p">(</span><span class="s1">&#39;2018-07-13_001_flowers&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">is_exp_ref</span><span class="p">(</span><span class="s1">'2018-07-13_001_flowers'</span><span class="p">)</span>
 <span class="go">True</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">is_exp_ref</span><span class="p">(</span><span class="s1">&#39;invalid_ref&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">is_exp_ref</span><span class="p">(</span><span class="s1">'invalid_ref'</span><span class="p">)</span>
 <span class="go">False</span>
 </pre></div>
 </div>
@@ -524,13 +524,13 @@ the form yyyy-mm-dd_n_subject.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ref2dict</span><span class="p">(</span><span class="s1">&#39;2018-07-13_1_flowers&#39;</span><span class="p">)</span>
-<span class="go">{&#39;date&#39;: datetime.date(2018, 7, 13), &#39;sequence&#39;: 1, &#39;subject&#39;: &#39;flowers&#39;}</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ref2dict</span><span class="p">(</span><span class="s1">&#39;2018-07-13_001_flowers&#39;</span><span class="p">,</span> <span class="n">parse</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="go">{&#39;date&#39;: &#39;2018-07-13&#39;, &#39;sequence&#39;: &#39;001&#39;, &#39;subject&#39;: &#39;flowers&#39;}</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ref2dict</span><span class="p">([</span><span class="s1">&#39;2018-07-13_1_flowers&#39;</span><span class="p">,</span> <span class="s1">&#39;2020-01-23_002_ibl_witten_01&#39;</span><span class="p">])</span>
-<span class="go">[{&#39;date&#39;: datetime.date(2018, 7, 13), &#39;sequence&#39;: 1, &#39;subject&#39;: &#39;flowers&#39;},</span>
-<span class="go"> {&#39;date&#39;: datetime.date(2020, 1, 23), &#39;sequence&#39;: 2, &#39;subject&#39;: &#39;ibl_witten_01&#39;}]</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ref2dict</span><span class="p">(</span><span class="s1">'2018-07-13_1_flowers'</span><span class="p">)</span>
+<span class="go">{'date': datetime.date(2018, 7, 13), 'sequence': 1, 'subject': 'flowers'}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ref2dict</span><span class="p">(</span><span class="s1">'2018-07-13_001_flowers'</span><span class="p">,</span> <span class="n">parse</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="go">{'date': '2018-07-13', 'sequence': '001', 'subject': 'flowers'}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ref2dict</span><span class="p">([</span><span class="s1">'2018-07-13_1_flowers'</span><span class="p">,</span> <span class="s1">'2020-01-23_002_ibl_witten_01'</span><span class="p">])</span>
+<span class="go">[{'date': datetime.date(2018, 7, 13), 'sequence': 1, 'subject': 'flowers'},</span>
+<span class="go"> {'date': datetime.date(2020, 1, 23), 'sequence': 2, 'subject': 'ibl_witten_01'}]</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -643,14 +643,14 @@ root_dir/lab/Subjects/subject/yyyy-mm-dd/nnn, otherwise root_dir/subject/yyyy-mm
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">session_record2path</span><span class="p">({</span><span class="s1">&#39;subject&#39;</span><span class="p">:</span> <span class="s1">&#39;ALK01&#39;</span><span class="p">,</span> <span class="s1">&#39;date&#39;</span><span class="p">:</span> <span class="s1">&#39;2020-01-01&#39;</span><span class="p">,</span> <span class="s1">&#39;number&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
-<span class="go">PurePosixPath(&#39;ALK01/2020-01-01/001&#39;)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">session_record2path</span><span class="p">({</span><span class="s1">'subject'</span><span class="p">:</span> <span class="s1">'ALK01'</span><span class="p">,</span> <span class="s1">'date'</span><span class="p">:</span> <span class="s1">'2020-01-01'</span><span class="p">,</span> <span class="s1">'number'</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
+<span class="go">PurePosixPath('ALK01/2020-01-01/001')</span>
 </pre></div>
 </div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">record</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;date&#39;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="s1">&#39;2020-01-01&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">(),</span>
-<span class="gp">... </span>          <span class="s1">&#39;number&#39;</span><span class="p">:</span> <span class="s1">&#39;001&#39;</span><span class="p">,</span> <span class="s1">&#39;lab&#39;</span><span class="p">:</span> <span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="s1">&#39;subject&#39;</span><span class="p">:</span> <span class="s1">&#39;ALK01&#39;</span><span class="p">}</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">session_record2path</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;/home/user&#39;</span><span class="p">))</span>
-<span class="go">Path(&#39;/home/user/foo/Subjects/ALK01/2020-01-01/001&#39;)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">record</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'date'</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="s1">'2020-01-01'</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">(),</span>
+<span class="gp">... </span>          <span class="s1">'number'</span><span class="p">:</span> <span class="s1">'001'</span><span class="p">,</span> <span class="s1">'lab'</span><span class="p">:</span> <span class="s1">'foo'</span><span class="p">,</span> <span class="s1">'subject'</span><span class="p">:</span> <span class="s1">'ALK01'</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">session_record2path</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="s1">'/home/user'</span><span class="p">))</span>
+<span class="go">Path('/home/user/foo/Subjects/ALK01/2020-01-01/001')</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -692,7 +692,7 @@ root_dir/lab/Subjects/subject/yyyy-mm-dd/nnn, otherwise root_dir/subject/yyyy-mm
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">datasets</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">()</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;datasets&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">subject</span><span class="o">=</span><span class="s1">&#39;foobar&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">datasets</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">()</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">'datasets'</span><span class="p">,</span> <span class="s1">'list'</span><span class="p">,</span> <span class="n">subject</span><span class="o">=</span><span class="s1">'foobar'</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">datasets2records</span><span class="p">(</span><span class="n">datasets</span><span class="p">)</span>
 </pre></div>
 </div>

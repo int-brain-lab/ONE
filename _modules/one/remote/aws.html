@@ -105,24 +105,24 @@
            <div itemprop="articleBody">
              
   <h1>Source code for one.remote.aws</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;A backend to download IBL data from AWS Buckets.</span>
+<span></span><span class="sd">"""A backend to download IBL data from AWS Buckets.</span>
 
 <span class="sd">Examples</span>
 <span class="sd">--------</span>
 <span class="sd">Without any credentials, to download a public file from the IBL public bucket:</span>
 
 <span class="sd">&gt;&gt;&gt; from one.remote import aws</span>
-<span class="sd">... source = &#39;caches/unit_test/cache_info.json&#39;</span>
-<span class="sd">... destination = &#39;/home/olivier/scratch/cache_info.json&#39;</span>
+<span class="sd">... source = 'caches/unit_test/cache_info.json'</span>
+<span class="sd">... destination = '/home/olivier/scratch/cache_info.json'</span>
 <span class="sd">... aws.s3_download_file(source, destination)</span>
 
 <span class="sd">For a folder, the following:</span>
 
-<span class="sd">&gt;&gt;&gt; source = &#39;caches/unit_test&#39;</span>
-<span class="sd">&gt;&gt;&gt; destination = &#39;/home/olivier/scratch/caches/unit_test&#39;</span>
+<span class="sd">&gt;&gt;&gt; source = 'caches/unit_test'</span>
+<span class="sd">&gt;&gt;&gt; destination = '/home/olivier/scratch/caches/unit_test'</span>
 <span class="sd">&gt;&gt;&gt; local_files = aws.s3_download_folder(source, destination)</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span><span class="p">,</span> <span class="n">PurePosixPath</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
@@ -137,13 +137,13 @@
 
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
-<span class="n">REPO_DEFAULT</span> <span class="o">=</span> <span class="s1">&#39;aws_cortexlab&#39;</span>
-<span class="n">S3_BUCKET_IBL</span> <span class="o">=</span> <span class="s1">&#39;ibl-brain-wide-map-public&#39;</span>
-<span class="n">REGION_NAME</span> <span class="o">=</span> <span class="s1">&#39;us-east-1&#39;</span>
+<span class="n">REPO_DEFAULT</span> <span class="o">=</span> <span class="s1">'aws_cortexlab'</span>
+<span class="n">S3_BUCKET_IBL</span> <span class="o">=</span> <span class="s1">'ibl-brain-wide-map-public'</span>
+<span class="n">REGION_NAME</span> <span class="o">=</span> <span class="s1">'us-east-1'</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_callback_hook</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A callback hook for boto3.download_file to update the progress bar.</span>
+<span class="w">    </span><span class="sd">"""A callback hook for boto3.download_file to update the progress bar.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -156,7 +156,7 @@
 <span class="sd">    For example that uses actual file size:</span>
 <span class="sd">    https://boto3.amazonaws.com/v1/documentation/api/latest/_modules/boto3/s3/transfer.html</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">inner</span><span class="p">(</span><span class="n">bytes_amount</span><span class="p">):</span>
         <span class="n">t</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">bytes_amount</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">inner</span>
@@ -165,9 +165,9 @@
 <div class="viewcode-block" id="get_s3_virtual_host">
 <a class="viewcode-back" href="../../../_autosummary/one.remote.aws.html#one.remote.aws.get_s3_virtual_host">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_s3_virtual_host</span><span class="p">(</span><span class="n">uri</span><span class="p">,</span> <span class="n">region</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a given bucket URI to a generic Amazon virtual host URL.</span>
+<span class="w">    </span><span class="sd">"""Convert a given bucket URI to a generic Amazon virtual host URL.</span>
 
-<span class="sd">    URI may be the bucket (+ path) or a full URI starting with &#39;s3://&#39;</span>
+<span class="sd">    URI may be the bucket (+ path) or a full URI starting with 's3://'</span>
 
 <span class="sd">    .. _S3 documentation</span>
 <span class="sd">       https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-bucket-intro.html#virtual-host-style-url-ex</span>
@@ -184,20 +184,20 @@
 <span class="sd">    str</span>
 <span class="sd">        The Web URL (virtual host name and https scheme).</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">assert</span> <span class="n">region</span> <span class="ow">and</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\w</span><span class="si">{2}</span><span class="s1">-\w+-[1-3]&#39;</span><span class="p">,</span> <span class="n">region</span><span class="p">),</span> <span class="s1">&#39;Invalid region&#39;</span>
+<span class="sd">    """</span>
+    <span class="k">assert</span> <span class="n">region</span> <span class="ow">and</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">'\w</span><span class="si">{2}</span><span class="s1">-\w+-[1-3]'</span><span class="p">,</span> <span class="n">region</span><span class="p">),</span> <span class="s1">'Invalid region'</span>
     <span class="n">parsed</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlparse</span><span class="p">(</span><span class="n">uri</span><span class="p">)</span>  <span class="c1"># remove scheme if necessary</span>
-    <span class="n">key</span> <span class="o">=</span> <span class="n">parsed</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="n">parsed</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">'/'</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'/'</span><span class="p">)</span>
     <span class="n">bucket</span> <span class="o">=</span> <span class="n">parsed</span><span class="o">.</span><span class="n">netloc</span> <span class="ow">or</span> <span class="n">key</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">hostname</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">bucket</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">parsed</span><span class="o">.</span><span class="n">scheme</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s1">&#39;s3&#39;</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">region</span><span class="si">}</span><span class="s2">.amazonaws.com&quot;</span>
-    <span class="k">return</span> <span class="s1">&#39;https://&#39;</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">hostname</span><span class="p">,</span> <span class="o">*</span><span class="n">key</span><span class="p">))</span></div>
+    <span class="n">hostname</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">bucket</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">parsed</span><span class="o">.</span><span class="n">scheme</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s1">'s3'</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">region</span><span class="si">}</span><span class="s2">.amazonaws.com"</span>
+    <span class="k">return</span> <span class="s1">'https://'</span> <span class="o">+</span> <span class="s1">'/'</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">hostname</span><span class="p">,</span> <span class="o">*</span><span class="n">key</span><span class="p">))</span></div>
 
 
 
 <div class="viewcode-block" id="url2uri">
 <a class="viewcode-back" href="../../../_autosummary/one.remote.aws.html#one.remote.aws.url2uri">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">url2uri</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="n">return_location</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a generic Amazon virtual host URL to an S3 URI.</span>
+<span class="w">    </span><span class="sd">"""Convert a generic Amazon virtual host URL to an S3 URI.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -209,15 +209,15 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    str</span>
-<span class="sd">        An S3 URI with scheme &#39;s3://&#39;.</span>
+<span class="sd">        An S3 URI with scheme 's3://'.</span>
 <span class="sd">    str</span>
-<span class="sd">        If return_location is true, returns the bucket location, e.g. &#39;eu-east-1&#39;.</span>
+<span class="sd">        If return_location is true, returns the bucket location, e.g. 'eu-east-1'.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">parsed</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlparse</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span>
     <span class="k">assert</span> <span class="n">parsed</span><span class="o">.</span><span class="n">netloc</span> <span class="ow">and</span> <span class="n">parsed</span><span class="o">.</span><span class="n">scheme</span> <span class="ow">and</span> <span class="n">parsed</span><span class="o">.</span><span class="n">path</span>
-    <span class="n">bucket_name</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">loc</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span> <span class="o">=</span> <span class="n">parsed</span><span class="o">.</span><span class="n">netloc</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
-    <span class="n">uri</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;s3://</span><span class="si">{</span><span class="n">bucket_name</span><span class="si">}{</span><span class="n">parsed</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="n">bucket_name</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">loc</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span> <span class="o">=</span> <span class="n">parsed</span><span class="o">.</span><span class="n">netloc</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'.'</span><span class="p">)</span>
+    <span class="n">uri</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'s3://</span><span class="si">{</span><span class="n">bucket_name</span><span class="si">}{</span><span class="n">parsed</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">'</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">uri</span><span class="p">,</span> <span class="n">loc</span><span class="p">)</span> <span class="k">if</span> <span class="n">return_location</span> <span class="k">else</span> <span class="n">uri</span></div>
 
 
@@ -225,7 +225,7 @@
 <div class="viewcode-block" id="is_folder">
 <a class="viewcode-back" href="../../../_autosummary/one.remote.aws.html#one.remote.aws.is_folder">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">is_folder</span><span class="p">(</span><span class="n">obj_summery</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Given an S3 ObjectSummery instance, returns true if the associated object is a directory.</span>
+<span class="w">    </span><span class="sd">"""Given an S3 ObjectSummery instance, returns true if the associated object is a directory.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -237,15 +237,15 @@
 <span class="sd">    bool</span>
 <span class="sd">        True if object is a directory.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">obj_summery</span><span class="o">.</span><span class="n">key</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">obj_summery</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span></div>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">obj_summery</span><span class="o">.</span><span class="n">key</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">'/'</span><span class="p">)</span> <span class="ow">and</span> <span class="n">obj_summery</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span></div>
 
 
 
 <div class="viewcode-block" id="get_aws_access_keys">
 <a class="viewcode-back" href="../../../_autosummary/one.remote.aws.html#one.remote.aws.get_aws_access_keys">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_aws_access_keys</span><span class="p">(</span><span class="n">alyx</span><span class="p">,</span> <span class="n">repo_name</span><span class="o">=</span><span class="n">REPO_DEFAULT</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Query Alyx database to get credentials in the json field of an aws repository.</span>
+<span class="w">    </span><span class="sd">"""Query Alyx database to get credentials in the json field of an aws repository.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -261,13 +261,13 @@
 <span class="sd">    str</span>
 <span class="sd">        The name of the S3 bucket associated with the Alyx data repository.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">repo_json</span> <span class="o">=</span> <span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;data-repository&#39;</span><span class="p">,</span> <span class="s1">&#39;read&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">repo_name</span><span class="p">)[</span><span class="s1">&#39;json&#39;</span><span class="p">]</span>
-    <span class="n">bucket_name</span> <span class="o">=</span> <span class="n">repo_json</span><span class="p">[</span><span class="s1">&#39;bucket_name&#39;</span><span class="p">]</span>
+<span class="sd">    """</span>
+    <span class="n">repo_json</span> <span class="o">=</span> <span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">'data-repository'</span><span class="p">,</span> <span class="s1">'read'</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">repo_name</span><span class="p">)[</span><span class="s1">'json'</span><span class="p">]</span>
+    <span class="n">bucket_name</span> <span class="o">=</span> <span class="n">repo_json</span><span class="p">[</span><span class="s1">'bucket_name'</span><span class="p">]</span>
     <span class="n">session_keys</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">&#39;aws_access_key_id&#39;</span><span class="p">:</span> <span class="n">repo_json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Access key ID&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-        <span class="s1">&#39;aws_secret_access_key&#39;</span><span class="p">:</span> <span class="n">repo_json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Secret access key&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-        <span class="s1">&#39;region_name&#39;</span><span class="p">:</span> <span class="n">repo_json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;region_name&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="s1">'aws_access_key_id'</span><span class="p">:</span> <span class="n">repo_json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'Access key ID'</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+        <span class="s1">'aws_secret_access_key'</span><span class="p">:</span> <span class="n">repo_json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'Secret access key'</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+        <span class="s1">'region_name'</span><span class="p">:</span> <span class="n">repo_json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'region_name'</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
     <span class="p">}</span>
     <span class="k">return</span> <span class="n">session_keys</span><span class="p">,</span> <span class="n">bucket_name</span></div>
 
@@ -276,7 +276,7 @@
 <div class="viewcode-block" id="get_s3_public">
 <a class="viewcode-back" href="../../../_autosummary/one.remote.aws.html#one.remote.aws.get_s3_public">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_s3_public</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Retrieve the IBL public S3 service resource.</span>
+<span class="w">    </span><span class="sd">"""Retrieve the IBL public S3 service resource.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -285,9 +285,9 @@
 <span class="sd">    str</span>
 <span class="sd">        The name of the S3 bucket.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">session</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">Session</span><span class="p">(</span><span class="n">region_name</span><span class="o">=</span><span class="n">REGION_NAME</span><span class="p">)</span>
-    <span class="n">s3</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">resource</span><span class="p">(</span><span class="s1">&#39;s3&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">Config</span><span class="p">(</span><span class="n">signature_version</span><span class="o">=</span><span class="n">UNSIGNED</span><span class="p">))</span>
+    <span class="n">s3</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">resource</span><span class="p">(</span><span class="s1">'s3'</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">Config</span><span class="p">(</span><span class="n">signature_version</span><span class="o">=</span><span class="n">UNSIGNED</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">s3</span><span class="p">,</span> <span class="n">S3_BUCKET_IBL</span></div>
 
 
@@ -295,7 +295,7 @@
 <div class="viewcode-block" id="get_s3_allen">
 <a class="viewcode-back" href="../../../_autosummary/one.remote.aws.html#one.remote.aws.get_s3_allen">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_s3_allen</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Retrieve the Allen public S3 service resource.</span>
+<span class="w">    </span><span class="sd">"""Retrieve the Allen public S3 service resource.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -304,10 +304,10 @@
 <span class="sd">    str</span>
 <span class="sd">        The name of the S3 bucket.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">S3_BUCKET_ALLEN</span> <span class="o">=</span> <span class="s1">&#39;allen-brain-cell-atlas&#39;</span>
-    <span class="n">session</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">Session</span><span class="p">(</span><span class="n">region_name</span><span class="o">=</span><span class="s1">&#39;us-west-2&#39;</span><span class="p">)</span>
-    <span class="n">s3</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">resource</span><span class="p">(</span><span class="s1">&#39;s3&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">Config</span><span class="p">(</span><span class="n">signature_version</span><span class="o">=</span><span class="n">UNSIGNED</span><span class="p">))</span>
+<span class="sd">    """</span>
+    <span class="n">S3_BUCKET_ALLEN</span> <span class="o">=</span> <span class="s1">'allen-brain-cell-atlas'</span>
+    <span class="n">session</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">Session</span><span class="p">(</span><span class="n">region_name</span><span class="o">=</span><span class="s1">'us-west-2'</span><span class="p">)</span>
+    <span class="n">s3</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">resource</span><span class="p">(</span><span class="s1">'s3'</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">Config</span><span class="p">(</span><span class="n">signature_version</span><span class="o">=</span><span class="n">UNSIGNED</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">s3</span><span class="p">,</span> <span class="n">S3_BUCKET_ALLEN</span></div>
 
 
@@ -315,7 +315,7 @@
 <div class="viewcode-block" id="get_s3_from_alyx">
 <a class="viewcode-back" href="../../../_autosummary/one.remote.aws.html#one.remote.aws.get_s3_from_alyx">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_s3_from_alyx</span><span class="p">(</span><span class="n">alyx</span><span class="p">,</span> <span class="n">repo_name</span><span class="o">=</span><span class="n">REPO_DEFAULT</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create an S3 resource instance using credentials from an Alyx data repository.</span>
+<span class="w">    </span><span class="sd">"""Create an S3 resource instance using credentials from an Alyx data repository.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -335,18 +335,18 @@
 <span class="sd">    -----</span>
 <span class="sd">    - If no credentials are present in the database, boto3 will use environment config or default</span>
 <span class="sd">      AWS profile settings instead.</span>
-<span class="sd">    - If there are no credentials for the bucket and the bucket has &#39;public&#39; in the name, the</span>
+<span class="sd">    - If there are no credentials for the bucket and the bucket has 'public' in the name, the</span>
 <span class="sd">      returned resource will use an unsigned signature.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">session_keys</span><span class="p">,</span> <span class="n">bucket_name</span> <span class="o">=</span> <span class="n">get_aws_access_keys</span><span class="p">(</span><span class="n">alyx</span><span class="p">,</span> <span class="n">repo_name</span><span class="p">)</span>
-    <span class="n">no_creds</span> <span class="o">=</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="p">(</span><span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">session_keys</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="s1">&#39;key&#39;</span> <span class="ow">in</span> <span class="n">k</span><span class="o">.</span><span class="n">casefold</span><span class="p">())))</span>
+    <span class="n">no_creds</span> <span class="o">=</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="p">(</span><span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">session_keys</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="s1">'key'</span> <span class="ow">in</span> <span class="n">k</span><span class="o">.</span><span class="n">casefold</span><span class="p">())))</span>
     <span class="n">session</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">Session</span><span class="p">(</span><span class="o">**</span><span class="n">session_keys</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">no_creds</span> <span class="ow">and</span> <span class="s1">&#39;public&#39;</span> <span class="ow">in</span> <span class="n">bucket_name</span><span class="o">.</span><span class="n">casefold</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">no_creds</span> <span class="ow">and</span> <span class="s1">'public'</span> <span class="ow">in</span> <span class="n">bucket_name</span><span class="o">.</span><span class="n">casefold</span><span class="p">():</span>
         <span class="n">config</span> <span class="o">=</span> <span class="n">Config</span><span class="p">(</span><span class="n">signature_version</span><span class="o">=</span><span class="n">UNSIGNED</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">config</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">s3</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">resource</span><span class="p">(</span><span class="s1">&#39;s3&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+    <span class="n">s3</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">resource</span><span class="p">(</span><span class="s1">'s3'</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">s3</span><span class="p">,</span> <span class="n">bucket_name</span></div>
 
 
@@ -354,12 +354,12 @@
 <div class="viewcode-block" id="s3_download_file">
 <a class="viewcode-back" href="../../../_autosummary/one.remote.aws.html#one.remote.aws.s3_download_file">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">s3_download_file</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">destination</span><span class="p">,</span> <span class="n">s3</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bucket_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Downloads a file from an S3 instance to a local folder.</span>
+<span class="w">    </span><span class="sd">"""Downloads a file from an S3 instance to a local folder.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    source : str, pathlib.Path, pathlib.PurePosixPath</span>
-<span class="sd">        Relative path (key) within the bucket, for example: &#39;atlas/dorsal_cortex_50.nrrd&#39;.</span>
+<span class="sd">        Relative path (key) within the bucket, for example: 'atlas/dorsal_cortex_50.nrrd'.</span>
 <span class="sd">    destination : str, pathlib.Path</span>
 <span class="sd">        The full file path on local machine.</span>
 <span class="sd">    s3 : s3.ServiceResource</span>
@@ -374,7 +374,7 @@
 <span class="sd">    pathlib.Path</span>
 <span class="sd">        The local file path of the downloaded file.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">destination</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">destination</span><span class="p">)</span>
     <span class="n">destination</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">s3</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -383,16 +383,16 @@
         <span class="n">file_object</span> <span class="o">=</span> <span class="n">s3</span><span class="o">.</span><span class="n">Object</span><span class="p">(</span><span class="n">bucket_name</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="n">source</span><span class="p">)</span><span class="o">.</span><span class="n">as_posix</span><span class="p">())</span>
         <span class="n">filesize</span> <span class="o">=</span> <span class="n">file_object</span><span class="o">.</span><span class="n">content_length</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">overwrite</span> <span class="ow">and</span> <span class="n">destination</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="n">filesize</span> <span class="o">==</span> <span class="n">destination</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span><span class="p">:</span>
-            <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">destination</span><span class="si">}</span><span class="s2"> exists and match size -- skipping&quot;</span><span class="p">)</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">destination</span><span class="si">}</span><span class="s1"> exists and match size -- skipping'</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">destination</span>
-        <span class="k">with</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="n">filesize</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;B&#39;</span><span class="p">,</span>
-                  <span class="n">unit_scale</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;(S3) </span><span class="si">{</span><span class="n">destination</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">t</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="n">filesize</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">'B'</span><span class="p">,</span>
+                  <span class="n">unit_scale</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="sa">f</span><span class="s1">'(S3) </span><span class="si">{</span><span class="n">destination</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span> <span class="k">as</span> <span class="n">t</span><span class="p">:</span>
             <span class="n">file_object</span><span class="o">.</span><span class="n">download_file</span><span class="p">(</span><span class="n">Filename</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">destination</span><span class="p">),</span> <span class="n">Callback</span><span class="o">=</span><span class="n">_callback_hook</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
     <span class="k">except</span> <span class="p">(</span><span class="n">NoCredentialsError</span><span class="p">,</span> <span class="n">PartialCredentialsError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">ex</span>  <span class="c1"># Credentials need updating in Alyx # pragma: no cover</span>
     <span class="k">except</span> <span class="n">ClientError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">ex</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Error&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Code&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;404&#39;</span><span class="p">:</span>
-            <span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;File </span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s1"> not found on </span><span class="si">{</span><span class="n">bucket_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ex</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'Error'</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'Code'</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="o">==</span> <span class="s1">'404'</span><span class="p">:</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s1">'File </span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s1"> not found on </span><span class="si">{</span><span class="n">bucket_name</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">ex</span>
@@ -403,12 +403,12 @@
 <div class="viewcode-block" id="s3_download_folder">
 <a class="viewcode-back" href="../../../_autosummary/one.remote.aws.html#one.remote.aws.s3_download_folder">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">s3_download_folder</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">destination</span><span class="p">,</span> <span class="n">s3</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bucket_name</span><span class="o">=</span><span class="n">S3_BUCKET_IBL</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Downloads S3 folder content to a local folder.</span>
+<span class="w">    </span><span class="sd">"""Downloads S3 folder content to a local folder.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    source : str</span>
-<span class="sd">        Relative path (key) within the bucket, for example: &#39;spikesorting/benchmark&#39;.</span>
+<span class="sd">        Relative path (key) within the bucket, for example: 'spikesorting/benchmark'.</span>
 <span class="sd">    destination : str, pathlib.Path</span>
 <span class="sd">        Local folder path.  Note: The contents of the source folder will be downloaded to</span>
 <span class="sd">        `destination`, not the folder itself.</span>
@@ -424,10 +424,10 @@
 <span class="sd">    list of pathlib.Path</span>
 <span class="sd">        The local file paths.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">destination</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">destination</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">destination</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-        <span class="k">assert</span> <span class="n">destination</span><span class="o">.</span><span class="n">is_dir</span><span class="p">(),</span> <span class="s1">&#39;destination must be a folder&#39;</span>
+        <span class="k">assert</span> <span class="n">destination</span><span class="o">.</span><span class="n">is_dir</span><span class="p">(),</span> <span class="s1">'destination must be a folder'</span>
     <span class="k">if</span> <span class="n">s3</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">s3</span><span class="p">,</span> <span class="n">bucket_name</span> <span class="o">=</span> <span class="n">get_s3_public</span><span class="p">()</span>
     <span class="n">local_files</span> <span class="o">=</span> <span class="p">[]</span>
@@ -435,8 +435,8 @@
     <span class="k">for</span> <span class="n">obj_summary</span> <span class="ow">in</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="ow">not</span> <span class="n">is_folder</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">objects</span><span class="p">):</span>
         <span class="c1"># we can only filter an object collection by prefix, so we need to make sure the file</span>
         <span class="c1"># is in the subpath of the source folder</span>
-        <span class="c1"># for example, if source is &#39;/toto/tata&#39; and obj_summary.key is</span>
-        <span class="c1"># &#39;/toto/tata_alaternate/titi.txt&#39;, we need to exclude it</span>
+        <span class="c1"># for example, if source is '/toto/tata' and obj_summary.key is</span>
+        <span class="c1"># '/toto/tata_alaternate/titi.txt', we need to exclude it</span>
         <span class="k">if</span> <span class="n">PurePosixPath</span><span class="p">(</span><span class="n">source</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">PurePosixPath</span><span class="p">(</span><span class="n">obj_summary</span><span class="o">.</span><span class="n">key</span><span class="p">)</span><span class="o">.</span><span class="n">parents</span><span class="p">:</span>
             <span class="k">continue</span>
         <span class="n">local_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">destination</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">obj_summary</span><span class="o">.</span><span class="n">key</span><span class="p">)</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">source</span><span class="p">))</span>

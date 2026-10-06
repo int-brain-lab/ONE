@@ -105,7 +105,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for one.alf.cache</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Construct Parquet database from local file system.</span>
+<span></span><span class="sd">"""Construct Parquet database from local file system.</span>
 
 <span class="sd">NB: If using a remote Alyx instance it is advisable to generate the cache via the Alyx one_cache</span>
 <span class="sd">management command, otherwise the resulting cache UUIDs will not match those on the database.</span>
@@ -113,11 +113,11 @@
 <span class="sd">Examples</span>
 <span class="sd">--------</span>
 <span class="sd">&gt;&gt;&gt; from one.api import One</span>
-<span class="sd">&gt;&gt;&gt; cache_dir = &#39;path/to/data&#39;</span>
+<span class="sd">&gt;&gt;&gt; cache_dir = 'path/to/data'</span>
 <span class="sd">&gt;&gt;&gt; make_parquet_db(cache_dir)</span>
 <span class="sd">&gt;&gt;&gt; one = One(cache_dir=cache_dir)</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="c1"># -------------------------------------------------------------------------------------------------</span>
 <span class="c1"># Imports</span>
@@ -143,9 +143,9 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">one.alf.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">session_path_parts</span><span class="p">,</span> <span class="n">get_alf_path</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s1">&#39;make_parquet_db&#39;</span><span class="p">,</span> <span class="s1">&#39;load_tables&#39;</span><span class="p">,</span> <span class="s1">&#39;patch_tables&#39;</span><span class="p">,</span> <span class="s1">&#39;merge_tables&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;remove_table_files&#39;</span><span class="p">,</span> <span class="s1">&#39;remove_missing_datasets&#39;</span><span class="p">,</span> <span class="s1">&#39;default_cache&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;QC_TYPE&#39;</span><span class="p">,</span> <span class="s1">&#39;EMPTY_DATASETS_FRAME&#39;</span><span class="p">,</span> <span class="s1">&#39;EMPTY_SESSIONS_FRAME&#39;</span><span class="p">]</span>
+    <span class="s1">'make_parquet_db'</span><span class="p">,</span> <span class="s1">'load_tables'</span><span class="p">,</span> <span class="s1">'patch_tables'</span><span class="p">,</span> <span class="s1">'merge_tables'</span><span class="p">,</span>
+    <span class="s1">'remove_table_files'</span><span class="p">,</span> <span class="s1">'remove_missing_datasets'</span><span class="p">,</span> <span class="s1">'default_cache'</span><span class="p">,</span>
+    <span class="s1">'QC_TYPE'</span><span class="p">,</span> <span class="s1">'EMPTY_DATASETS_FRAME'</span><span class="p">,</span> <span class="s1">'EMPTY_SESSIONS_FRAME'</span><span class="p">]</span>
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 <span class="c1"># -------------------------------------------------------------------------------------------------</span>
@@ -153,39 +153,39 @@
 <span class="c1"># -------------------------------------------------------------------------------------------------</span>
 
 <span class="n">QC_TYPE</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">CategoricalDtype</span><span class="p">(</span><span class="n">categories</span><span class="o">=</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">QC</span><span class="p">)],</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="sd">&quot;&quot;&quot;pandas.api.types.CategoricalDtype: The cache table QC column data type.&quot;&quot;&quot;</span>
+<span class="sd">"""pandas.api.types.CategoricalDtype: The cache table QC column data type."""</span>
 
 <span class="n">SESSIONS_COLUMNS</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>                 <span class="c1"># str</span>
-    <span class="s1">&#39;lab&#39;</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>                <span class="c1"># str</span>
-    <span class="s1">&#39;subject&#39;</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>            <span class="c1"># str</span>
-    <span class="s1">&#39;date&#39;</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>               <span class="c1"># datetime.date</span>
-    <span class="s1">&#39;number&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">,</span>          <span class="c1"># int</span>
-    <span class="s1">&#39;task_protocol&#39;</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>      <span class="c1"># str</span>
-    <span class="s1">&#39;projects&#39;</span><span class="p">:</span> <span class="nb">object</span>            <span class="c1"># str</span>
+    <span class="s1">'id'</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>                 <span class="c1"># str</span>
+    <span class="s1">'lab'</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>                <span class="c1"># str</span>
+    <span class="s1">'subject'</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>            <span class="c1"># str</span>
+    <span class="s1">'date'</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>               <span class="c1"># datetime.date</span>
+    <span class="s1">'number'</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">,</span>          <span class="c1"># int</span>
+    <span class="s1">'task_protocol'</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>      <span class="c1"># str</span>
+    <span class="s1">'projects'</span><span class="p">:</span> <span class="nb">object</span>            <span class="c1"># str</span>
 <span class="p">}</span>
-<span class="sd">&quot;&quot;&quot;dict: A map of sessions table fields and their data types.&quot;&quot;&quot;</span>
+<span class="sd">"""dict: A map of sessions table fields and their data types."""</span>
 
 <span class="n">DATASETS_COLUMNS</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;eid&#39;</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>                <span class="c1"># str</span>
-    <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>                 <span class="c1"># str</span>
-    <span class="s1">&#39;rel_path&#39;</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>           <span class="c1"># relative to the session path, includes the filename</span>
-    <span class="s1">&#39;file_size&#39;</span><span class="p">:</span> <span class="s1">&#39;UInt64&#39;</span><span class="p">,</span>        <span class="c1"># file size in bytes (nullable)</span>
-    <span class="s1">&#39;hash&#39;</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>               <span class="c1"># sha1/md5, computed in load function</span>
-    <span class="s1">&#39;exists&#39;</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>               <span class="c1"># bool</span>
-    <span class="s1">&#39;qc&#39;</span><span class="p">:</span> <span class="n">QC_TYPE</span>                 <span class="c1"># one.alf.spec.QC enumeration</span>
+    <span class="s1">'eid'</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>                <span class="c1"># str</span>
+    <span class="s1">'id'</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>                 <span class="c1"># str</span>
+    <span class="s1">'rel_path'</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>           <span class="c1"># relative to the session path, includes the filename</span>
+    <span class="s1">'file_size'</span><span class="p">:</span> <span class="s1">'UInt64'</span><span class="p">,</span>        <span class="c1"># file size in bytes (nullable)</span>
+    <span class="s1">'hash'</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>               <span class="c1"># sha1/md5, computed in load function</span>
+    <span class="s1">'exists'</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>               <span class="c1"># bool</span>
+    <span class="s1">'qc'</span><span class="p">:</span> <span class="n">QC_TYPE</span>                 <span class="c1"># one.alf.spec.QC enumeration</span>
 <span class="p">}</span>
-<span class="sd">&quot;&quot;&quot;dict: A map of datasets table fields and their data types.&quot;&quot;&quot;</span>
+<span class="sd">"""dict: A map of datasets table fields and their data types."""</span>
 
 <span class="n">EMPTY_DATASETS_FRAME</span> <span class="o">=</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">DATASETS_COLUMNS</span><span class="p">)</span>
                         <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">DATASETS_COLUMNS</span><span class="p">)</span>
-                        <span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s1">&#39;eid&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">]))</span>
-<span class="sd">&quot;&quot;&quot;pandas.DataFrame: An empty datasets dataframe with correct columns and dtypes.&quot;&quot;&quot;</span>
+                        <span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s1">'eid'</span><span class="p">,</span> <span class="s1">'id'</span><span class="p">]))</span>
+<span class="sd">"""pandas.DataFrame: An empty datasets dataframe with correct columns and dtypes."""</span>
 
 <span class="n">EMPTY_SESSIONS_FRAME</span> <span class="o">=</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">SESSIONS_COLUMNS</span><span class="p">)</span>
                         <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">SESSIONS_COLUMNS</span><span class="p">)</span>
-                        <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">))</span>
-<span class="sd">&quot;&quot;&quot;pandas.DataFrame: An empty sessions dataframe with correct columns and dtypes.&quot;&quot;&quot;</span>
+                        <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">'id'</span><span class="p">))</span>
+<span class="sd">"""pandas.DataFrame: An empty sessions dataframe with correct columns and dtypes."""</span>
 
 
 <span class="c1"># -------------------------------------------------------------------------------------------------</span>
@@ -193,12 +193,12 @@
 <span class="c1"># -------------------------------------------------------------------------------------------------</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_ses_str_id</span><span class="p">(</span><span class="n">session_path</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns a str id from a session path in the form &#39;(lab/)subject/date/number&#39;.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Returns a str id from a session path in the form '(lab/)subject/date/number'."""</span>
     <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="o">*</span><span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">session_path_parts</span><span class="p">(</span><span class="n">session_path</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">)))</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_session_info</span><span class="p">(</span><span class="n">rel_ses_path</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse a relative session path.</span>
+<span class="w">    </span><span class="sd">"""Parse a relative session path.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -220,15 +220,15 @@
 <span class="sd">    str</span>
 <span class="sd">        The associated project (empty str).</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">lab</span><span class="p">,</span> <span class="n">subject</span><span class="p">,</span> <span class="n">s_date</span><span class="p">,</span> <span class="n">num</span> <span class="o">=</span> <span class="n">session_path_parts</span><span class="p">(</span><span class="n">rel_ses_path</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">eid</span> <span class="o">=</span> <span class="n">_ses_str_id</span><span class="p">(</span><span class="n">rel_ses_path</span><span class="p">)</span>
     <span class="n">s_date</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">s_date</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">eid</span><span class="p">,</span> <span class="n">lab</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">subject</span><span class="p">,</span> <span class="n">s_date</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">num</span><span class="p">),</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">eid</span><span class="p">,</span> <span class="n">lab</span> <span class="ow">or</span> <span class="s1">''</span><span class="p">,</span> <span class="n">subject</span><span class="p">,</span> <span class="n">s_date</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">num</span><span class="p">),</span> <span class="s1">''</span><span class="p">,</span> <span class="s1">''</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_dataset_info</span><span class="p">(</span><span class="n">dset_path</span><span class="p">,</span> <span class="n">ses_eid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">compute_hash</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create dataset record from local path.</span>
+<span class="w">    </span><span class="sd">"""Create dataset record from local path.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -254,45 +254,45 @@
 <span class="sd">    True</span>
 <span class="sd">        Whether the file exists.</span>
 <span class="sd">    str</span>
-<span class="sd">        The QC value for the dataset (&#39;NOT_SET&#39;).</span>
+<span class="sd">        The QC value for the dataset ('NOT_SET').</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">rel_dset_path</span> <span class="o">=</span> <span class="n">get_alf_path</span><span class="p">(</span><span class="n">dset_path</span><span class="o">.</span><span class="n">relative_to_session</span><span class="p">())</span>
     <span class="n">ses_eid</span> <span class="o">=</span> <span class="n">ses_eid</span> <span class="ow">or</span> <span class="n">_ses_str_id</span><span class="p">(</span><span class="n">dset_path</span><span class="o">.</span><span class="n">session_path</span><span class="p">())</span>
     <span class="n">file_size</span> <span class="o">=</span> <span class="n">dset_path</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span>
-    <span class="n">file_hash</span> <span class="o">=</span> <span class="n">md5</span><span class="p">(</span><span class="n">dset_path</span><span class="p">)</span> <span class="k">if</span> <span class="n">compute_hash</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
-    <span class="k">return</span> <span class="n">ses_eid</span> <span class="ow">or</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">,</span> <span class="n">rel_dset_path</span><span class="p">,</span> <span class="n">rel_dset_path</span><span class="p">,</span> <span class="n">file_size</span><span class="p">,</span> <span class="n">file_hash</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;NOT_SET&#39;</span>
+    <span class="n">file_hash</span> <span class="o">=</span> <span class="n">md5</span><span class="p">(</span><span class="n">dset_path</span><span class="p">)</span> <span class="k">if</span> <span class="n">compute_hash</span> <span class="k">else</span> <span class="s1">''</span>
+    <span class="k">return</span> <span class="n">ses_eid</span> <span class="ow">or</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">,</span> <span class="n">rel_dset_path</span><span class="p">,</span> <span class="n">rel_dset_path</span><span class="p">,</span> <span class="n">file_size</span><span class="p">,</span> <span class="n">file_hash</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">'NOT_SET'</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_rel_path_to_uuid</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">id_key</span><span class="o">=</span><span class="s1">&#39;rel_path&#39;</span><span class="p">,</span> <span class="n">base_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">keep_old</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_rel_path_to_uuid</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">id_key</span><span class="o">=</span><span class="s1">'rel_path'</span><span class="p">,</span> <span class="n">base_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">keep_old</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="n">base_id</span> <span class="o">=</span> <span class="n">base_id</span> <span class="ow">or</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid1</span><span class="p">()</span>  <span class="c1"># Base hash based on system by default</span>
     <span class="n">toUUID</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid3</span><span class="p">,</span> <span class="n">base_id</span><span class="p">)</span>  <span class="c1"># MD5 hash from base uuid and rel session path string</span>
     <span class="k">if</span> <span class="n">keep_old</span><span class="p">:</span>
-        <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">id_key</span><span class="si">}</span><span class="s1">_&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">id_key</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">id_key</span><span class="si">}</span><span class="s1">_'</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">id_key</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">id_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">id_key</span><span class="p">)[</span><span class="n">id_key</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">toUUID</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">df</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_ids_to_uuid</span><span class="p">(</span><span class="n">df_ses</span><span class="p">,</span> <span class="n">df_dsets</span><span class="p">):</span>
     <span class="n">ns</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid1</span><span class="p">()</span>
-    <span class="n">df_dsets</span> <span class="o">=</span> <span class="n">_rel_path_to_uuid</span><span class="p">(</span><span class="n">df_dsets</span><span class="p">,</span> <span class="n">id_key</span><span class="o">=</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="n">base_id</span><span class="o">=</span><span class="n">ns</span><span class="p">)</span>
-    <span class="n">df_ses</span> <span class="o">=</span> <span class="n">_rel_path_to_uuid</span><span class="p">(</span><span class="n">df_ses</span><span class="p">,</span> <span class="n">id_key</span><span class="o">=</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="n">base_id</span><span class="o">=</span><span class="n">ns</span><span class="p">,</span> <span class="n">keep_old</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">df_dsets</span> <span class="o">=</span> <span class="n">_rel_path_to_uuid</span><span class="p">(</span><span class="n">df_dsets</span><span class="p">,</span> <span class="n">id_key</span><span class="o">=</span><span class="s1">'id'</span><span class="p">,</span> <span class="n">base_id</span><span class="o">=</span><span class="n">ns</span><span class="p">)</span>
+    <span class="n">df_ses</span> <span class="o">=</span> <span class="n">_rel_path_to_uuid</span><span class="p">(</span><span class="n">df_ses</span><span class="p">,</span> <span class="n">id_key</span><span class="o">=</span><span class="s1">'id'</span><span class="p">,</span> <span class="n">base_id</span><span class="o">=</span><span class="n">ns</span><span class="p">,</span> <span class="n">keep_old</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="c1"># Copy new eids into datasets frame</span>
-    <span class="n">df_dsets</span><span class="p">[</span><span class="s1">&#39;eid_&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_dsets</span><span class="p">[</span><span class="s1">&#39;eid&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="n">df_dsets</span><span class="p">[</span><span class="s1">&#39;eid&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df_ses</span>
-                       <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;id_&#39;</span><span class="p">)</span>
-                       <span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_dsets</span><span class="p">[</span><span class="s1">&#39;eid&#39;</span><span class="p">],</span> <span class="s1">&#39;id&#39;</span><span class="p">]</span>
+    <span class="n">df_dsets</span><span class="p">[</span><span class="s1">'eid_'</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_dsets</span><span class="p">[</span><span class="s1">'eid'</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">df_dsets</span><span class="p">[</span><span class="s1">'eid'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df_ses</span>
+                       <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">'id_'</span><span class="p">)</span>
+                       <span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_dsets</span><span class="p">[</span><span class="s1">'eid'</span><span class="p">],</span> <span class="s1">'id'</span><span class="p">]</span>
                        <span class="o">.</span><span class="n">values</span><span class="p">)</span>
     <span class="c1"># Check that the session int IDs in both frames match</span>
-    <span class="n">ses_id_set</span> <span class="o">=</span> <span class="n">df_ses</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;id_&#39;</span><span class="p">)[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
+    <span class="n">ses_id_set</span> <span class="o">=</span> <span class="n">df_ses</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">'id_'</span><span class="p">)[</span><span class="s1">'id'</span><span class="p">]</span>
     <span class="k">assert</span> <span class="p">(</span><span class="n">df_dsets</span>
-            <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;eid_&#39;</span><span class="p">)[</span><span class="s1">&#39;eid&#39;</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">'eid_'</span><span class="p">)[</span><span class="s1">'eid'</span><span class="p">]</span>
             <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
-            <span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="n">ses_id_set</span><span class="p">)),</span> <span class="s1">&#39;session int ID mismatch between frames&#39;</span>
+            <span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="n">ses_id_set</span><span class="p">)),</span> <span class="s1">'session int ID mismatch between frames'</span>
 
     <span class="c1"># Set index</span>
-    <span class="n">df_ses</span> <span class="o">=</span> <span class="n">df_ses</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;id_&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
-    <span class="n">df_dsets</span> <span class="o">=</span> <span class="n">df_dsets</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s1">&#39;eid&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;eid_&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+    <span class="n">df_ses</span> <span class="o">=</span> <span class="n">df_ses</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">'id'</span><span class="p">)</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">'id_'</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+    <span class="n">df_dsets</span> <span class="o">=</span> <span class="n">df_dsets</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s1">'eid'</span><span class="p">,</span> <span class="s1">'id'</span><span class="p">])</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">'eid_'</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="n">df_ses</span><span class="p">,</span> <span class="n">df_dsets</span>
 
@@ -302,22 +302,22 @@
 <span class="c1"># -------------------------------------------------------------------------------------------------</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_metadata</span><span class="p">(</span><span class="n">origin</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Metadata dictionary for Parquet files.</span>
+<span class="w">    </span><span class="sd">"""Metadata dictionary for Parquet files.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    origin : str, pathlib.Path</span>
 <span class="sd">        Path to full directory, or computer name / db name.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s1">&#39;date_created&#39;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(</span><span class="n">sep</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="n">timespec</span><span class="o">=</span><span class="s1">&#39;minutes&#39;</span><span class="p">),</span>
-        <span class="s1">&#39;origin&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">origin</span><span class="p">),</span>
+        <span class="s1">'date_created'</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(</span><span class="n">sep</span><span class="o">=</span><span class="s1">' '</span><span class="p">,</span> <span class="n">timespec</span><span class="o">=</span><span class="s1">'minutes'</span><span class="p">),</span>
+        <span class="s1">'origin'</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">origin</span><span class="p">),</span>
     <span class="p">}</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_make_sessions_df</span><span class="p">(</span><span class="n">root_dir</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Given a root directory, recursively finds all sessions and returns a sessions DataFrame.</span>
+<span class="w">    </span><span class="sd">"""Given a root directory, recursively finds all sessions and returns a sessions DataFrame.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -329,7 +329,7 @@
 <span class="sd">    pandas.DataFrame</span>
 <span class="sd">        A pandas DataFrame of session info.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">full_path</span> <span class="ow">in</span> <span class="n">iter_sessions</span><span class="p">(</span><span class="n">root_dir</span><span class="p">):</span>
         <span class="c1"># Get the lab/Subjects/subject/date/number part of a file path</span>
@@ -343,21 +343,21 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_make_datasets_df</span><span class="p">(</span><span class="n">root_dir</span><span class="p">,</span> <span class="n">hash_files</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Given a root directory, recursively finds all datasets and returns a datasets DataFrame.</span>
+<span class="w">    </span><span class="sd">"""Given a root directory, recursively finds all datasets and returns a datasets DataFrame.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    root_dir : str, pathlib.Path</span>
 <span class="sd">        The folder to look for sessions.</span>
 <span class="sd">    hash_files : bool</span>
-<span class="sd">        If True, an MD5 is computed for each file and stored in the &#39;hash&#39; column.</span>
+<span class="sd">        If True, an MD5 is computed for each file and stored in the 'hash' column.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    pandas.DataFrame</span>
 <span class="sd">        A pandas DataFrame of dataset info.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Go through sessions and append datasets</span>
     <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">session_path</span> <span class="ow">in</span> <span class="n">iter_sessions</span><span class="p">(</span><span class="n">root_dir</span><span class="p">):</span>
@@ -370,8 +370,8 @@
 
 <div class="viewcode-block" id="default_cache">
 <a class="viewcode-back" href="../../../_autosummary/one.alf.cache.html#one.alf.cache.default_cache">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">default_cache</span><span class="p">(</span><span class="n">origin</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns an empty cache dictionary with the default tables.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">default_cache</span><span class="p">(</span><span class="n">origin</span><span class="o">=</span><span class="s1">''</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Returns an empty cache dictionary with the default tables.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -383,20 +383,20 @@
 <span class="sd">    Bunch</span>
 <span class="sd">        A Bunch object containing the loaded cache tables and associated metadata.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">table_meta</span> <span class="o">=</span> <span class="n">_metadata</span><span class="p">(</span><span class="n">origin</span><span class="p">)</span>
     <span class="c1"># The origin is now a set, however we leave _metadata as Alyx relies on this and sets</span>
-    <span class="c1"># can&#39;t be serialized to JSON</span>
-    <span class="n">table_meta</span><span class="p">[</span><span class="s1">&#39;origin&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="p">[</span><span class="n">origin</span><span class="p">]))</span>
+    <span class="c1"># can't be serialized to JSON</span>
+    <span class="n">table_meta</span><span class="p">[</span><span class="s1">'origin'</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="p">[</span><span class="n">origin</span><span class="p">]))</span>
     <span class="k">return</span> <span class="n">Bunch</span><span class="p">({</span>
-            <span class="s1">&#39;datasets&#39;</span><span class="p">:</span> <span class="n">EMPTY_DATASETS_FRAME</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
-            <span class="s1">&#39;sessions&#39;</span><span class="p">:</span> <span class="n">EMPTY_SESSIONS_FRAME</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
-            <span class="s1">&#39;_meta&#39;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;created_time&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;loaded_time&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;modified_time&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;saved_time&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;raw&#39;</span><span class="p">:</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">table_meta</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;datasets&#39;</span><span class="p">,</span> <span class="s1">&#39;sessions&#39;</span><span class="p">)}}</span>
+            <span class="s1">'datasets'</span><span class="p">:</span> <span class="n">EMPTY_DATASETS_FRAME</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+            <span class="s1">'sessions'</span><span class="p">:</span> <span class="n">EMPTY_SESSIONS_FRAME</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+            <span class="s1">'_meta'</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">'created_time'</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s1">'loaded_time'</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s1">'modified_time'</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s1">'saved_time'</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s1">'raw'</span><span class="p">:</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">table_meta</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">'datasets'</span><span class="p">,</span> <span class="s1">'sessions'</span><span class="p">)}}</span>
         <span class="p">})</span></div>
 
 
@@ -404,7 +404,7 @@
 <div class="viewcode-block" id="make_parquet_db">
 <a class="viewcode-back" href="../../../_autosummary/one.alf.cache.html#one.alf.cache.make_parquet_db">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">make_parquet_db</span><span class="p">(</span><span class="n">root_dir</span><span class="p">,</span> <span class="n">out_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hash_ids</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">hash_files</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">lab</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Given a data directory, index the ALF datasets and save the generated cache tables.</span>
+<span class="w">    </span><span class="sd">"""Given a data directory, index the ALF datasets and save the generated cache tables.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -421,7 +421,7 @@
 <span class="sd">        This will substantially increase cache generation time.</span>
 <span class="sd">    lab : str</span>
 <span class="sd">        An optional lab name to associate with the data.  If the folder structure</span>
-<span class="sd">        contains &#39;lab/Subjects&#39;, the lab name will be taken from the folder name.</span>
+<span class="sd">        contains 'lab/Subjects', the lab name will be taken from the folder name.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -430,7 +430,7 @@
 <span class="sd">    pathlib.Path</span>
 <span class="sd">        The full path of the saved datasets parquet table.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">root_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">root_dir</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
 
     <span class="c1"># Make the data frames.</span>
@@ -445,12 +445,12 @@
         <span class="n">df_dsets</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">df_dsets</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">x</span><span class="p">)))</span>
 
     <span class="k">if</span> <span class="n">lab</span><span class="p">:</span>  <span class="c1"># Fill in lab name field</span>
-        <span class="k">assert</span> <span class="ow">not</span> <span class="n">df_ses</span><span class="p">[</span><span class="s1">&#39;lab&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">any</span><span class="p">()</span> <span class="ow">or</span> <span class="p">(</span><span class="n">df_ses</span><span class="p">[</span><span class="s1">&#39;lab&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;lab&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span> <span class="s1">&#39;lab name conflict&#39;</span>
-        <span class="n">df_ses</span><span class="p">[</span><span class="s1">&#39;lab&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lab</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="n">df_ses</span><span class="p">[</span><span class="s1">'lab'</span><span class="p">]</span><span class="o">.</span><span class="n">any</span><span class="p">()</span> <span class="ow">or</span> <span class="p">(</span><span class="n">df_ses</span><span class="p">[</span><span class="s1">'lab'</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'lab'</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span> <span class="s1">'lab name conflict'</span>
+        <span class="n">df_ses</span><span class="p">[</span><span class="s1">'lab'</span><span class="p">]</span> <span class="o">=</span> <span class="n">lab</span>
 
     <span class="c1"># Check any files were found</span>
     <span class="k">if</span> <span class="n">df_ses</span><span class="o">.</span><span class="n">empty</span> <span class="ow">or</span> <span class="n">df_dsets</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
-        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;No </span><span class="si">{</span><span class="s2">&quot;sessions&quot;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">df_ses</span><span class="o">.</span><span class="n">empty</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">&quot;datasets&quot;</span><span class="si">}</span><span class="s1"> found&#39;</span><span class="p">,</span> <span class="ne">RuntimeWarning</span><span class="p">)</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">'No </span><span class="si">{</span><span class="s2">"sessions"</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">df_ses</span><span class="o">.</span><span class="n">empty</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">"datasets"</span><span class="si">}</span><span class="s1"> found'</span><span class="p">,</span> <span class="ne">RuntimeWarning</span><span class="p">)</span>
 
     <span class="c1"># Output directory.</span>
     <span class="n">out_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">out_dir</span> <span class="ow">or</span> <span class="n">root_dir</span><span class="p">)</span>
@@ -458,8 +458,8 @@
     <span class="k">assert</span> <span class="n">out_dir</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
 
     <span class="c1"># Parquet files to save.</span>
-    <span class="n">fn_ses</span> <span class="o">=</span> <span class="n">out_dir</span> <span class="o">/</span> <span class="s1">&#39;sessions.pqt&#39;</span>
-    <span class="n">fn_dsets</span> <span class="o">=</span> <span class="n">out_dir</span> <span class="o">/</span> <span class="s1">&#39;datasets.pqt&#39;</span>
+    <span class="n">fn_ses</span> <span class="o">=</span> <span class="n">out_dir</span> <span class="o">/</span> <span class="s1">'sessions.pqt'</span>
+    <span class="n">fn_dsets</span> <span class="o">=</span> <span class="n">out_dir</span> <span class="o">/</span> <span class="s1">'datasets.pqt'</span>
 
     <span class="c1"># Parquet metadata.</span>
     <span class="n">metadata</span> <span class="o">=</span> <span class="n">_metadata</span><span class="p">(</span><span class="n">root_dir</span><span class="p">)</span>
@@ -473,9 +473,9 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">cast_index_object</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="nb">type</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">UUID</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Cast the index object to the specified dtype.</span>
+<span class="w">    </span><span class="sd">"""Cast the index object to the specified dtype.</span>
 
-<span class="sd">    NB: The data frame index will remain as &#39;object&#39;, however the underlying object type will be</span>
+<span class="sd">    NB: The data frame index will remain as 'object', however the underlying object type will be</span>
 <span class="sd">    modified.</span>
 
 <span class="sd">    Parameters</span>
@@ -490,23 +490,23 @@
 <span class="sd">    pandas.DataFrame</span>
 <span class="sd">        An updated data frame with a new index data type.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="p">):</span>
         <span class="c1"># df.index = df.index.map(lambda x: tuple(map(UUID, x)))</span>
         <span class="n">levels</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">nlevels</span><span class="p">)</span>
         <span class="n">df</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_arrays</span><span class="p">(</span>
-            <span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="n">na_action</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">levels</span><span class="p">],</span>
+            <span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="n">na_action</span><span class="o">=</span><span class="s1">'ignore'</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">levels</span><span class="p">],</span>
             <span class="n">names</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span>
         <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">df</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="n">na_action</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="n">na_action</span><span class="o">=</span><span class="s1">'ignore'</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span>
 
 
 <div class="viewcode-block" id="load_tables">
 <a class="viewcode-back" href="../../../_autosummary/one.alf.cache.html#one.alf.cache.load_tables">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">load_tables</span><span class="p">(</span><span class="n">tables_dir</span><span class="p">,</span> <span class="n">glob_pattern</span><span class="o">=</span><span class="s1">&#39;*.pqt&#39;</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load parquet cache files from a local directory.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_tables</span><span class="p">(</span><span class="n">tables_dir</span><span class="p">,</span> <span class="n">glob_pattern</span><span class="o">=</span><span class="s1">'*.pqt'</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Load parquet cache files from a local directory.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -521,28 +521,28 @@
 <span class="sd">    Bunch</span>
 <span class="sd">        A Bunch object containing the loaded cache tables and associated metadata.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">caches</span> <span class="o">=</span> <span class="n">default_cache</span><span class="p">()</span>
-    <span class="n">meta</span> <span class="o">=</span> <span class="n">caches</span><span class="p">[</span><span class="s1">&#39;_meta&#39;</span><span class="p">]</span>
-    <span class="n">INDEX_KEY</span> <span class="o">=</span> <span class="s1">&#39;.?id&#39;</span>
+    <span class="n">meta</span> <span class="o">=</span> <span class="n">caches</span><span class="p">[</span><span class="s1">'_meta'</span><span class="p">]</span>
+    <span class="n">INDEX_KEY</span> <span class="o">=</span> <span class="s1">'.?id'</span>
     <span class="k">for</span> <span class="n">cache_file</span> <span class="ow">in</span> <span class="n">Path</span><span class="p">(</span><span class="n">tables_dir</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">glob_pattern</span><span class="p">):</span>
         <span class="n">table</span> <span class="o">=</span> <span class="n">cache_file</span><span class="o">.</span><span class="n">stem</span>
         <span class="c1"># we need to keep this part fast enough for transient objects</span>
-        <span class="n">cache</span><span class="p">,</span> <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;raw&#39;</span><span class="p">][</span><span class="n">table</span><span class="p">]</span> <span class="o">=</span> <span class="n">parquet</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">cache_file</span><span class="p">)</span>
-        <span class="k">if</span> <span class="s1">&#39;date_created&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;raw&#39;</span><span class="p">][</span><span class="n">table</span><span class="p">]:</span>
-            <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cache_file</span><span class="si">}</span><span class="s2"> does not appear to be a valid table. Skipping&quot;</span><span class="p">)</span>
+        <span class="n">cache</span><span class="p">,</span> <span class="n">meta</span><span class="p">[</span><span class="s1">'raw'</span><span class="p">][</span><span class="n">table</span><span class="p">]</span> <span class="o">=</span> <span class="n">parquet</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">cache_file</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">'date_created'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">meta</span><span class="p">[</span><span class="s1">'raw'</span><span class="p">][</span><span class="n">table</span><span class="p">]:</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">cache_file</span><span class="si">}</span><span class="s1"> does not appear to be a valid table. Skipping'</span><span class="p">)</span>
             <span class="k">continue</span>
-        <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;loaded_time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="n">meta</span><span class="p">[</span><span class="s1">'loaded_time'</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
 
         <span class="c1"># Set the appropriate index if none already set</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cache</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">RangeIndex</span><span class="p">):</span>
             <span class="n">idx_columns</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">cache</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="n">INDEX_KEY</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">idx_columns</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s1">&#39;Failed to set index&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s1">'Failed to set index'</span><span class="p">)</span>
             <span class="n">cache</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">idx_columns</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="c1"># Patch older tables</span>
-        <span class="n">cache</span> <span class="o">=</span> <span class="n">patch_tables</span><span class="p">(</span><span class="n">cache</span><span class="p">,</span> <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;raw&#39;</span><span class="p">][</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;min_api_version&#39;</span><span class="p">),</span> <span class="n">table</span><span class="p">)</span>
+        <span class="n">cache</span> <span class="o">=</span> <span class="n">patch_tables</span><span class="p">(</span><span class="n">cache</span><span class="p">,</span> <span class="n">meta</span><span class="p">[</span><span class="s1">'raw'</span><span class="p">][</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'min_api_version'</span><span class="p">),</span> <span class="n">table</span><span class="p">)</span>
 
         <span class="c1"># Cast indices to UUID</span>
         <span class="c1"># NB: Old caches may have pathstr indices</span>
@@ -555,15 +555,15 @@
             <span class="n">cache</span><span class="o">.</span><span class="n">sort_index</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="c1"># Ensure origin is a set (supports multiple origins)</span>
-        <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;raw&#39;</span><span class="p">][</span><span class="n">table</span><span class="p">][</span><span class="s1">&#39;origin&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
-            <span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">ensure_list</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;raw&#39;</span><span class="p">][</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;origin&#39;</span><span class="p">,</span> <span class="s1">&#39;unknown&#39;</span><span class="p">))))</span>
+        <span class="n">meta</span><span class="p">[</span><span class="s1">'raw'</span><span class="p">][</span><span class="n">table</span><span class="p">][</span><span class="s1">'origin'</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
+            <span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">ensure_list</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s1">'raw'</span><span class="p">][</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'origin'</span><span class="p">,</span> <span class="s1">'unknown'</span><span class="p">))))</span>
 
         <span class="n">caches</span><span class="p">[</span><span class="n">table</span><span class="p">]</span> <span class="o">=</span> <span class="n">cache</span>
 
-    <span class="n">created</span> <span class="o">=</span> <span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;date_created&#39;</span><span class="p">])</span>
-               <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;raw&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="s1">&#39;date_created&#39;</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]</span>
+    <span class="n">created</span> <span class="o">=</span> <span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">'date_created'</span><span class="p">])</span>
+               <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">meta</span><span class="p">[</span><span class="s1">'raw'</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="s1">'date_created'</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">created</span><span class="p">:</span>
-        <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;created_time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">created</span><span class="p">)</span>
+        <span class="n">meta</span><span class="p">[</span><span class="s1">'created_time'</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">created</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">caches</span></div>
 
 
@@ -571,7 +571,7 @@
 <div class="viewcode-block" id="merge_tables">
 <a class="viewcode-back" href="../../../_autosummary/one.alf.cache.html#one.alf.cache.merge_tables">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">merge_tables</span><span class="p">(</span><span class="n">cache</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Update the cache tables with new records.</span>
+<span class="w">    </span><span class="sd">"""Update the cache tables with new records.</span>
 
 <span class="sd">    Note: A copy of the tables in cache may be returned if the original tables are immutable.</span>
 <span class="sd">    This can happen when tables are loaded from a parquet file.</span>
@@ -581,7 +581,7 @@
 <span class="sd">    dict</span>
 <span class="sd">        A map of cache tables to update.</span>
 <span class="sd">    strict : bool</span>
-<span class="sd">        If not True, the columns don&#39;t need to match.  Extra columns in input tables are</span>
+<span class="sd">        If not True, the columns don't need to match.  Extra columns in input tables are</span>
 <span class="sd">        dropped and missing columns are added and filled with np.nan.</span>
 <span class="sd">    origin : str</span>
 <span class="sd">        The origin of the cache (e.g. a computer name or database name).</span>
@@ -606,18 +606,18 @@
 <span class="sd">    KeyError</span>
 <span class="sd">        One or more of the keyword arguments does not match a table in cache.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">updated</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">for</span> <span class="n">table</span><span class="p">,</span> <span class="n">records</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="k">if</span> <span class="n">records</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">records</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
             <span class="k">continue</span>
         <span class="k">if</span> <span class="n">table</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cache</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Table &quot;</span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s1">&quot; not in cache&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Table "</span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s1">" not in cache'</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">records</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
             <span class="n">records</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">records</span><span class="p">])</span>
             <span class="n">records</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">set_names</span><span class="p">(</span><span class="n">cache</span><span class="p">[</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="c1"># Drop duplicate indices</span>
-        <span class="n">records</span> <span class="o">=</span> <span class="n">records</span><span class="p">[</span><span class="o">~</span><span class="n">records</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">keep</span><span class="o">=</span><span class="s1">&#39;first&#39;</span><span class="p">)]</span>
+        <span class="n">records</span> <span class="o">=</span> <span class="n">records</span><span class="p">[</span><span class="o">~</span><span class="n">records</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">keep</span><span class="o">=</span><span class="s1">'first'</span><span class="p">)]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">strict</span><span class="p">:</span>
             <span class="c1"># Deal with case where there are extra columns in the cache</span>
             <span class="n">extra_columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">cache</span><span class="p">[</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">records</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span>
@@ -627,10 +627,10 @@
             <span class="n">column_ids</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">cache</span><span class="p">[</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">extra_columns</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">extra_columns</span><span class="p">,</span> <span class="n">column_ids</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
                 <span class="n">dtype</span> <span class="o">=</span> <span class="n">cache</span><span class="p">[</span><span class="n">table</span><span class="p">][</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span>
-                <span class="n">nan</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="s1">&#39;na_value&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
-                <span class="n">val</span> <span class="o">=</span> <span class="n">records</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;exists&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;exists_&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="n">nan</span>
+                <span class="n">nan</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="s1">'na_value'</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="n">records</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'exists'</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">'exists_'</span><span class="p">)</span> <span class="k">else</span> <span class="n">nan</span>
                 <span class="n">records</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
-            <span class="c1"># Drop any extra columns in the records that aren&#39;t in cache table</span>
+            <span class="c1"># Drop any extra columns in the records that aren't in cache table</span>
             <span class="n">to_drop</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">records</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">cache</span><span class="p">[</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
             <span class="n">records</span> <span class="o">=</span> <span class="n">records</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">to_drop</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
             <span class="n">records</span> <span class="o">=</span> <span class="n">records</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">cache</span><span class="p">[</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
@@ -641,7 +641,7 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">cache</span><span class="p">[</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">records</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">to_update</span><span class="p">],</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">records</span><span class="p">[</span><span class="n">to_update</span><span class="p">]</span>
         <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="k">if</span> <span class="s1">&#39;assignment destination is read-only&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+            <span class="k">if</span> <span class="s1">'assignment destination is read-only'</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
                 <span class="c1"># NB: nullable integer and categorical dtypes may be backed by immutable arrays</span>
                 <span class="c1"># after loading from parquet and therefore must be copied before assignment</span>
                 <span class="n">cache</span><span class="p">[</span><span class="n">table</span><span class="p">]</span> <span class="o">=</span> <span class="n">cache</span><span class="p">[</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -656,19 +656,19 @@
         <span class="n">cache</span><span class="p">[</span><span class="n">table</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">frames</span><span class="p">)</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
         <span class="n">updated</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
         <span class="c1"># Update the table metadata with the origin</span>
-        <span class="n">table_meta</span> <span class="o">=</span> <span class="n">cache</span><span class="p">[</span><span class="s1">&#39;_meta&#39;</span><span class="p">][</span><span class="s1">&#39;raw&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">table_meta</span> <span class="o">=</span> <span class="n">cache</span><span class="p">[</span><span class="s1">'_meta'</span><span class="p">][</span><span class="s1">'raw'</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="p">{})</span>
         <span class="k">if</span> <span class="n">origin</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="s1">&#39;origin&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">table_meta</span><span class="p">:</span>
-                <span class="n">table_meta</span><span class="p">[</span><span class="s1">&#39;origin&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">ensure_list</span><span class="p">(</span><span class="n">origin</span><span class="p">))</span>
+            <span class="k">if</span> <span class="s1">'origin'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">table_meta</span><span class="p">:</span>
+                <span class="n">table_meta</span><span class="p">[</span><span class="s1">'origin'</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">ensure_list</span><span class="p">(</span><span class="n">origin</span><span class="p">))</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">table_meta</span><span class="p">[</span><span class="s1">&#39;origin&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">origin</span><span class="p">)</span>
-            <span class="n">cache</span><span class="p">[</span><span class="s1">&#39;_meta&#39;</span><span class="p">][</span><span class="s1">&#39;raw&#39;</span><span class="p">][</span><span class="n">table</span><span class="p">]</span> <span class="o">=</span> <span class="n">table_meta</span>
+                <span class="n">table_meta</span><span class="p">[</span><span class="s1">'origin'</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">origin</span><span class="p">)</span>
+            <span class="n">cache</span><span class="p">[</span><span class="s1">'_meta'</span><span class="p">][</span><span class="s1">'raw'</span><span class="p">][</span><span class="n">table</span><span class="p">]</span> <span class="o">=</span> <span class="n">table_meta</span>
         <span class="c1"># Makes sure that the `date_created` field exists for a new table</span>
-        <span class="k">if</span> <span class="s1">&#39;date_created&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">table_meta</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="n">table_meta</span><span class="p">[</span><span class="s1">&#39;date_created&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(</span>
-                <span class="n">sep</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="n">timespec</span><span class="o">=</span><span class="s1">&#39;minutes&#39;</span><span class="p">)</span>
-            <span class="n">cache</span><span class="p">[</span><span class="s1">&#39;_meta&#39;</span><span class="p">][</span><span class="s1">&#39;raw&#39;</span><span class="p">][</span><span class="n">table</span><span class="p">]</span> <span class="o">=</span> <span class="n">table_meta</span>
-    <span class="n">cache</span><span class="p">[</span><span class="s1">&#39;_meta&#39;</span><span class="p">][</span><span class="s1">&#39;modified_time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">updated</span>
+        <span class="k">if</span> <span class="s1">'date_created'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">table_meta</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">table_meta</span><span class="p">[</span><span class="s1">'date_created'</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(</span>
+                <span class="n">sep</span><span class="o">=</span><span class="s1">' '</span><span class="p">,</span> <span class="n">timespec</span><span class="o">=</span><span class="s1">'minutes'</span><span class="p">)</span>
+            <span class="n">cache</span><span class="p">[</span><span class="s1">'_meta'</span><span class="p">][</span><span class="s1">'raw'</span><span class="p">][</span><span class="n">table</span><span class="p">]</span> <span class="o">=</span> <span class="n">table_meta</span>
+    <span class="n">cache</span><span class="p">[</span><span class="s1">'_meta'</span><span class="p">][</span><span class="s1">'modified_time'</span><span class="p">]</span> <span class="o">=</span> <span class="n">updated</span>
     <span class="k">return</span> <span class="n">updated</span></div>
 
 
@@ -676,7 +676,7 @@
 <div class="viewcode-block" id="remove_missing_datasets">
 <a class="viewcode-back" href="../../../_autosummary/one.alf.cache.html#one.alf.cache.remove_missing_datasets">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">remove_missing_datasets</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">,</span> <span class="n">tables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">remove_empty_sessions</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dry</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Remove dataset files and session folders that are not in the provided cache.</span>
+<span class="w">    </span><span class="sd">"""Remove dataset files and session folders that are not in the provided cache.</span>
 
 <span class="sd">    NB: This *does not* remove entries from the cache tables that are missing on disk.</span>
 <span class="sd">    Non-ALF files are not removed. Empty sessions that exist in the sessions table are not removed.</span>
@@ -685,7 +685,7 @@
 <span class="sd">    ----------</span>
 <span class="sd">    cache_dir : str, pathlib.Path</span>
 <span class="sd">    tables : dict[str, pandas.DataFrame], optional</span>
-<span class="sd">        A dict with keys (&#39;sessions&#39;, &#39;datasets&#39;), containing the cache tables as DataFrames.</span>
+<span class="sd">        A dict with keys ('sessions', 'datasets'), containing the cache tables as DataFrames.</span>
 <span class="sd">    remove_empty_sessions : bool</span>
 <span class="sd">        Attempt to remove session folders that are empty and not in the sessions table.</span>
 <span class="sd">    dry : bool</span>
@@ -696,7 +696,7 @@
 <span class="sd">    list</span>
 <span class="sd">        A sorted list of paths to be removed.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">cache_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">tables</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">tables</span> <span class="o">=</span> <span class="n">load_tables</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">)</span>
@@ -705,32 +705,32 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">one.converters</span><span class="w"> </span><span class="kn">import</span> <span class="n">session_record2path</span>  <span class="c1"># imported here due to circular imports</span>
     <span class="n">gen_path</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">session_record2path</span><span class="p">,</span> <span class="n">root_dir</span><span class="o">=</span><span class="n">cache_dir</span><span class="p">)</span>
     <span class="c1"># map of session path to eid</span>
-    <span class="n">sessions</span> <span class="o">=</span> <span class="p">{</span><span class="n">gen_path</span><span class="p">(</span><span class="n">rec</span><span class="p">):</span> <span class="n">eid</span> <span class="k">for</span> <span class="n">eid</span><span class="p">,</span> <span class="n">rec</span> <span class="ow">in</span> <span class="n">tables</span><span class="p">[</span><span class="s1">&#39;sessions&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iterrows</span><span class="p">()}</span>
+    <span class="n">sessions</span> <span class="o">=</span> <span class="p">{</span><span class="n">gen_path</span><span class="p">(</span><span class="n">rec</span><span class="p">):</span> <span class="n">eid</span> <span class="k">for</span> <span class="n">eid</span><span class="p">,</span> <span class="n">rec</span> <span class="ow">in</span> <span class="n">tables</span><span class="p">[</span><span class="s1">'sessions'</span><span class="p">]</span><span class="o">.</span><span class="n">iterrows</span><span class="p">()}</span>
     <span class="k">for</span> <span class="n">session_path</span> <span class="ow">in</span> <span class="n">iter_sessions</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">datasets</span> <span class="o">=</span> <span class="n">tables</span><span class="p">[</span><span class="s1">&#39;datasets&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">sessions</span><span class="p">[</span><span class="n">session_path</span><span class="p">]]</span>
+            <span class="n">datasets</span> <span class="o">=</span> <span class="n">tables</span><span class="p">[</span><span class="s1">'datasets'</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">sessions</span><span class="p">[</span><span class="n">session_path</span><span class="p">]]</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="n">datasets</span> <span class="o">=</span> <span class="n">tables</span><span class="p">[</span><span class="s1">&#39;datasets&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="n">datasets</span> <span class="o">=</span> <span class="n">tables</span><span class="p">[</span><span class="s1">'datasets'</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
         <span class="k">for</span> <span class="n">dataset</span> <span class="ow">in</span> <span class="n">session_path</span><span class="o">.</span><span class="n">iter_datasets</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">dataset</span><span class="o">.</span><span class="n">relative_to_session</span><span class="p">()</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">datasets</span><span class="p">[</span><span class="s1">&#39;rel_path&#39;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">dataset</span><span class="o">.</span><span class="n">relative_to_session</span><span class="p">()</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">datasets</span><span class="p">[</span><span class="s1">'rel_path'</span><span class="p">]:</span>
                 <span class="n">to_delete</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">session_path</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sessions</span> <span class="ow">and</span> <span class="n">remove_empty_sessions</span><span class="p">:</span>
             <span class="n">to_delete</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">session_path</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">dry</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The following session and datasets would be removed:&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\n\t</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\t</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">to_delete</span><span class="p">))))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">'The following session and datasets would be removed:'</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">'</span><span class="se">\n\t</span><span class="s1">'</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">'</span><span class="se">\n\t</span><span class="s1">'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">to_delete</span><span class="p">))))</span>
         <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">to_delete</span><span class="p">)</span>
 
     <span class="c1"># Delete datasets</span>
     <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">to_delete</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
-            <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Removing </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Removing </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
             <span class="n">path</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Recursively remove empty folders</span>
-            <span class="k">while</span> <span class="n">path</span><span class="o">.</span><span class="n">parent</span> <span class="o">!=</span> <span class="n">cache_dir</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">next</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">),</span> <span class="kc">False</span><span class="p">):</span>
-                <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Removing </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">while</span> <span class="n">path</span><span class="o">.</span><span class="n">parent</span> <span class="o">!=</span> <span class="n">cache_dir</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">next</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s1">'*'</span><span class="p">),</span> <span class="kc">False</span><span class="p">):</span>
+                <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Removing </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
                 <span class="n">path</span><span class="o">.</span><span class="n">rmdir</span><span class="p">()</span>
                 <span class="n">path</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">parent</span>
 
@@ -740,15 +740,15 @@
 
 <div class="viewcode-block" id="remove_table_files">
 <a class="viewcode-back" href="../../../_autosummary/one.alf.cache.html#one.alf.cache.remove_table_files">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">remove_table_files</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">tables</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;datasets&#39;</span><span class="p">)):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Delete cache tables on disk.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">remove_table_files</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">tables</span><span class="o">=</span><span class="p">(</span><span class="s1">'sessions'</span><span class="p">,</span> <span class="s1">'datasets'</span><span class="p">)):</span>
+<span class="w">    </span><span class="sd">"""Delete cache tables on disk.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    folder : pathlib.Path</span>
 <span class="sd">        The directory path containing cache tables to remove.</span>
 <span class="sd">    tables : list of str</span>
-<span class="sd">        A list of table names to remove, e.g. [&#39;sessions&#39;, &#39;datasets&#39;].</span>
+<span class="sd">        A list of table names to remove, e.g. ['sessions', 'datasets'].</span>
 <span class="sd">        NB: This will also delete the cache_info.json metadata file.</span>
 
 <span class="sd">    Returns</span>
@@ -756,35 +756,35 @@
 <span class="sd">    list of pathlib.Path</span>
 <span class="sd">        A list of the removed files.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">filenames</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;cache_info.json&#39;</span><span class="p">,</span> <span class="o">*</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">t</span><span class="si">}</span><span class="s1">.pqt&#39;</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tables</span><span class="p">))</span>
+<span class="sd">    """</span>
+    <span class="n">filenames</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'cache_info.json'</span><span class="p">,</span> <span class="o">*</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">t</span><span class="si">}</span><span class="s1">.pqt'</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tables</span><span class="p">))</span>
     <span class="n">removed</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="nb">map</span><span class="p">(</span><span class="n">folder</span><span class="o">.</span><span class="n">joinpath</span><span class="p">,</span> <span class="n">filenames</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
             <span class="n">file</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
             <span class="n">removed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> not found&#39;</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">'</span><span class="si">%s</span><span class="s1"> not found'</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">removed</span></div>
 
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_cache_int2str</span><span class="p">(</span><span class="n">table</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert int ids to str ids for cache table.</span>
+<span class="w">    </span><span class="sd">"""Convert int ids to str ids for cache table.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    table : pd.DataFrame</span>
 <span class="sd">        A cache table (from One._cache).</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Convert integer uuids to str uuids</span>
-    <span class="k">if</span> <span class="n">table</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">nlevels</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;_0&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">table</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">nlevels</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">'_0'</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">table</span>
     <span class="n">table</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
-    <span class="n">int_cols</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;_\d</span><span class="si">{1}</span><span class="s1">$&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">sort_values</span><span class="p">()</span>
-    <span class="k">assert</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">int_cols</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;expected even number of columns ending in _0 or _1&#39;</span>
-    <span class="n">names</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">int_cols</span><span class="o">.</span><span class="n">values</span><span class="p">))</span>
+    <span class="n">int_cols</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="sa">r</span><span class="s1">'_\d</span><span class="si">{1}</span><span class="s1">$'</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">sort_values</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">int_cols</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">'expected even number of columns ending in _0 or _1'</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s1">'_'</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">int_cols</span><span class="o">.</span><span class="n">values</span><span class="p">))</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">int_cols</span><span class="p">),</span> <span class="mi">2</span><span class="p">),</span> <span class="n">names</span><span class="p">):</span>
         <span class="n">table</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">parquet</span><span class="o">.</span><span class="n">np2str</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="n">int_cols</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]])</span>
     <span class="n">table</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">int_cols</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">names</span><span class="p">)</span>
@@ -794,10 +794,10 @@
 <div class="viewcode-block" id="patch_tables">
 <a class="viewcode-back" href="../../../_autosummary/one.alf.cache.html#one.alf.cache.patch_tables">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">patch_tables</span><span class="p">(</span><span class="n">table</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">min_api_version</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Reformat older cache tables to comply with this version of ONE.</span>
+<span class="w">    </span><span class="sd">"""Reformat older cache tables to comply with this version of ONE.</span>
 
-<span class="sd">    Currently this function will 1. convert integer UUIDs to string UUIDs; 2. rename the &#39;project&#39;</span>
-<span class="sd">    column to &#39;projects&#39;; 3. add QC column; 4. drop session_path column.</span>
+<span class="sd">    Currently this function will 1. convert integer UUIDs to string UUIDs; 2. rename the 'project'</span>
+<span class="sd">    column to 'projects'; 3. add QC column; 4. drop session_path column.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -805,20 +805,20 @@
 <span class="sd">        A cache table (from One._cache).</span>
 <span class="sd">    min_api_version : str</span>
 <span class="sd">        The minimum API version supported by this cache table.</span>
-<span class="sd">    name : {&#39;dataset&#39;, &#39;session&#39;} str</span>
+<span class="sd">    name : {'dataset', 'session'} str</span>
 <span class="sd">        The name of the table.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">min_version</span> <span class="o">=</span> <span class="n">version</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">min_api_version</span> <span class="ow">or</span> <span class="s1">&#39;0.0.0&#39;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">min_version</span> <span class="o">=</span> <span class="n">version</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">min_api_version</span> <span class="ow">or</span> <span class="s1">'0.0.0'</span><span class="p">)</span>
     <span class="n">table</span> <span class="o">=</span> <span class="n">_cache_int2str</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
     <span class="c1"># Rename project column</span>
-    <span class="k">if</span> <span class="n">min_version</span> <span class="o">&lt;</span> <span class="n">version</span><span class="o">.</span><span class="n">Version</span><span class="p">(</span><span class="s1">&#39;1.13.0&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;project&#39;</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-        <span class="n">table</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;project&#39;</span><span class="p">:</span> <span class="s1">&#39;projects&#39;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;datasets&#39;</span> <span class="ow">and</span> <span class="n">min_version</span> <span class="o">&lt;</span> <span class="n">version</span><span class="o">.</span><span class="n">Version</span><span class="p">(</span><span class="s1">&#39;2.7.0&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;qc&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">min_version</span> <span class="o">&lt;</span> <span class="n">version</span><span class="o">.</span><span class="n">Version</span><span class="p">(</span><span class="s1">'1.13.0'</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">'project'</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">'project'</span><span class="p">:</span> <span class="s1">'projects'</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">'datasets'</span> <span class="ow">and</span> <span class="n">min_version</span> <span class="o">&lt;</span> <span class="n">version</span><span class="o">.</span><span class="n">Version</span><span class="p">(</span><span class="s1">'2.7.0'</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">'qc'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
         <span class="n">qc</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Categorical</span><span class="o">.</span><span class="n">from_codes</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">index</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">QC_TYPE</span><span class="p">)</span>
         <span class="n">table</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">qc</span><span class="o">=</span><span class="n">qc</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;datasets&#39;</span> <span class="ow">and</span> <span class="s1">&#39;session_path&#39;</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-        <span class="n">table</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;session_path&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">'datasets'</span> <span class="ow">and</span> <span class="s1">'session_path'</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">'session_path'</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">table</span></div>
 
 </pre></div>

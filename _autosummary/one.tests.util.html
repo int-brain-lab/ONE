@@ -153,16 +153,19 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#one.tests.util.get_file" title="one.tests.util.get_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_file</span></code></a></p></td>
 <td><p>A stub function for <cite>iblutil.io.params.getfile</cite>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#one.tests.util.revisions_datasets_table" title="one.tests.util.revisions_datasets_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">revisions_datasets_table</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.tests.util.mock_http_download" title="one.tests.util.mock_http_download"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mock_http_download</span></code></a></p></td>
+<td><p>Stand in for the HTTP transfer so download tests need no data server access.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.tests.util.revisions_datasets_table" title="one.tests.util.revisions_datasets_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">revisions_datasets_table</span></code></a></p></td>
 <td><p>Return a datasets cache DataFrame containing datasets with revision folders.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#one.tests.util.set_up_env" title="one.tests.util.set_up_env"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_up_env</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.tests.util.set_up_env" title="one.tests.util.set_up_env"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_up_env</span></code></a></p></td>
 <td><p>Create a temporary directory and copy cache fixtures over.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#one.tests.util.setup_rest_cache" title="one.tests.util.setup_rest_cache"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_rest_cache</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#one.tests.util.setup_rest_cache" title="one.tests.util.setup_rest_cache"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_rest_cache</span></code></a></p></td>
 <td><p>Copy REST cache fixtures to the .one parameter directory.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#one.tests.util.setup_test_params" title="one.tests.util.setup_test_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_test_params</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#one.tests.util.setup_test_params" title="one.tests.util.setup_test_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_test_params</span></code></a></p></td>
 <td><p>Copy cache parameter fixture to .one directory.</p></td>
 </tr>
 </tbody>
@@ -282,6 +285,21 @@ testing the filtering of datasets by a revision.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>caches</strong> (<em>Bunch</em>) – A bunch of cache tables (from One._cache)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="one.tests.util.mock_http_download">
+<span class="sig-name descname"><span class="pre">mock_http_download</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">b'mock</span> <span class="pre">file</span> <span class="pre">contents'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/tests/util.html#mock_http_download"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.tests.util.mock_http_download" title="Link to this definition"></a></dt>
+<dd><p>Stand in for the HTTP transfer so download tests need no data server access.</p>
+<p>The test database’s file records point at the private FlatIron tree. Only the bytes on the
+wire are simulated; URL validation, the hash check and UUID stripping still run.</p>
+<p>The mismatch handler is stubbed out too: a fabricated file never matches the recorded hash,
+and the handler would flag the file record on Alyx, writing to the shared test database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Yields<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>unittest.mock.MagicMock</em> – The patched <cite>_tag_mismatched_file_record</cite>.</p>
 </dd>
 </dl>
 </dd></dl>

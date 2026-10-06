@@ -143,9 +143,9 @@ identifies a particular experiment. This may be a path fragment (i.e. subject/da
 <h3>Searching for experiments<a class="headerlink" href="#searching-for-experiments" title="Link to this heading"></a></h3>
 <p>To obtain the eIDs of experiments a user can use the search method to filter experiments by a set of criteria:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">eids</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">()</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
-    <span class="n">lab</span><span class="o">=</span><span class="s1">&#39;CortexLabUCL&#39;</span><span class="p">,</span> 
-    <span class="n">subject</span><span class="o">=</span><span class="s1">&#39;hercules&#39;</span><span class="p">,</span> 
-    <span class="n">datasets</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;spikes.times.npy&#39;</span><span class="p">,</span> <span class="s1">&#39;spikes.clusters.npy&#39;</span><span class="p">]</span>
+    <span class="n">lab</span><span class="o">=</span><span class="s1">'CortexLabUCL'</span><span class="p">,</span> 
+    <span class="n">subject</span><span class="o">=</span><span class="s1">'hercules'</span><span class="p">,</span> 
+    <span class="n">datasets</span><span class="o">=</span><span class="p">[</span><span class="s1">'spikes.times.npy'</span><span class="p">,</span> <span class="s1">'spikes.clusters.npy'</span><span class="p">]</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -205,7 +205,7 @@ analysis by specifying a single date, and thus be given a snapshot of what the m
 <h3>Listing data<a class="headerlink" href="#listing-data" title="Link to this heading"></a></h3>
 <p>The second API method allows the user to list and filter the available datasets for an experiment.
 To list the datasets for a given experiment and filter by a collection, the user would run</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">datasets</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">()</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;*probe00&#39;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">datasets</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">()</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">'*probe00'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Likewise, users can list collections and revisions for a given experiment, and all methods support wildcards.</p>
@@ -214,7 +214,7 @@ To list the datasets for a given experiment and filter by a collection, the user
 <section id="loading-data">
 <h3>Loading data<a class="headerlink" href="#loading-data" title="Link to this heading"></a></h3>
 <p>Finally the user can load data for the experiment using one of the load methods:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">st</span><span class="p">,</span> <span class="n">sc</span><span class="p">,</span> <span class="n">cbl</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">()</span><span class="o">.</span><span class="n">load_datasets</span><span class="p">(</span><span class="n">eID</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;spikes.times&#39;</span><span class="p">,</span> <span class="s1">&#39;spikes.clusters&#39;</span><span class="p">,</span> <span class="s1">&#39;clusters.brain_location&#39;</span><span class="p">])</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">st</span><span class="p">,</span> <span class="n">sc</span><span class="p">,</span> <span class="n">cbl</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">()</span><span class="o">.</span><span class="n">load_datasets</span><span class="p">(</span><span class="n">eID</span><span class="p">,</span> <span class="p">[</span><span class="s1">'spikes.times'</span><span class="p">,</span> <span class="s1">'spikes.clusters'</span><span class="p">,</span> <span class="s1">'clusters.brain_location'</span><span class="p">])</span>
 </pre></div>
 </div>
 <p>This command will (down)load three datasets containing the times and cluster assignments of all

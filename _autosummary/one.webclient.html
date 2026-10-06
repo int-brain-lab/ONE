@@ -145,28 +145,28 @@
 files through Alyx.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">alyx</span> <span class="o">=</span> <span class="n">AlyxClient</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="n">username</span><span class="o">=</span><span class="s1">&#39;test_user&#39;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s1">&#39;TapetesBloc18&#39;</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://test.alyx.internationalbrainlab.org&#39;</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">username</span><span class="o">=</span><span class="s1">'test_user'</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s1">'TapetesBloc18'</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">base_url</span><span class="o">=</span><span class="s1">'https://test.alyx.internationalbrainlab.org'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>List subjects</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">subjects</span> <span class="o">=</span> <span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">subjects</span> <span class="o">=</span> <span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">'subjects'</span><span class="p">,</span> <span class="s1">'list'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Create a subject</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">record</span> <span class="o">=</span> <span class="p">{</span>
-<span class="gp">... </span>    <span class="s1">&#39;nickname&#39;</span><span class="p">:</span> <span class="n">nickname</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="s1">&#39;responsible_user&#39;</span><span class="p">:</span> <span class="s1">&#39;olivier&#39;</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="s1">&#39;birth_date&#39;</span><span class="p">:</span> <span class="s1">&#39;2019-06-15&#39;</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="s1">&#39;death_date&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="s1">&#39;lab&#39;</span><span class="p">:</span> <span class="s1">&#39;cortexlab&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">'nickname'</span><span class="p">:</span> <span class="n">nickname</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">'responsible_user'</span><span class="p">:</span> <span class="s1">'olivier'</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">'birth_date'</span><span class="p">:</span> <span class="s1">'2019-06-15'</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">'death_date'</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">'lab'</span><span class="p">:</span> <span class="s1">'cortexlab'</span><span class="p">,</span>
 <span class="gp">... </span><span class="p">}</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">new_subj</span> <span class="o">=</span> <span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;create&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">record</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">new_subj</span> <span class="o">=</span> <span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">'subjects'</span><span class="p">,</span> <span class="s1">'create'</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">record</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Download a remote file, given a local path</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;zadorlab/Subjects/flowers/2018-07-13/1/channels.probe.npy&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">local_path</span> <span class="o">=</span> <span class="n">alyx</span><span class="o">.</span><span class="n">download_file</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">target_dir</span><span class="o">=</span><span class="s1">&#39;zadorlab/Subjects/flowers/2018-07-13/1/&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">url</span> <span class="o">=</span> <span class="s1">'zadorlab/Subjects/flowers/2018-07-13/1/channels.probe.npy'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">local_path</span> <span class="o">=</span> <span class="n">alyx</span><span class="o">.</span><span class="n">download_file</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">target_dir</span><span class="o">=</span><span class="s1">'zadorlab/Subjects/flowers/2018-07-13/1/'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p class="rubric">Module attributes</p>
@@ -250,7 +250,7 @@ files through Alyx.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">one.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">ONE</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">no_cache</span><span class="p">(</span><span class="n">ONE</span><span class="p">()</span><span class="o">.</span><span class="n">alyx</span><span class="p">):</span>
-<span class="gp">... </span>    <span class="n">eids</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">()</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="s1">&#39;foobar&#39;</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">&#39;remote&#39;</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">eids</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">()</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="s1">'foobar'</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">'remote'</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -274,12 +274,12 @@ files through Alyx.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">update_url_params</span><span class="p">(</span><span class="s1">&#39;website.com/?q=&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;pg&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">})</span>
-<span class="go">&#39;website.com/?pg=5&#39;</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">update_url_params</span><span class="p">(</span><span class="s1">'website.com/?q='</span><span class="p">,</span> <span class="p">{</span><span class="s1">'pg'</span><span class="p">:</span> <span class="mi">5</span><span class="p">})</span>
+<span class="go">'website.com/?pg=5'</span>
 </pre></div>
 </div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">update_url_params</span><span class="p">(</span><span class="s1">&#39;website.com?q=xxx&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;pg&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s1">&#39;foo&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="s1">&#39;baz&#39;</span><span class="p">]})</span>
-<span class="go">&#39;website.com?q=xxx&amp;pg=5&amp;foo=bar&amp;foo=baz&#39;</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">update_url_params</span><span class="p">(</span><span class="s1">'website.com?q=xxx'</span><span class="p">,</span> <span class="p">{</span><span class="s1">'pg'</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s1">'foo'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'bar'</span><span class="p">,</span> <span class="s1">'baz'</span><span class="p">]})</span>
+<span class="go">'website.com?q=xxx&amp;pg=5&amp;foo=bar&amp;foo=baz'</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -752,7 +752,7 @@ None, otherwise it executes the decorated function.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="one.webclient.AlyxClient">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">AlyxClient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">silent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache_rest</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'GET'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/webclient.html#AlyxClient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.AlyxClient" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">AlyxClient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">silent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache_rest</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'GET'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/webclient.html#AlyxClient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.AlyxClient" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class that implements simple GET/POST wrappers for the Alyx REST API.</p>
 <p>See <a class="reference external" href="https://openalyx.internationalbrainlab.org/docs">https://openalyx.internationalbrainlab.org/docs</a></p>
@@ -782,6 +782,17 @@ None, otherwise it executes the decorated function.</p>
 <dt class="sig sig-object py" id="one.webclient.AlyxClient.max_retry_wait_seconds">
 <span class="sig-name descname"><span class="pre">max_retry_wait_seconds</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">300.0</span></span><a class="headerlink" href="#one.webclient.AlyxClient.max_retry_wait_seconds" title="Link to this definition"></a></dt>
 <dd><p>The maximum number of seconds to wait between retry attempts for REST requests.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="one.webclient.AlyxClient.token_verify_timeout">
+<span class="sig-name descname"><span class="pre">token_verify_timeout</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">10.0</span></span><a class="headerlink" href="#one.webclient.AlyxClient.token_verify_timeout" title="Link to this definition"></a></dt>
+<dd><p>Seconds to wait when checking a user-supplied token is valid.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>float</p>
@@ -845,16 +856,25 @@ None, otherwise it executes the decorated function.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="one.webclient.AlyxClient.authenticate">
-<span class="sig-name descname"><span class="pre">authenticate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache_token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/webclient.html#AlyxClient.authenticate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.AlyxClient.authenticate" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">authenticate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache_token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/webclient.html#AlyxClient.authenticate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.webclient.AlyxClient.authenticate" title="Link to this definition"></a></dt>
 <dd><p>Fetch token from the Alyx REST API for authenticating request headers.</p>
 <p>Credentials are loaded via one.params.</p>
+<p>A token may be given in place of a password. Accounts that sign in through an identity
+provider have no password at all and cannot use /auth-token, so a token copied from the
+database’s /me page is the only credential they have. The token is cached exactly as one
+fetched with a password would be, so this is needed once rather than every session.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>username</strong> (<em>str</em>) – Alyx username.  If None, token not cached and not silent, user is prompted.</p></li>
-<li><p><strong>password</strong> (<em>str</em>) – Alyx password.  If None, token not cached and not silent, user is prompted.</p></li>
+<li><p><strong>username</strong> (<em>str</em>) – Alyx username.  If None, token not cached and not silent, user is prompted.
+Not required, and not prompted for, when <cite>token</cite> is given: the database reports
+whose token it is.</p></li>
+<li><p><strong>password</strong> (<em>str</em>) – Alyx password.  If None, token not cached and not silent, user is prompted for a
+password or, failing that, a token.</p></li>
 <li><p><strong>cache_token</strong> (<em>bool</em>) – If true, the token is cached for subsequent auto-logins.</p></li>
 <li><p><strong>force</strong> (<em>bool</em>) – If true, any cached token is ignored.</p></li>
+<li><p><strong>token</strong> (<em>str</em><em>, </em><em>dict</em>) – An Alyx API token, used instead of a password. Obtained from the database’s /me
+page. Supplying one forces re-authentication, as supplying a password does.</p></li>
 </ul>
 </dd>
 </dl>
@@ -882,9 +902,9 @@ and clears the REST cache.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">AlyxClient</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="s1">&#39;/weighings/c617562d-c107-432e-a8ee-682c17f9e698&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">AlyxClient</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="s1">'/weighings/c617562d-c107-432e-a8ee-682c17f9e698'</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">AlyxClient</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="s1">&#39;https://alyx.example.com/endpoint/c617562d-c107-432e-a8ee-682c17f9e698&#39;</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="s1">'https://alyx.example.com/endpoint/c617562d-c107-432e-a8ee-682c17f9e698'</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -1057,18 +1077,18 @@ c.f. <a class="reference external" href="https://openalyx.internationalbrainlab.
 </pre></div>
 </div>
 <p>List available actions for the ‘subjects’ endpoint</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;subjects&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">'subjects'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Example REST endpoint with all actions</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">field_filter1</span><span class="o">=</span><span class="s1">&#39;filterval&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;create&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">sub_dict</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;read&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s1">&#39;nickname&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;update&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s1">&#39;nickname&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">sub_dict</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;partial_update&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s1">&#39;nickname&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">sub_dict</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;subjects&#39;</span><span class="p">,</span> <span class="s1">&#39;delete&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s1">&#39;nickname&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;notes&#39;</span><span class="p">,</span> <span class="s1">&#39;create&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">nd</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="nb">open</span><span class="p">(</span><span class="n">image_file</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)})</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">'subjects'</span><span class="p">,</span> <span class="s1">'list'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">'subjects'</span><span class="p">,</span> <span class="s1">'list'</span><span class="p">,</span> <span class="n">field_filter1</span><span class="o">=</span><span class="s1">'filterval'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">'subjects'</span><span class="p">,</span> <span class="s1">'create'</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">sub_dict</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">'subjects'</span><span class="p">,</span> <span class="s1">'read'</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s1">'nickname'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">'subjects'</span><span class="p">,</span> <span class="s1">'update'</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s1">'nickname'</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">sub_dict</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">'subjects'</span><span class="p">,</span> <span class="s1">'partial_update'</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s1">'nickname'</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">sub_dict</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">'subjects'</span><span class="p">,</span> <span class="s1">'delete'</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s1">'nickname'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">'notes'</span><span class="p">,</span> <span class="s1">'create'</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">nd</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="p">{</span><span class="s1">'image'</span><span class="p">:</span> <span class="nb">open</span><span class="p">(</span><span class="n">image_file</span><span class="p">,</span> <span class="s1">'rb'</span><span class="p">)})</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -1121,7 +1141,7 @@ values (uses the dict.update() method).</p>
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">client</span> <span class="o">=</span> <span class="n">AlyxClient</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">json_field_update</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;eid_str&#39;</span><span class="p">,</span> <span class="s1">&#39;extended_qc&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;key&#39;</span><span class="p">:</span> <span class="s1">&#39;value&#39;</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">json_field_update</span><span class="p">(</span><span class="s1">'sessions'</span><span class="p">,</span> <span class="s1">'eid_str'</span><span class="p">,</span> <span class="s1">'extended_qc'</span><span class="p">,</span> <span class="p">{</span><span class="s1">'key'</span><span class="p">:</span> <span class="s1">'value'</span><span class="p">})</span>
 </pre></div>
 </div>
 </dd></dl>

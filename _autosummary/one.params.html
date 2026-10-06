@@ -204,6 +204,9 @@ caches file also sets the default client for when no url is provided.</p>
 <dt class="sig sig-object py" id="one.params.default">
 <span class="sig-name descname"><span class="pre">default</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/one/params.html#default"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#one.params.default" title="Link to this definition"></a></dt>
 <dd><p>Default Web client parameters.</p>
+<p>The login is deliberately blank: public users now register their own account, so the client
+asks who they are rather than assuming a shared one. Pass <code class="docutils literal notranslate"><span class="pre">username</span></code> to <a class="reference internal" href="#one.params.setup" title="one.params.setup"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup()</span></code></a> to
+fill it in unattended.</p>
 </dd></dl>
 
 <dl class="py function">

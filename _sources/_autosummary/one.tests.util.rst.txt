@@ -18,6 +18,7 @@ one.tests.util
       create_file_tree
       create_schema_cache
       get_file
+      mock_http_download
       revisions_datasets_table
       set_up_env
       setup_rest_cache

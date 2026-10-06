@@ -105,7 +105,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for one.registration</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Session creation and datasets registration.</span>
+<span></span><span class="sd">"""Session creation and datasets registration.</span>
 
 <span class="sd">The RegistrationClient provides an high-level API for creating experimentation sessions on Alyx</span>
 <span class="sd">and registering associated datasets.</span>
@@ -116,7 +116,7 @@
 <span class="sd">create_sessions - Create sessions and register files for folder containing a given flag file</span>
 <span class="sd">register_session - Create a session on Alyx from local path and register any ALF datasets present</span>
 <span class="sd">register_files - Register a list of files to their respective sessions on Alyx</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pathlib</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">uuid</span><span class="w"> </span><span class="kn">import</span> <span class="n">UUID</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span><span class="p">,</span> <span class="n">PurePosixPath</span>
@@ -126,6 +126,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">fnmatch</span><span class="w"> </span><span class="kn">import</span> <span class="n">fnmatch</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">os.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">commonpath</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">requests.exceptions</span>
 
@@ -145,7 +146,7 @@
 <div class="viewcode-block" id="get_dataset_type">
 <a class="viewcode-back" href="../../_autosummary/one.registration.html#one.registration.get_dataset_type">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_dataset_type</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">dtypes</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the dataset type from a given filename.</span>
+<span class="w">    </span><span class="sd">"""Get the dataset type from a given filename.</span>
 
 <span class="sd">    A dataset type is matched one of two ways:</span>
 
@@ -157,7 +158,7 @@
 <span class="sd">    filename : str, pathlib.Path</span>
 <span class="sd">        The filename or filepath.</span>
 <span class="sd">    dtypes : iterable</span>
-<span class="sd">        An iterable of dataset type objects with the attributes (&#39;name&#39;, &#39;filename_pattern&#39;).</span>
+<span class="sd">        An iterable of dataset type objects with the attributes ('name', 'filename_pattern').</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -166,10 +167,10 @@
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
 <span class="sd">    ValueError</span>
-<span class="sd">        filename doesn&#39;t match any of the dataset types</span>
+<span class="sd">        filename doesn't match any of the dataset types</span>
 <span class="sd">        filename matches multiple dataset types</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">dataset_types</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">filename</span> <span class="o">=</span> <span class="n">ensure_alf_path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">dt</span> <span class="ow">in</span> <span class="p">(</span><span class="n">Bunch</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">dtypes</span><span class="p">):</span>
@@ -177,7 +178,7 @@
             <span class="c1"># If the filename pattern is null, check whether the filename object.attribute matches</span>
             <span class="c1"># the dataset type name.</span>
             <span class="k">if</span> <span class="n">is_valid</span><span class="p">(</span><span class="n">filename</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
-                <span class="n">obj_attr</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">filename</span><span class="o">.</span><span class="n">dataset_name_parts</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">3</span><span class="p">])</span>
+                <span class="n">obj_attr</span> <span class="o">=</span> <span class="s1">'.'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">filename</span><span class="o">.</span><span class="n">dataset_name_parts</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">3</span><span class="p">])</span>
             <span class="k">else</span><span class="p">:</span>  <span class="c1"># will match name against filename sans extension</span>
                 <span class="n">obj_attr</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">stem</span>
             <span class="k">if</span> <span class="n">dt</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">obj_attr</span><span class="p">:</span>
@@ -187,10 +188,10 @@
             <span class="n">dataset_types</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
     <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset_types</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;No dataset type found for filename &quot;</span><span class="si">{</span><span class="n">filename</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'No dataset type found for filename "</span><span class="si">{</span><span class="n">filename</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">"'</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">n</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Multiple matching dataset types found for filename &#39;</span>
-                         <span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="n">filename</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&quot;: </span><span class="se">\n</span><span class="si">{</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span><span class="w"> </span><span class="n">dataset_types</span><span class="p">))</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Multiple matching dataset types found for filename '</span>
+                         <span class="sa">f</span><span class="s1">'"</span><span class="si">{</span><span class="n">filename</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">": </span><span class="se">\n</span><span class="si">{</span><span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span><span class="w"> </span><span class="n">dataset_types</span><span class="p">))</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">dataset_types</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
 
 
@@ -198,26 +199,26 @@
 <div class="viewcode-block" id="RegistrationClient">
 <a class="viewcode-back" href="../../_autosummary/one.registration.html#one.registration.RegistrationClient">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">RegistrationClient</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Methods to create sessions and register data.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Methods to create sessions and register data."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">one</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">one</span> <span class="o">=</span> <span class="n">one</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">one</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">cache_rest</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">cache_mode</span> <span class="o">==</span> <span class="s1">&#39;GET&#39;</span><span class="p">:</span>
-            <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;AlyxClient REST cache active; &#39;</span>
-                            <span class="s1">&#39;this may cause issues with registration.&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dtypes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">Bunch</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;dataset-types&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">)))</span>
+        <span class="k">elif</span> <span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">cache_mode</span> <span class="o">==</span> <span class="s1">'GET'</span><span class="p">:</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">'AlyxClient REST cache active; '</span>
+                            <span class="s1">'this may cause issues with registration.'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dtypes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">Bunch</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">'dataset-types'</span><span class="p">,</span> <span class="s1">'list'</span><span class="p">)))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">registration_patterns</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">dt</span><span class="p">[</span><span class="s1">&#39;filename_pattern&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">dt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtypes</span> <span class="k">if</span> <span class="n">dt</span><span class="p">[</span><span class="s1">&#39;filename_pattern&#39;</span><span class="p">]]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">file_extensions</span> <span class="o">=</span> <span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;file_extension&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">df</span> <span class="ow">in</span>
-                                <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;data-formats&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">no_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)]</span>
+            <span class="n">dt</span><span class="p">[</span><span class="s1">'filename_pattern'</span><span class="p">]</span> <span class="k">for</span> <span class="n">dt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtypes</span> <span class="k">if</span> <span class="n">dt</span><span class="p">[</span><span class="s1">'filename_pattern'</span><span class="p">]]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file_extensions</span> <span class="o">=</span> <span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">'file_extension'</span><span class="p">]</span> <span class="k">for</span> <span class="n">df</span> <span class="ow">in</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">'data-formats'</span><span class="p">,</span> <span class="s1">'list'</span><span class="p">,</span> <span class="n">no_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)]</span>
 
 <div class="viewcode-block" id="RegistrationClient.create_sessions">
 <a class="viewcode-back" href="../../_autosummary/one.registration.html#one.registration.RegistrationClient.create_sessions">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">create_sessions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root_data_folder</span><span class="p">,</span> <span class="n">glob_pattern</span><span class="o">=</span><span class="s1">&#39;**/create_me.flag&#39;</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_sessions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root_data_folder</span><span class="p">,</span> <span class="n">glob_pattern</span><span class="o">=</span><span class="s1">'**/create_me.flag'</span><span class="p">,</span>
                         <span class="n">register_files</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dry</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create sessions looking recursively for flag files.</span>
+<span class="w">        </span><span class="sd">"""Create sessions looking recursively for flag files.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -237,7 +238,7 @@
 <span class="sd">        list of dicts</span>
 <span class="sd">            Alyx session records.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">flag_files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">root_data_folder</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">glob_pattern</span><span class="p">))</span>
         <span class="n">records</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">flag_file</span> <span class="ow">in</span> <span class="n">flag_files</span><span class="p">:</span>
@@ -245,7 +246,7 @@
                 <span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">print</span><span class="p">(</span><span class="n">flag_file</span><span class="p">))</span>
                 <span class="k">continue</span>
             <span class="n">session_path</span> <span class="o">=</span> <span class="n">ALFPath</span><span class="p">(</span><span class="n">flag_file</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
-            <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;creating session for &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">session_path</span><span class="p">))</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'creating session for '</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">session_path</span><span class="p">))</span>
             <span class="c1"># providing a false flag stops the registration after session creation</span>
             <span class="n">session_info</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">register_session</span><span class="p">(</span><span class="n">session_path</span><span class="p">,</span> <span class="n">file_list</span><span class="o">=</span><span class="n">register_files</span><span class="p">)</span>
             <span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">session_info</span><span class="p">)</span>
@@ -256,7 +257,7 @@
 <div class="viewcode-block" id="RegistrationClient.create_new_session">
 <a class="viewcode-back" href="../../_autosummary/one.registration.html#one.registration.RegistrationClient.create_new_session">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">create_new_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subject</span><span class="p">,</span> <span class="n">session_root</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">register</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new local session folder and optionally create session record on Alyx.</span>
+<span class="w">        </span><span class="sd">"""Create a new local session folder and optionally create session record on Alyx.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -283,27 +284,27 @@
 <span class="sd">        --------</span>
 <span class="sd">        Create a local session only</span>
 
-<span class="sd">        &gt;&gt;&gt; session_path, _ = RegistrationClient().create_new_session(&#39;Ian&#39;, register=False)</span>
+<span class="sd">        &gt;&gt;&gt; session_path, _ = RegistrationClient().create_new_session('Ian', register=False)</span>
 
 <span class="sd">        Register a session on Alyx in a specific location</span>
 
-<span class="sd">        &gt;&gt;&gt; session_path, eid = RegistrationClient().create_new_session(&#39;Sy&#39;, &#39;/data/lab/Subjects&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; session_path, eid = RegistrationClient().create_new_session('Sy', '/data/lab/Subjects')</span>
 
 <span class="sd">        Create a session for a given date</span>
 
-<span class="sd">        &gt;&gt;&gt; session_path, eid = RegistrationClient().create_new_session(&#39;Ian&#39;, date=&#39;2020-01-01&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; session_path, eid = RegistrationClient().create_new_session('Ian', date='2020-01-01')</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">assert</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">offline</span><span class="p">,</span> <span class="s1">&#39;ONE must be in online mode&#39;</span>
+<span class="sd">        """</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">offline</span><span class="p">,</span> <span class="s1">'ONE must be in online mode'</span>
         <span class="n">date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensure_ISO8601</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>  <span class="c1"># Format, validate</span>
         <span class="c1"># Ensure subject exists on Alyx</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assert_exists</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="s1">&#39;subjects&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assert_exists</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="s1">'subjects'</span><span class="p">)</span>
         <span class="n">session_root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">session_root</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">)</span> <span class="o">/</span> <span class="n">subject</span> <span class="o">/</span> <span class="n">date</span><span class="p">[:</span><span class="mi">10</span><span class="p">]</span>
         <span class="n">session_path</span> <span class="o">=</span> <span class="n">session_root</span> <span class="o">/</span> <span class="n">alfio</span><span class="o">.</span><span class="n">next_num_folder</span><span class="p">(</span><span class="n">session_root</span><span class="p">)</span>
         <span class="n">session_path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># Ensure folder exists on disk</span>
         <span class="k">if</span> <span class="n">register</span><span class="p">:</span>
             <span class="n">session_info</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">register_session</span><span class="p">(</span><span class="n">session_path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-            <span class="n">eid</span> <span class="o">=</span> <span class="n">UUID</span><span class="p">(</span><span class="n">session_info</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">36</span><span class="p">:])</span>
+            <span class="n">eid</span> <span class="o">=</span> <span class="n">UUID</span><span class="p">(</span><span class="n">session_info</span><span class="p">[</span><span class="s1">'url'</span><span class="p">][</span><span class="o">-</span><span class="mi">36</span><span class="p">:])</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">eid</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="n">session_path</span><span class="p">,</span> <span class="n">eid</span></div>
@@ -312,7 +313,7 @@
 <div class="viewcode-block" id="RegistrationClient.find_files">
 <a class="viewcode-back" href="../../_autosummary/one.registration.html#one.registration.RegistrationClient.find_files">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">find_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session_path</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a generator of file names that match one of the dataset type patterns in Alyx.</span>
+<span class="w">        </span><span class="sd">"""Returns a generator of file names that match one of the dataset type patterns in Alyx.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -324,7 +325,7 @@
 <span class="sd">        pathlib.Path</span>
 <span class="sd">            File paths that match the dataset type patterns in Alyx.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">session_path</span> <span class="o">=</span> <span class="n">ALFPath</span><span class="p">(</span><span class="n">session_path</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">session_path</span><span class="o">.</span><span class="n">iter_datasets</span><span class="p">(</span><span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
             <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">ext</span><span class="p">)</span> <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_extensions</span><span class="p">):</span>
@@ -332,13 +333,13 @@
                     <span class="n">get_dataset_type</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtypes</span><span class="p">)</span>
                     <span class="k">yield</span> <span class="n">p</span>
                 <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
-                    <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">ex</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div>
+                    <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">'</span><span class="si">%s</span><span class="s1">'</span><span class="p">,</span> <span class="n">ex</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div>
 
 
 <div class="viewcode-block" id="RegistrationClient.assert_exists">
 <a class="viewcode-back" href="../../_autosummary/one.registration.html#one.registration.RegistrationClient.assert_exists">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">assert_exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">member</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Raise an error if a given member doesn&#39;t exist on Alyx database.</span>
+<span class="w">        </span><span class="sd">"""Raise an error if a given member doesn't exist on Alyx database.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -349,9 +350,9 @@
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
-<span class="sd">        &gt;&gt;&gt; client.assert_exists(&#39;ALK_036&#39;, &#39;subjects&#39;)</span>
-<span class="sd">        &gt;&gt;&gt; client.assert_exists(&#39;user_45&#39;, &#39;users&#39;)</span>
-<span class="sd">        &gt;&gt;&gt; client.assert_exists(&#39;local_server&#39;, &#39;repositories&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; client.assert_exists('ALK_036', 'subjects')</span>
+<span class="sd">        &gt;&gt;&gt; client.assert_exists('user_45', 'users')</span>
+<span class="sd">        &gt;&gt;&gt; client.assert_exists('local_server', 'repositories')</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
@@ -367,17 +368,17 @@
 <span class="sd">        dict, list of dict</span>
 <span class="sd">            The endpoint data if member exists.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">UUID</span><span class="p">)):</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="s1">&#39;read&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">member</span><span class="p">),</span> <span class="n">no_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="s1">'read'</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">member</span><span class="p">),</span> <span class="n">no_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">HTTPError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">ex</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">!=</span> <span class="mi">404</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="n">ex</span>
-                <span class="k">elif</span> <span class="n">endpoint</span> <span class="o">==</span> <span class="s1">&#39;subjects&#39;</span><span class="p">:</span>
+                <span class="k">elif</span> <span class="n">endpoint</span> <span class="o">==</span> <span class="s1">'subjects'</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="n">alferr</span><span class="o">.</span><span class="n">AlyxSubjectNotFound</span><span class="p">(</span><span class="n">member</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="n">alferr</span><span class="o">.</span><span class="n">ALFError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Member &quot;</span><span class="si">{</span><span class="n">member</span><span class="si">}</span><span class="s1">&quot; doesn</span><span class="se">\&#39;</span><span class="s1">t exist in </span><span class="si">{</span><span class="n">endpoint</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="n">alferr</span><span class="o">.</span><span class="n">ALFError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Member "</span><span class="si">{</span><span class="n">member</span><span class="si">}</span><span class="s1">" doesn</span><span class="se">\'</span><span class="s1">t exist in </span><span class="si">{</span><span class="n">endpoint</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">assert_exists</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">member</span><span class="p">]</span></div>
 
@@ -386,7 +387,7 @@
 <a class="viewcode-back" href="../../_autosummary/one.registration.html#one.registration.RegistrationClient.ensure_ISO8601">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">ensure_ISO8601</span><span class="p">(</span><span class="n">date</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure provided date is ISO 8601 compliant.</span>
+<span class="w">        </span><span class="sd">"""Ensure provided date is ISO 8601 compliant.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -398,10 +399,10 @@
 <span class="sd">        str</span>
 <span class="sd">            The datetime as an ISO 8601 string</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">date</span> <span class="o">=</span> <span class="n">date</span> <span class="ow">or</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>  <span class="c1"># If None get current time</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="c1"># FIXME support timezone aware strings, e.g. &#39;2023-03-09T17:08:12.4465024+00:00&#39;</span>
+            <span class="c1"># FIXME support timezone aware strings, e.g. '2023-03-09T17:08:12.4465024+00:00'</span>
             <span class="n">date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>  <span class="c1"># Validate by parsing</span>
         <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">date</span><span class="p">)</span> <span class="ow">is</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">:</span>
             <span class="n">date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromordinal</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">toordinal</span><span class="p">())</span>
@@ -411,7 +412,7 @@
 <div class="viewcode-block" id="RegistrationClient.register_session">
 <a class="viewcode-back" href="../../_autosummary/one.registration.html#one.registration.RegistrationClient.register_session">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">register_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ses_path</span><span class="p">,</span> <span class="n">users</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">file_list</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Register session in Alyx.</span>
+<span class="w">        </span><span class="sd">"""Register session in Alyx.</span>
 
 <span class="sd">        NB: If providing a lab or start_time kwarg, they must match the lab (if there is one)</span>
 <span class="sd">        and date of the session path.</span>
@@ -428,7 +429,7 @@
 <span class="sd">        location : str</span>
 <span class="sd">            The optional location within the lab where the experiment takes place</span>
 <span class="sd">        procedures : str, list</span>
-<span class="sd">            An optional list of procedures, e.g. &#39;Behavior training/tasks&#39;</span>
+<span class="sd">            An optional list of procedures, e.g. 'Behavior training/tasks'</span>
 <span class="sd">        n_correct_trials : int</span>
 <span class="sd">            The number of correct trials (optional)</span>
 <span class="sd">        n_trials : int</span>
@@ -438,7 +439,7 @@
 <span class="sd">        projects: str, list</span>
 <span class="sd">            The project(s) to which the experiment belongs (optional)</span>
 <span class="sd">        type : str</span>
-<span class="sd">            The experiment type, e.g. &#39;Experiment&#39;, &#39;Base&#39;</span>
+<span class="sd">            The experiment type, e.g. 'Experiment', 'Base'</span>
 <span class="sd">        task_protocol : str</span>
 <span class="sd">            The task protocol (optional)</span>
 <span class="sd">        lab : str</span>
@@ -472,64 +473,64 @@
 <span class="sd">        ConnectionError</span>
 <span class="sd">            Failed to connect to Alyx, most likely due to a bad internet connection.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">ses_path</span> <span class="o">=</span> <span class="n">ALFPath</span><span class="p">(</span><span class="n">ses_path</span><span class="p">)</span>
         <span class="n">details</span> <span class="o">=</span> <span class="n">session_path_parts</span><span class="p">(</span><span class="n">ses_path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">(),</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="c1"># query alyx endpoints for subject, error if not found</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assert_exists</span><span class="p">(</span><span class="n">details</span><span class="p">[</span><span class="s1">&#39;subject&#39;</span><span class="p">],</span> <span class="s1">&#39;subjects&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assert_exists</span><span class="p">(</span><span class="n">details</span><span class="p">[</span><span class="s1">'subject'</span><span class="p">],</span> <span class="s1">'subjects'</span><span class="p">)</span>
 
         <span class="c1"># look for a session from the same subject, same number on the same day</span>
         <span class="k">with</span> <span class="n">no_cache</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="p">):</span>
-            <span class="n">session_id</span><span class="p">,</span> <span class="n">session</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="n">details</span><span class="p">[</span><span class="s1">&#39;subject&#39;</span><span class="p">],</span>
-                                                  <span class="n">date_range</span><span class="o">=</span><span class="n">details</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">],</span>
-                                                  <span class="n">number</span><span class="o">=</span><span class="n">details</span><span class="p">[</span><span class="s1">&#39;number&#39;</span><span class="p">],</span>
-                                                  <span class="n">details</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">&#39;remote&#39;</span><span class="p">)</span>
+            <span class="n">session_id</span><span class="p">,</span> <span class="n">session</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="n">details</span><span class="p">[</span><span class="s1">'subject'</span><span class="p">],</span>
+                                                  <span class="n">date_range</span><span class="o">=</span><span class="n">details</span><span class="p">[</span><span class="s1">'date'</span><span class="p">],</span>
+                                                  <span class="n">number</span><span class="o">=</span><span class="n">details</span><span class="p">[</span><span class="s1">'number'</span><span class="p">],</span>
+                                                  <span class="n">details</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="s1">'remote'</span><span class="p">)</span>
         <span class="n">users</span> <span class="o">=</span> <span class="n">ensure_list</span><span class="p">(</span><span class="n">users</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assert_exists</span><span class="p">(</span><span class="n">users</span><span class="p">,</span> <span class="s1">&#39;users&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assert_exists</span><span class="p">(</span><span class="n">users</span><span class="p">,</span> <span class="s1">'users'</span><span class="p">)</span>
 
         <span class="c1"># if nothing found create a new session in Alyx</span>
-        <span class="n">ses_</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;subject&#39;</span><span class="p">:</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;subject&#39;</span><span class="p">],</span>
-                <span class="s1">&#39;users&#39;</span><span class="p">:</span> <span class="n">users</span><span class="p">,</span>
-                <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;Experiment&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;number&#39;</span><span class="p">:</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;number&#39;</span><span class="p">]}</span>
-        <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;end_time&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
-            <span class="n">ses_</span><span class="p">[</span><span class="s1">&#39;end_time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensure_ISO8601</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;end_time&#39;</span><span class="p">))</span>
-        <span class="n">start_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensure_ISO8601</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;start_time&#39;</span><span class="p">,</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]))</span>
-        <span class="k">assert</span> <span class="n">start_time</span><span class="p">[:</span><span class="mi">10</span><span class="p">]</span> <span class="o">==</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">],</span> <span class="s1">&#39;start_time doesn</span><span class="se">\&#39;</span><span class="s1">t match session path&#39;</span>
-        <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;procedures&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
-            <span class="n">ses_</span><span class="p">[</span><span class="s1">&#39;procedures&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ensure_list</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;procedures&#39;</span><span class="p">))</span>
-        <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;projects&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
-            <span class="n">ses_</span><span class="p">[</span><span class="s1">&#39;projects&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ensure_list</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;projects&#39;</span><span class="p">))</span>
-        <span class="k">assert</span> <span class="p">(</span><span class="s1">&#39;subject&#39;</span><span class="p">,</span> <span class="s1">&#39;number&#39;</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span>
-        <span class="k">if</span> <span class="s1">&#39;lab&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="ow">and</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;lab&#39;</span><span class="p">]:</span>
-            <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;lab&#39;</span><span class="p">:</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;lab&#39;</span><span class="p">]})</span>
-        <span class="k">elif</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;lab&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;lab&#39;</span><span class="p">,</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;lab&#39;</span><span class="p">])</span> <span class="o">!=</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;lab&#39;</span><span class="p">]:</span>
-            <span class="n">names</span> <span class="o">=</span> <span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;lab&#39;</span><span class="p">],</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;lab&#39;</span><span class="p">])</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;lab kwarg &quot;</span><span class="si">%s</span><span class="s1">&quot; does not match lab name in path (&quot;</span><span class="si">%s</span><span class="s1">&quot;)&#39;</span> <span class="o">%</span> <span class="n">names</span><span class="p">)</span>
+        <span class="n">ses_</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'subject'</span><span class="p">:</span> <span class="n">details</span><span class="p">[</span><span class="s1">'subject'</span><span class="p">],</span>
+                <span class="s1">'users'</span><span class="p">:</span> <span class="n">users</span><span class="p">,</span>
+                <span class="s1">'type'</span><span class="p">:</span> <span class="s1">'Experiment'</span><span class="p">,</span>
+                <span class="s1">'number'</span><span class="p">:</span> <span class="n">details</span><span class="p">[</span><span class="s1">'number'</span><span class="p">]}</span>
+        <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'end_time'</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+            <span class="n">ses_</span><span class="p">[</span><span class="s1">'end_time'</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensure_ISO8601</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">'end_time'</span><span class="p">))</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensure_ISO8601</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">'start_time'</span><span class="p">,</span> <span class="n">details</span><span class="p">[</span><span class="s1">'date'</span><span class="p">]))</span>
+        <span class="k">assert</span> <span class="n">start_time</span><span class="p">[:</span><span class="mi">10</span><span class="p">]</span> <span class="o">==</span> <span class="n">details</span><span class="p">[</span><span class="s1">'date'</span><span class="p">],</span> <span class="s1">'start_time doesn</span><span class="se">\'</span><span class="s1">t match session path'</span>
+        <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'procedures'</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+            <span class="n">ses_</span><span class="p">[</span><span class="s1">'procedures'</span><span class="p">]</span> <span class="o">=</span> <span class="n">ensure_list</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">'procedures'</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'projects'</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+            <span class="n">ses_</span><span class="p">[</span><span class="s1">'projects'</span><span class="p">]</span> <span class="o">=</span> <span class="n">ensure_list</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">'projects'</span><span class="p">))</span>
+        <span class="k">assert</span> <span class="p">(</span><span class="s1">'subject'</span><span class="p">,</span> <span class="s1">'number'</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span>
+        <span class="k">if</span> <span class="s1">'lab'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="ow">and</span> <span class="n">details</span><span class="p">[</span><span class="s1">'lab'</span><span class="p">]:</span>
+            <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">'lab'</span><span class="p">:</span> <span class="n">details</span><span class="p">[</span><span class="s1">'lab'</span><span class="p">]})</span>
+        <span class="k">elif</span> <span class="n">details</span><span class="p">[</span><span class="s1">'lab'</span><span class="p">]</span> <span class="ow">and</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'lab'</span><span class="p">,</span> <span class="n">details</span><span class="p">[</span><span class="s1">'lab'</span><span class="p">])</span> <span class="o">!=</span> <span class="n">details</span><span class="p">[</span><span class="s1">'lab'</span><span class="p">]:</span>
+            <span class="n">names</span> <span class="o">=</span> <span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">'lab'</span><span class="p">],</span> <span class="n">details</span><span class="p">[</span><span class="s1">'lab'</span><span class="p">])</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'lab kwarg "</span><span class="si">%s</span><span class="s1">" does not match lab name in path ("</span><span class="si">%s</span><span class="s1">")'</span> <span class="o">%</span> <span class="n">names</span><span class="p">)</span>
         <span class="n">ses_</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">session</span><span class="p">:</span>  <span class="c1"># Create from scratch</span>
-            <span class="n">ses_</span><span class="p">[</span><span class="s1">&#39;start_time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">start_time</span>
-            <span class="n">session</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;create&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">ses_</span><span class="p">)</span>
+            <span class="n">ses_</span><span class="p">[</span><span class="s1">'start_time'</span><span class="p">]</span> <span class="o">=</span> <span class="n">start_time</span>
+            <span class="n">session</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">'sessions'</span><span class="p">,</span> <span class="s1">'create'</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">ses_</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>  <span class="c1"># Update existing</span>
             <span class="k">if</span> <span class="n">start_time</span><span class="p">:</span>
-                <span class="n">ses_</span><span class="p">[</span><span class="s1">&#39;start_time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensure_ISO8601</span><span class="p">(</span><span class="n">start_time</span><span class="p">)</span>
-            <span class="n">session</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="s1">&#39;update&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">session_id</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">data</span><span class="o">=</span><span class="n">ses_</span><span class="p">)</span>
+                <span class="n">ses_</span><span class="p">[</span><span class="s1">'start_time'</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensure_ISO8601</span><span class="p">(</span><span class="n">start_time</span><span class="p">)</span>
+            <span class="n">session</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">'sessions'</span><span class="p">,</span> <span class="s1">'update'</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">session_id</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">data</span><span class="o">=</span><span class="n">ses_</span><span class="p">)</span>
 
-        <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">session</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span><span class="p">)</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">session</span><span class="p">[</span><span class="s1">'url'</span><span class="p">]</span> <span class="o">+</span> <span class="s1">' '</span><span class="p">)</span>
         <span class="c1"># at this point the session has been created. If create only, exit</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">file_list</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">session</span><span class="p">,</span> <span class="kc">None</span>
         <span class="n">recs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">register_files</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">find_files</span><span class="p">(</span><span class="n">ses_path</span><span class="p">)</span> <span class="k">if</span> <span class="n">file_list</span> <span class="ow">is</span> <span class="kc">True</span> <span class="k">else</span> <span class="n">file_list</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">recs</span><span class="p">:</span>  <span class="c1"># Update local session data after registering files</span>
-            <span class="n">session</span><span class="p">[</span><span class="s1">&#39;data_dataset_session_related&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ensure_list</span><span class="p">(</span><span class="n">recs</span><span class="p">)</span>
+            <span class="n">session</span><span class="p">[</span><span class="s1">'data_dataset_session_related'</span><span class="p">]</span> <span class="o">=</span> <span class="n">ensure_list</span><span class="p">(</span><span class="n">recs</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">session</span><span class="p">,</span> <span class="n">recs</span></div>
 
 
 <div class="viewcode-block" id="RegistrationClient.prepare_files">
 <a class="viewcode-back" href="../../_autosummary/one.registration.html#one.registration.RegistrationClient.prepare_files">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">prepare_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_list</span><span class="p">,</span> <span class="n">versions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate file list for registration and group files by session path.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">prepare_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_list</span><span class="p">,</span> <span class="n">versions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">content_type</span><span class="o">=</span><span class="s1">'session'</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Validate file list for registration and group files by session path.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -537,6 +538,9 @@
 <span class="sd">            A filepath (or list thereof) of ALF datasets to register to Alyx.</span>
 <span class="sd">        versions : str, list of str</span>
 <span class="sd">            Optional version tags.</span>
+<span class="sd">        content_type : str</span>
+<span class="sd">            The database content type to register files to. When not 'session', the relative path</span>
+<span class="sd">            is determined by the first part of the file path that matches this name.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -549,7 +553,7 @@
 <span class="sd">        bool</span>
 <span class="sd">            A boolean indicating if input was a single file.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">F</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>  <span class="c1"># empty map whose keys will be session paths</span>
         <span class="n">V</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>  <span class="c1"># empty map for versions</span>
 
@@ -564,28 +568,44 @@
 
         <span class="c1"># Filter valid files and sort by session</span>
         <span class="k">for</span> <span class="n">fn</span><span class="p">,</span> <span class="n">ver</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">file_list</span><span class="p">,</span> <span class="n">versions</span><span class="p">):</span>
-            <span class="n">session_path</span> <span class="o">=</span> <span class="n">fn</span><span class="o">.</span><span class="n">session_path</span><span class="p">()</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">session_path</span><span class="p">:</span>
-                <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">fn</span><span class="si">}</span><span class="s1">: Invalid session path&#39;</span><span class="p">)</span>
-                <span class="k">continue</span>
+            <span class="c1"># NB: We may change the default here to None to permit users to register non-alf</span>
+            <span class="c1">#  compliant datasets to Alyx</span>
+            <span class="k">if</span> <span class="n">content_type</span> <span class="o">==</span> <span class="s1">'session'</span><span class="p">:</span>
+                <span class="n">shared_path</span> <span class="o">=</span> <span class="n">fn</span><span class="o">.</span><span class="n">session_path</span><span class="p">()</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">shared_path</span><span class="p">:</span>
+                    <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">fn</span><span class="si">}</span><span class="s1">: Invalid session path'</span><span class="p">)</span>
+                    <span class="k">continue</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Path should be relative to the folder containing the relation, e.g. 'Subject'</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">idx</span> <span class="o">=</span> <span class="n">fn</span><span class="o">.</span><span class="n">parts</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">content_type</span><span class="o">.</span><span class="n">capitalize</span><span class="p">())</span>
+                <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                    <span class="c1"># Plurals are often used so we check for the first part that starts with the</span>
+                    <span class="c1"># relation name</span>
+                    <span class="n">fn_parts</span> <span class="o">=</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">casefold</span><span class="p">,</span> <span class="n">fn</span><span class="o">.</span><span class="n">parts</span><span class="p">))</span>
+                    <span class="n">idx</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">fn_parts</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">content_type</span><span class="p">)),</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">idx</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">'</span><span class="si">%s</span><span class="s1">: Path does not contain relation "</span><span class="si">%s</span><span class="s1">"'</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">content_type</span><span class="p">)</span>
+                        <span class="k">continue</span>
+                <span class="n">shared_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="o">*</span><span class="n">fn</span><span class="o">.</span><span class="n">parts</span><span class="p">[:</span><span class="n">idx</span><span class="p">])</span>
             <span class="k">if</span> <span class="n">fn</span><span class="o">.</span><span class="n">suffix</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_extensions</span><span class="p">:</span>
-                <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">fn</span><span class="si">}</span><span class="s1">: No matching extension &quot;</span><span class="si">{</span><span class="n">fn</span><span class="o">.</span><span class="n">suffix</span><span class="si">}</span><span class="s1">&quot; in database&#39;</span><span class="p">)</span>
+                <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">fn</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">: No matching extension "</span><span class="si">{</span><span class="n">fn</span><span class="o">.</span><span class="n">suffix</span><span class="si">}</span><span class="s1">" in database'</span><span class="p">)</span>
                 <span class="k">continue</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">get_dataset_type</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtypes</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
-                <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">ex</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">'</span><span class="si">%s</span><span class="s1">'</span><span class="p">,</span> <span class="n">ex</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
                 <span class="k">continue</span>
-            <span class="n">F</span><span class="p">[</span><span class="n">session_path</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fn</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">session_path</span><span class="p">))</span>
-            <span class="n">V</span><span class="p">[</span><span class="n">session_path</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ver</span><span class="p">)</span>
+            <span class="n">F</span><span class="p">[</span><span class="n">shared_path</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fn</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">shared_path</span><span class="p">))</span>
+            <span class="n">V</span><span class="p">[</span><span class="n">shared_path</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ver</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">F</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">file_list</span><span class="p">,</span> <span class="n">single_file</span></div>
 
 
 <div class="viewcode-block" id="RegistrationClient.check_protected_files">
 <a class="viewcode-back" href="../../_autosummary/one.registration.html#one.registration.RegistrationClient.check_protected_files">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">check_protected_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_list</span><span class="p">,</span> <span class="n">created_by</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check whether a set of files associated to a session are protected.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_protected_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_list</span><span class="p">,</span> <span class="n">created_by</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Check whether a set of files associated to a session are protected.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -593,31 +613,47 @@
 <span class="sd">            A filepath (or list thereof) of ALF datasets to register to Alyx.</span>
 <span class="sd">        created_by : str</span>
 <span class="sd">            Name of Alyx user (defaults to whoever is logged in to ONE instance).</span>
+<span class="sd">        kwargs</span>
+<span class="sd">            Extra arguments directly passed as REST request data to /check-protected endpoint.</span>
+<span class="sd">            For non-session datasets, provide 'content_type', 'object_id', and 'name' or</span>
+<span class="sd">            'hostname'.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        list of dicts, dict</span>
 <span class="sd">            A status for each session whether any of the files specified are protected</span>
-<span class="sd">            datasets or not.If none of the datasets are protected, a response with status</span>
+<span class="sd">            datasets or not. If none of the datasets are protected, a response with status</span>
 <span class="sd">            200 is returned, if any of the files are protected a response with status</span>
 <span class="sd">            403 is returned.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
+        <span class="n">content_type</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'content_type'</span><span class="p">,</span> <span class="s1">'session'</span><span class="p">)</span>
         <span class="c1"># Validate files and rearrange into list per session</span>
-        <span class="n">F</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">single_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_files</span><span class="p">(</span><span class="n">file_list</span><span class="p">)</span>
+        <span class="n">F</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">single_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_files</span><span class="p">(</span><span class="n">file_list</span><span class="p">,</span> <span class="n">content_type</span><span class="o">=</span><span class="n">content_type</span><span class="p">)</span>
 
         <span class="c1"># For each unique session, make a separate POST request</span>
         <span class="n">records</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">session_path</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">F</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="c1"># this is the generic relative path: subject/yyyy-mm-dd/NNN</span>
-            <span class="n">details</span> <span class="o">=</span> <span class="n">session_path_parts</span><span class="p">(</span><span class="n">session_path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">(),</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="n">rel_path</span> <span class="o">=</span> <span class="n">PurePosixPath</span><span class="p">(</span><span class="n">details</span><span class="p">[</span><span class="s1">&#39;subject&#39;</span><span class="p">],</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">],</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;number&#39;</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">shared_path</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">F</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">content_type</span> <span class="o">==</span> <span class="s1">'session'</span><span class="p">:</span>
+                <span class="c1"># this is the generic relative path: subject/yyyy-mm-dd/NNN</span>
+                <span class="n">details</span> <span class="o">=</span> <span class="n">session_path_parts</span><span class="p">(</span>
+                    <span class="n">shared_path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">(),</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">rel_path</span> <span class="o">=</span> <span class="n">PurePosixPath</span><span class="p">(</span><span class="n">details</span><span class="p">[</span><span class="s1">'subject'</span><span class="p">],</span> <span class="n">details</span><span class="p">[</span><span class="s1">'date'</span><span class="p">],</span> <span class="n">details</span><span class="p">[</span><span class="s1">'number'</span><span class="p">])</span>
+                <span class="n">common_path</span> <span class="o">=</span> <span class="n">shared_path</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Determine rel_path as path from content type part onwards that's in all filepaths</span>
+                <span class="n">files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">shared_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">,</span> <span class="n">files</span><span class="p">))</span>
+                <span class="n">common_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">commonpath</span><span class="p">(</span><span class="n">files</span><span class="p">))</span>
+                <span class="n">rel_path</span> <span class="o">=</span> <span class="n">common_path</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">shared_path</span><span class="p">)</span>
+                <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">common_path</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span><span class="p">]</span>
 
-            <span class="n">r_</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;created_by&#39;</span><span class="p">:</span> <span class="n">created_by</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">user</span><span class="p">,</span>
-                  <span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="n">rel_path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">(),</span>
-                  <span class="s1">&#39;filenames&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">files</span><span class="p">]</span>
-                  <span class="p">}</span>
-            <span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;/check-protected&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">r_</span><span class="p">,</span> <span class="n">clobber</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+            <span class="n">r_</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">'created_by'</span><span class="p">:</span> <span class="n">created_by</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">user</span><span class="p">,</span>
+                <span class="s1">'path'</span><span class="p">:</span> <span class="n">rel_path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">(),</span>
+                <span class="s1">'filenames'</span><span class="p">:</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">files</span><span class="p">],</span>
+                <span class="o">**</span><span class="n">kwargs</span><span class="p">}</span>
+            <span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'/check-protected'</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">r_</span><span class="p">,</span> <span class="n">clobber</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+            <span class="n">records</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s1">'shared_path'</span><span class="p">]</span> <span class="o">=</span> <span class="n">common_path</span>  <span class="c1"># FIXME this naming is confusing</span>
+            <span class="n">records</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s1">'files'</span><span class="p">]</span> <span class="o">=</span> <span class="n">files</span>
 
         <span class="k">return</span> <span class="n">records</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">single_file</span> <span class="k">else</span> <span class="n">records</span></div>
 
@@ -627,7 +663,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">register_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_list</span><span class="p">,</span>
                        <span class="n">versions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">created_by</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">server_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                        <span class="n">repository</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dry</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">max_md5_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Registers a set of files belonging to a session only on the server.</span>
+<span class="w">        </span><span class="sd">"""Registers a set of files belonging to a session only on the server.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -640,7 +676,7 @@
 <span class="sd">        created_by : str</span>
 <span class="sd">            Name of Alyx user (defaults to whoever is logged in to ONE instance).</span>
 <span class="sd">        server_only : bool</span>
-<span class="sd">            Will only create file records in the &#39;online&#39; repositories and skips local repositories</span>
+<span class="sd">            Will only create file records in the 'online' repositories and skips local repositories</span>
 <span class="sd">        repository : str</span>
 <span class="sd">            Name of the repository in Alyx to register to.</span>
 <span class="sd">        exists : bool</span>
@@ -664,7 +700,7 @@
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
 <span class="sd">        - The registered files may be automatically moved to new revision folders if they are</span>
-<span class="sd">          protected on Alyx, therefore it&#39;s important to check the relative paths of the output.</span>
+<span class="sd">          protected on Alyx, therefore it's important to check the relative paths of the output.</span>
 <span class="sd">        - Protected datasets are not checked in dry mode.</span>
 <span class="sd">        - In most circumstances a new revision will be added automatically, however if this fails</span>
 <span class="sd">          a 403 HTTP status may be returned.</span>
@@ -676,59 +712,75 @@
 <span class="sd">            Server side database error (500 status code)</span>
 <span class="sd">            Revision protected (403 status code)</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">F</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">file_list</span><span class="p">,</span> <span class="n">single_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_files</span><span class="p">(</span><span class="n">file_list</span><span class="p">,</span> <span class="n">versions</span><span class="o">=</span><span class="n">versions</span><span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="n">F</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">file_list</span><span class="p">,</span> <span class="n">single_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_files</span><span class="p">(</span>
+            <span class="n">file_list</span><span class="p">,</span> <span class="n">versions</span><span class="o">=</span><span class="n">versions</span><span class="p">,</span> <span class="n">content_type</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'content_type'</span><span class="p">,</span> <span class="s1">'session'</span><span class="p">))</span>
 
         <span class="c1"># For each unique session, make a separate POST request</span>
         <span class="n">records</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">F</span><span class="p">)</span> <span class="k">if</span> <span class="n">dry</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">file_list</span><span class="p">))</span>  <span class="c1"># If dry return data per session</span>
-        <span class="k">for</span> <span class="n">session_path</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">F</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="c1"># this is the generic relative path: subject/yyyy-mm-dd/NNN</span>
-            <span class="n">details</span> <span class="o">=</span> <span class="n">session_path_parts</span><span class="p">(</span><span class="n">session_path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">(),</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="n">rel_path</span> <span class="o">=</span> <span class="n">PurePosixPath</span><span class="p">(</span><span class="n">details</span><span class="p">[</span><span class="s1">&#39;subject&#39;</span><span class="p">],</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">],</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;number&#39;</span><span class="p">])</span>
-            <span class="n">file_sizes</span> <span class="o">=</span> <span class="p">[</span><span class="n">session_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span> <span class="k">for</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">files</span><span class="p">]</span>
-            <span class="c1"># computing the md5 can be very long, so this is an option to skip if the file is</span>
-            <span class="c1"># bigger than a certain threshold</span>
-            <span class="n">md5s</span> <span class="o">=</span> <span class="p">[</span><span class="n">hashfile</span><span class="o">.</span><span class="n">md5</span><span class="p">(</span><span class="n">session_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">fn</span><span class="p">))</span>
-                    <span class="k">if</span> <span class="p">(</span><span class="n">max_md5_size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">sz</span> <span class="o">&lt;</span> <span class="n">max_md5_size</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
-                    <span class="k">for</span> <span class="n">fn</span><span class="p">,</span> <span class="n">sz</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="n">file_sizes</span><span class="p">)]</span>
+        <span class="k">for</span> <span class="n">shared_path</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">F</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="s1">'content_type'</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>  <span class="c1"># for data aggregated over sessions</span>
+                <span class="n">details</span> <span class="o">=</span> <span class="n">session_path_parts</span><span class="p">(</span><span class="s1">''</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="c1"># Find all parts of paths that are shared by all files</span>
+                <span class="n">files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">shared_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">,</span> <span class="n">files</span><span class="p">))</span>
+                <span class="n">file_sizes</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span><span class="p">]</span>
+                <span class="n">md5s</span> <span class="o">=</span> <span class="p">[</span><span class="n">hashfile</span><span class="o">.</span><span class="n">md5</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">if</span> <span class="p">(</span><span class="n">max_md5_size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">sz</span> <span class="o">&lt;</span> <span class="n">max_md5_size</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+                        <span class="k">for</span> <span class="n">f</span><span class="p">,</span> <span class="n">sz</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="n">file_sizes</span><span class="p">)]</span>
+                <span class="c1"># rel_path is the path from content type part onwards that's in all file paths</span>
+                <span class="n">common_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">commonpath</span><span class="p">(</span><span class="n">files</span><span class="p">))</span>
+                <span class="c1"># shared_path here is really root path that should not be included in file record</span>
+                <span class="n">rel_path</span> <span class="o">=</span> <span class="n">common_path</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">shared_path</span><span class="p">)</span>
+                <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">common_path</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># this is the generic relative path: subject/yyyy-mm-dd/NNN</span>
+                <span class="n">details</span> <span class="o">=</span> <span class="n">session_path_parts</span><span class="p">(</span>
+                    <span class="n">shared_path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">(),</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">assert_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">rel_path</span> <span class="o">=</span> <span class="n">PurePosixPath</span><span class="p">(</span><span class="n">details</span><span class="p">[</span><span class="s1">'subject'</span><span class="p">],</span> <span class="n">details</span><span class="p">[</span><span class="s1">'date'</span><span class="p">],</span> <span class="n">details</span><span class="p">[</span><span class="s1">'number'</span><span class="p">])</span>
+                <span class="n">file_sizes</span> <span class="o">=</span> <span class="p">[</span><span class="n">shared_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span> <span class="k">for</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">files</span><span class="p">]</span>
+                <span class="c1"># computing the md5 can be very long, so this is an option to skip if the file is</span>
+                <span class="c1"># bigger than a certain threshold</span>
+                <span class="n">md5s</span> <span class="o">=</span> <span class="p">[</span><span class="n">hashfile</span><span class="o">.</span><span class="n">md5</span><span class="p">(</span><span class="n">shared_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">fn</span><span class="p">))</span>
+                        <span class="k">if</span> <span class="p">(</span><span class="n">max_md5_size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">sz</span> <span class="o">&lt;</span> <span class="n">max_md5_size</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+                        <span class="k">for</span> <span class="n">fn</span><span class="p">,</span> <span class="n">sz</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="n">file_sizes</span><span class="p">)]</span>
+                <span class="n">common_path</span> <span class="o">=</span> <span class="n">shared_path</span>  <span class="c1"># these are equivalent for session paths</span>
 
-            <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Registering &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">files</span><span class="p">))</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'Registering '</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">files</span><span class="p">))</span>
 
-            <span class="n">r_</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;created_by&#39;</span><span class="p">:</span> <span class="n">created_by</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">user</span><span class="p">,</span>
-                  <span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="n">rel_path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">(),</span>
-                  <span class="s1">&#39;filenames&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">files</span><span class="p">],</span>
-                  <span class="s1">&#39;hashes&#39;</span><span class="p">:</span> <span class="n">md5s</span><span class="p">,</span>
-                  <span class="s1">&#39;filesizes&#39;</span><span class="p">:</span> <span class="n">file_sizes</span><span class="p">,</span>
-                  <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">repository</span><span class="p">,</span>
-                  <span class="s1">&#39;exists&#39;</span><span class="p">:</span> <span class="n">exists</span><span class="p">,</span>
-                  <span class="s1">&#39;server_only&#39;</span><span class="p">:</span> <span class="n">server_only</span><span class="p">,</span>
-                  <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="n">default</span><span class="p">,</span>
-                  <span class="s1">&#39;versions&#39;</span><span class="p">:</span> <span class="n">V</span><span class="p">[</span><span class="n">session_path</span><span class="p">],</span>
-                  <span class="s1">&#39;check_protected&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">r_</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'created_by'</span><span class="p">:</span> <span class="n">created_by</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">user</span><span class="p">,</span>
+                  <span class="s1">'path'</span><span class="p">:</span> <span class="n">rel_path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">(),</span>
+                  <span class="s1">'filenames'</span><span class="p">:</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">files</span><span class="p">],</span>
+                  <span class="s1">'hashes'</span><span class="p">:</span> <span class="n">md5s</span><span class="p">,</span>
+                  <span class="s1">'filesizes'</span><span class="p">:</span> <span class="n">file_sizes</span><span class="p">,</span>
+                  <span class="s1">'name'</span><span class="p">:</span> <span class="n">repository</span><span class="p">,</span>
+                  <span class="s1">'exists'</span><span class="p">:</span> <span class="n">exists</span><span class="p">,</span>
+                  <span class="s1">'server_only'</span><span class="p">:</span> <span class="n">server_only</span><span class="p">,</span>
+                  <span class="s1">'default'</span><span class="p">:</span> <span class="n">default</span><span class="p">,</span>
+                  <span class="s1">'versions'</span><span class="p">:</span> <span class="n">V</span><span class="p">[</span><span class="n">shared_path</span><span class="p">],</span>
+                  <span class="s1">'check_protected'</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
                   <span class="o">**</span><span class="n">kwargs</span>
                   <span class="p">}</span>
 
             <span class="c1"># Add optional field</span>
-            <span class="k">if</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;lab&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="s1">&#39;labs&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-                <span class="n">r_</span><span class="p">[</span><span class="s1">&#39;labs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;lab&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">details</span><span class="p">[</span><span class="s1">'lab'</span><span class="p">]</span> <span class="ow">and</span> <span class="s1">'labs'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                <span class="n">r_</span><span class="p">[</span><span class="s1">'labs'</span><span class="p">]</span> <span class="o">=</span> <span class="n">details</span><span class="p">[</span><span class="s1">'lab'</span><span class="p">]</span>
             <span class="c1"># If dry, store POST data, otherwise store resulting file records</span>
             <span class="k">if</span> <span class="n">dry</span><span class="p">:</span>
-                <span class="n">records</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">F</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">session_path</span><span class="p">)]</span> <span class="o">=</span> <span class="n">r_</span>
+                <span class="n">records</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">F</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">shared_path</span><span class="p">)]</span> <span class="o">=</span> <span class="n">r_</span>
                 <span class="k">continue</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s1">&#39;/register-file&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">r_</span><span class="p">)</span>
+                <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s1">'/register-file'</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">r_</span><span class="p">)</span>
                 <span class="c1"># Ensure we keep the order of the output records: the files missing will remain</span>
                 <span class="c1"># as None type</span>
                 <span class="k">for</span> <span class="n">f</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="n">response</span><span class="p">):</span>
-                    <span class="n">records</span><span class="p">[</span><span class="n">file_list</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">session_path</span> <span class="o">/</span> <span class="n">f</span><span class="p">)]</span> <span class="o">=</span> <span class="n">r</span>
+                    <span class="n">records</span><span class="p">[</span><span class="n">file_list</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">common_path</span> <span class="o">/</span> <span class="n">f</span><span class="p">)]</span> <span class="o">=</span> <span class="n">r</span>
             <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">HTTPError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
                 <span class="c1"># 403 response when datasets already registered and protected by tags</span>
                 <span class="n">err_message</span> <span class="o">=</span> <span class="n">err</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">err_message</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;status_code&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">403</span> <span class="ow">and</span>
-                   <span class="n">err_message</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;error&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;One or more datasets is protected&#39;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">err_message</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'status_code'</span><span class="p">)</span> <span class="o">==</span> <span class="mi">403</span> <span class="ow">and</span>
+                   <span class="n">err_message</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'error'</span><span class="p">)</span> <span class="o">==</span> <span class="s1">'One or more datasets is protected'</span><span class="p">):</span>
                     <span class="k">raise</span> <span class="n">err</span>  <span class="c1"># Some other error occurred; re-raise</span>
-                <span class="n">response</span> <span class="o">=</span> <span class="n">err_message</span><span class="p">[</span><span class="s1">&#39;details&#39;</span><span class="p">]</span>
-                <span class="n">today_revision</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">response</span> <span class="o">=</span> <span class="n">err_message</span><span class="p">[</span><span class="s1">'details'</span><span class="p">]</span>
+                <span class="n">today_revision</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">'%Y-%m-</span><span class="si">%d</span><span class="s1">'</span><span class="p">)</span>
                 <span class="n">new_file_list</span> <span class="o">=</span> <span class="p">[]</span>
 
                 <span class="k">for</span> <span class="n">fl</span><span class="p">,</span> <span class="n">res</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="n">response</span><span class="p">):</span>
@@ -739,28 +791,28 @@
                         <span class="k">continue</span>
 
                     <span class="c1"># Check to see if the file path already has a revision in it</span>
-                    <span class="n">file_revision</span> <span class="o">=</span> <span class="n">folder_parts</span><span class="p">(</span><span class="n">rel_path</span> <span class="o">/</span> <span class="n">fl</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="s1">&#39;revision&#39;</span><span class="p">]</span>
+                    <span class="n">file_revision</span> <span class="o">=</span> <span class="n">folder_parts</span><span class="p">(</span><span class="n">rel_path</span> <span class="o">/</span> <span class="n">fl</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="s1">'revision'</span><span class="p">]</span>
                     <span class="c1"># Find existing protected revisions</span>
                     <span class="n">existing_revisions</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">pr</span> <span class="ow">in</span> <span class="n">prot_info</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">pr</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span><span class="p">]</span>
 
                     <span class="k">if</span> <span class="n">file_revision</span><span class="p">:</span>
-                        <span class="c1"># If the revision explicitly defined by the user doesn&#39;t exist or</span>
+                        <span class="c1"># If the revision explicitly defined by the user doesn't exist or</span>
                         <span class="c1"># is not protected, register as is</span>
                         <span class="k">if</span> <span class="n">file_revision</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">existing_revisions</span><span class="p">:</span>
                             <span class="n">revision_path</span> <span class="o">=</span> <span class="n">fl</span><span class="o">.</span><span class="n">parent</span>
                         <span class="k">else</span><span class="p">:</span>
-                            <span class="c1"># Find the next sub-revision that isn&#39;t protected</span>
+                            <span class="c1"># Find the next sub-revision that isn't protected</span>
                             <span class="n">new_revision</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_next_revision</span><span class="p">(</span><span class="n">file_revision</span><span class="p">,</span> <span class="n">existing_revisions</span><span class="p">)</span>
-                            <span class="n">revision_path</span> <span class="o">=</span> <span class="n">fl</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;#</span><span class="si">{</span><span class="n">new_revision</span><span class="si">}</span><span class="s1">#&#39;</span><span class="p">)</span>
+                            <span class="n">revision_path</span> <span class="o">=</span> <span class="n">fl</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="sa">f</span><span class="s1">'#</span><span class="si">{</span><span class="n">new_revision</span><span class="si">}</span><span class="s1">#'</span><span class="p">)</span>
 
                         <span class="k">if</span> <span class="n">revision_path</span> <span class="o">!=</span> <span class="n">fl</span><span class="o">.</span><span class="n">parent</span><span class="p">:</span>
-                            <span class="n">session_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">revision_path</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-                            <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Moving </span><span class="si">%s</span><span class="s1"> -&gt; </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">fl</span><span class="p">,</span> <span class="n">revision_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">fl</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-                            <span class="n">shutil</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">session_path</span> <span class="o">/</span> <span class="n">fl</span><span class="p">,</span> <span class="n">session_path</span> <span class="o">/</span> <span class="n">revision_path</span> <span class="o">/</span> <span class="n">fl</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                            <span class="n">shared_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">revision_path</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                            <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'Moving </span><span class="si">%s</span><span class="s1"> -&gt; </span><span class="si">%s</span><span class="s1">'</span><span class="p">,</span> <span class="n">fl</span><span class="p">,</span> <span class="n">revision_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">fl</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+                            <span class="n">shutil</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">shared_path</span> <span class="o">/</span> <span class="n">fl</span><span class="p">,</span> <span class="n">shared_path</span> <span class="o">/</span> <span class="n">revision_path</span> <span class="o">/</span> <span class="n">fl</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
                         <span class="n">new_file_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">revision_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">fl</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
                         <span class="k">continue</span>
 
-                    <span class="c1"># The file wasn&#39;t in a revision folder but is protected</span>
+                    <span class="c1"># The file wasn't in a revision folder but is protected</span>
                     <span class="n">fl_path</span> <span class="o">=</span> <span class="n">fl</span><span class="o">.</span><span class="n">parent</span>
                     <span class="k">assert</span> <span class="n">name</span> <span class="o">==</span> <span class="n">fl_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">fl</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
 
@@ -769,73 +821,73 @@
                     <span class="p">(</span><span class="n">latest_revision</span><span class="p">,</span> <span class="n">protected</span><span class="p">),</span> <span class="o">=</span> <span class="n">prot_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
 
                     <span class="c1"># If the latest revision is the original and it is unprotected</span>
-                    <span class="c1"># no need for revision e.g {&#39;clusters.amp.npy&#39;: [{&#39;&#39;: False}]}</span>
-                    <span class="k">if</span> <span class="n">latest_revision</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">protected</span><span class="p">:</span>
+                    <span class="c1"># no need for revision e.g {'clusters.amp.npy': [{'': False}]}</span>
+                    <span class="k">if</span> <span class="n">latest_revision</span> <span class="o">==</span> <span class="s1">''</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">protected</span><span class="p">:</span>
                         <span class="c1"># Use original path</span>
                         <span class="n">revision_path</span> <span class="o">=</span> <span class="n">fl_path</span>
 
                     <span class="c1"># If there already is a revision but it is unprotected,</span>
                     <span class="c1"># move into this revision folder e.g</span>
-                    <span class="c1"># {&#39;clusters.amp.npy&#39;:</span>
-                    <span class="c1">#   [{&#39;2022-10-31&#39;: False}, {&#39;2022-05-31&#39;: True}, {&#39;&#39;: True}]}</span>
+                    <span class="c1"># {'clusters.amp.npy':</span>
+                    <span class="c1">#   [{'2022-10-31': False}, {'2022-05-31': True}, {'': True}]}</span>
                     <span class="k">elif</span> <span class="ow">not</span> <span class="n">protected</span><span class="p">:</span>
                         <span class="c1"># Check that the latest_revision has the date naming convention we expect</span>
-                        <span class="c1"># i.e. &#39;YYYY-MM-DD&#39;</span>
+                        <span class="c1"># i.e. 'YYYY-MM-DD'</span>
                         <span class="k">try</span><span class="p">:</span>
-                            <span class="n">_</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">latest_revision</span><span class="p">[:</span><span class="mi">10</span><span class="p">],</span> <span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">)</span>
-                            <span class="n">revision_path</span> <span class="o">=</span> <span class="n">fl_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;#</span><span class="si">{</span><span class="n">latest_revision</span><span class="si">}</span><span class="s1">#&#39;</span><span class="p">)</span>
-                        <span class="c1"># If it doesn&#39;t it probably has been made manually so we don&#39;t want to</span>
-                        <span class="c1"># overwrite this and instead use today&#39;s date</span>
+                            <span class="n">_</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">latest_revision</span><span class="p">[:</span><span class="mi">10</span><span class="p">],</span> <span class="s1">'%Y-%m-</span><span class="si">%d</span><span class="s1">'</span><span class="p">)</span>
+                            <span class="n">revision_path</span> <span class="o">=</span> <span class="n">fl_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="sa">f</span><span class="s1">'#</span><span class="si">{</span><span class="n">latest_revision</span><span class="si">}</span><span class="s1">#'</span><span class="p">)</span>
+                        <span class="c1"># If it doesn't it probably has been made manually so we don't want to</span>
+                        <span class="c1"># overwrite this and instead use today's date</span>
                         <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-                            <span class="c1"># NB: It&#39;s possible that today&#39;s date revision is also protected but is</span>
-                            <span class="c1"># not the most recent revision. In this case it&#39;s safer to let fail.</span>
-                            <span class="n">revision_path</span> <span class="o">=</span> <span class="n">fl_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;#</span><span class="si">{</span><span class="n">today_revision</span><span class="si">}</span><span class="s1">#&#39;</span><span class="p">)</span>
+                            <span class="c1"># NB: It's possible that today's date revision is also protected but is</span>
+                            <span class="c1"># not the most recent revision. In this case it's safer to let fail.</span>
+                            <span class="n">revision_path</span> <span class="o">=</span> <span class="n">fl_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="sa">f</span><span class="s1">'#</span><span class="si">{</span><span class="n">today_revision</span><span class="si">}</span><span class="s1">#'</span><span class="p">)</span>
 
                     <span class="c1"># If protected and the latest protected revision is from today we need to make</span>
                     <span class="c1"># a sub-revision</span>
                     <span class="k">elif</span> <span class="n">protected</span> <span class="ow">and</span> <span class="n">today_revision</span> <span class="ow">in</span> <span class="n">latest_revision</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="n">latest_revision</span> <span class="o">==</span> <span class="n">today_revision</span><span class="p">:</span>  <span class="c1"># iterate from appending &#39;a&#39;</span>
+                        <span class="k">if</span> <span class="n">latest_revision</span> <span class="o">==</span> <span class="n">today_revision</span><span class="p">:</span>  <span class="c1"># iterate from appending 'a'</span>
                             <span class="n">new_revision</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_next_revision</span><span class="p">(</span><span class="n">today_revision</span><span class="p">,</span> <span class="n">existing_revisions</span><span class="p">)</span>
-                        <span class="k">else</span><span class="p">:</span>  <span class="c1"># assume the revision is date + character, e.g. &#39;2020-01-01c&#39;</span>
+                        <span class="k">else</span><span class="p">:</span>  <span class="c1"># assume the revision is date + character, e.g. '2020-01-01c'</span>
                             <span class="n">alpha</span> <span class="o">=</span> <span class="n">latest_revision</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># iterate from this character</span>
                             <span class="n">new_revision</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_next_revision</span><span class="p">(</span>
                                 <span class="n">today_revision</span><span class="p">,</span> <span class="n">existing_revisions</span><span class="p">,</span> <span class="n">alpha</span><span class="p">)</span>
-                        <span class="n">revision_path</span> <span class="o">=</span> <span class="n">fl_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;#</span><span class="si">{</span><span class="n">new_revision</span><span class="si">}</span><span class="s1">#&#39;</span><span class="p">)</span>
+                        <span class="n">revision_path</span> <span class="o">=</span> <span class="n">fl_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="sa">f</span><span class="s1">'#</span><span class="si">{</span><span class="n">new_revision</span><span class="si">}</span><span class="s1">#'</span><span class="p">)</span>
 
                     <span class="c1"># Otherwise cases move into revision from today</span>
-                    <span class="c1"># e.g {&#39;clusters.amp.npy&#39;: [{&#39;&#39;: True}]}</span>
-                    <span class="c1"># e.g {&#39;clusters.amp.npy&#39;: [{&#39;2022-10-31&#39;: True}, {&#39;&#39;: True}]}</span>
+                    <span class="c1"># e.g {'clusters.amp.npy': [{'': True}]}</span>
+                    <span class="c1"># e.g {'clusters.amp.npy': [{'2022-10-31': True}, {'': True}]}</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="n">revision_path</span> <span class="o">=</span> <span class="n">fl_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;#</span><span class="si">{</span><span class="n">today_revision</span><span class="si">}</span><span class="s1">#&#39;</span><span class="p">)</span>
+                        <span class="n">revision_path</span> <span class="o">=</span> <span class="n">fl_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="sa">f</span><span class="s1">'#</span><span class="si">{</span><span class="n">today_revision</span><span class="si">}</span><span class="s1">#'</span><span class="p">)</span>
 
                     <span class="c1"># Only move for the cases where a revision folder has been made</span>
                     <span class="k">if</span> <span class="n">revision_path</span> <span class="o">!=</span> <span class="n">fl_path</span><span class="p">:</span>
-                        <span class="n">session_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">revision_path</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-                        <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Moving </span><span class="si">%s</span><span class="s1"> -&gt; </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">fl</span><span class="p">,</span> <span class="n">revision_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">fl</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-                        <span class="n">shutil</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">session_path</span> <span class="o">/</span> <span class="n">fl</span><span class="p">,</span> <span class="n">session_path</span> <span class="o">/</span> <span class="n">revision_path</span> <span class="o">/</span> <span class="n">fl</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                        <span class="n">shared_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">revision_path</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                        <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'Moving </span><span class="si">%s</span><span class="s1"> -&gt; </span><span class="si">%s</span><span class="s1">'</span><span class="p">,</span> <span class="n">fl</span><span class="p">,</span> <span class="n">revision_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">fl</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+                        <span class="n">shutil</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">shared_path</span> <span class="o">/</span> <span class="n">fl</span><span class="p">,</span> <span class="n">shared_path</span> <span class="o">/</span> <span class="n">revision_path</span> <span class="o">/</span> <span class="n">fl</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
                     <span class="n">new_file_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">revision_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">fl</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
 
                 <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_file_list</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">)</span>
-                <span class="n">r_</span><span class="p">[</span><span class="s1">&#39;filenames&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">new_file_list</span><span class="p">]</span>
-                <span class="n">r_</span><span class="p">[</span><span class="s1">&#39;filesizes&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">session_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">new_file_list</span><span class="p">]</span>
-                <span class="n">r_</span><span class="p">[</span><span class="s1">&#39;check_protected&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># Speed things up by ignoring server-side checks</span>
+                <span class="n">r_</span><span class="p">[</span><span class="s1">'filenames'</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">new_file_list</span><span class="p">]</span>
+                <span class="n">r_</span><span class="p">[</span><span class="s1">'filesizes'</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">shared_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">new_file_list</span><span class="p">]</span>
+                <span class="n">r_</span><span class="p">[</span><span class="s1">'check_protected'</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># Speed things up by ignoring server-side checks</span>
 
-                <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s1">&#39;/register-file&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">r_</span><span class="p">)</span>
+                <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s1">'/register-file'</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">r_</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">f</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="n">response</span><span class="p">):</span>  <span class="c1"># Populate records list in correct order</span>
-                    <span class="n">records</span><span class="p">[</span><span class="n">file_list</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">session_path</span> <span class="o">/</span> <span class="n">f</span><span class="p">)]</span> <span class="o">=</span> <span class="n">r</span>
+                    <span class="n">records</span><span class="p">[</span><span class="n">file_list</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">shared_path</span> <span class="o">/</span> <span class="n">f</span><span class="p">)]</span> <span class="o">=</span> <span class="n">r</span>
                 <span class="n">files</span> <span class="o">=</span> <span class="n">new_file_list</span>
 
             <span class="c1"># Log file names</span>
-            <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;ALYX REGISTERED DATA </span><span class="si">{</span><span class="s2">&quot;!DRY!&quot;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">dry</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">rel_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'ALYX REGISTERED DATA </span><span class="si">{</span><span class="s2">"!DRY!"</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">dry</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">""</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">rel_path</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
-                <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;ALYX REGISTERED DATA: </span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'ALYX REGISTERED DATA: </span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">records</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">single_file</span> <span class="k">else</span> <span class="n">records</span></div>
 
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_next_revision</span><span class="p">(</span><span class="n">revision</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">reserved</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;a&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the next logical revision that is not already in the provided list.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_next_revision</span><span class="p">(</span><span class="n">revision</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">reserved</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'a'</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return the next logical revision that is not already in the provided list.</span>
 
 <span class="sd">        Revisions will increment by appending a letter to a date or other identifier.</span>
 
@@ -846,26 +898,26 @@
 <span class="sd">        reserved : list of str</span>
 <span class="sd">            A list of reserved (i.e. already existing) revision strings.</span>
 <span class="sd">        alpha : str</span>
-<span class="sd">            The starting character as an integer, defaults to &#39;a&#39;.</span>
+<span class="sd">            The starting character as an integer, defaults to 'a'.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        str</span>
-<span class="sd">            The next logical revision string that&#39;s not in the reserved list.</span>
+<span class="sd">            The next logical revision string that's not in the reserved list.</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
-<span class="sd">        &gt;&gt;&gt; RegistrationClient._next_revision(&#39;2020-01-01&#39;)</span>
-<span class="sd">        &#39;2020-01-01a&#39;</span>
-<span class="sd">        &gt;&gt;&gt; RegistrationClient._next_revision(&#39;2020-01-01&#39;, [&#39;2020-01-01a&#39;, &#39;2020-01-01b&#39;])</span>
-<span class="sd">        &#39;2020-01-01c&#39;</span>
-<span class="sd">        &gt;&gt;&gt; RegistrationClient._next_revision(&#39;2020-01-01&#39;, [&#39;2020-01-01a&#39;, &#39;2020-01-01b&#39;])</span>
-<span class="sd">        &#39;2020-01-01c&#39;</span>
+<span class="sd">        &gt;&gt;&gt; RegistrationClient._next_revision('2020-01-01')</span>
+<span class="sd">        '2020-01-01a'</span>
+<span class="sd">        &gt;&gt;&gt; RegistrationClient._next_revision('2020-01-01', ['2020-01-01a', '2020-01-01b'])</span>
+<span class="sd">        '2020-01-01c'</span>
+<span class="sd">        &gt;&gt;&gt; RegistrationClient._next_revision('2020-01-01', ['2020-01-01a', '2020-01-01b'])</span>
+<span class="sd">        '2020-01-01c'</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;`alpha` must be a character; received a string of length </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="sa">f</span><span class="s1">'`alpha` must be a character; received a string of length </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span>
             <span class="p">)</span>
         <span class="n">i</span> <span class="o">=</span> <span class="nb">ord</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span>
         <span class="n">new_revision</span> <span class="o">=</span> <span class="n">revision</span> <span class="o">+</span> <span class="nb">chr</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
@@ -877,7 +929,7 @@
 <div class="viewcode-block" id="RegistrationClient.register_water_administration">
 <a class="viewcode-back" href="../../_autosummary/one.registration.html#one.registration.RegistrationClient.register_water_administration">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">register_water_administration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subject</span><span class="p">,</span> <span class="n">volume</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Register a water administration to Alyx for a given subject.</span>
+<span class="w">        </span><span class="sd">"""Register a water administration to Alyx for a given subject.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -888,7 +940,7 @@
 <span class="sd">        date_time : str, datetime.datetime, datetime.date</span>
 <span class="sd">            The time of administration.  If None, the current time is used.</span>
 <span class="sd">        water_type : str</span>
-<span class="sd">            A water type that exists in Alyx; default is &#39;Water&#39;</span>
+<span class="sd">            A water type that exists in Alyx; default is 'Water'</span>
 <span class="sd">        user : str</span>
 <span class="sd">            The user who administrated the water.  Currently logged-in user is the default.</span>
 <span class="sd">        session : str, UUID, pathlib.Path, dict</span>
@@ -912,37 +964,37 @@
 <span class="sd">        requests.exceptions.HTTPError</span>
 <span class="sd">            Failed to connect to database, or submitted data not valid (500)</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Ensure subject exists</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assert_exists</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="s1">&#39;subjects&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assert_exists</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="s1">'subjects'</span><span class="p">)</span>
         <span class="c1"># Ensure user(s) exist</span>
-        <span class="n">user</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;user&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assert_exists</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="s1">&#39;users&#39;</span><span class="p">)</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">'user'</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assert_exists</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="s1">'users'</span><span class="p">)</span>
         <span class="c1"># Ensure volume not zero</span>
         <span class="k">if</span> <span class="n">volume</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Water volume must be greater than zero&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Water volume must be greater than zero'</span><span class="p">)</span>
         <span class="c1"># Post water admin</span>
         <span class="n">wa_</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;subject&#39;</span><span class="p">:</span> <span class="n">subject</span><span class="p">,</span>
-            <span class="s1">&#39;date_time&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensure_ISO8601</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;date_time&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)),</span>
-            <span class="s1">&#39;water_administered&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">volume</span><span class="si">:</span><span class="s1">.4g</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">),</span>  <span class="c1"># Round to 4 s.f.</span>
-            <span class="s1">&#39;water_type&#39;</span><span class="p">:</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;water_type&#39;</span><span class="p">,</span> <span class="s1">&#39;Water&#39;</span><span class="p">),</span>
-            <span class="s1">&#39;user&#39;</span><span class="p">:</span> <span class="n">user</span><span class="p">,</span>
-            <span class="s1">&#39;adlib&#39;</span><span class="p">:</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;adlib&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="s1">'subject'</span><span class="p">:</span> <span class="n">subject</span><span class="p">,</span>
+            <span class="s1">'date_time'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensure_ISO8601</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">'date_time'</span><span class="p">,</span> <span class="kc">None</span><span class="p">)),</span>
+            <span class="s1">'water_administered'</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">volume</span><span class="si">:</span><span class="s1">.4g</span><span class="si">}</span><span class="s1">'</span><span class="p">),</span>  <span class="c1"># Round to 4 s.f.</span>
+            <span class="s1">'water_type'</span><span class="p">:</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">'water_type'</span><span class="p">,</span> <span class="s1">'Water'</span><span class="p">),</span>
+            <span class="s1">'user'</span><span class="p">:</span> <span class="n">user</span><span class="p">,</span>
+            <span class="s1">'adlib'</span><span class="p">:</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">'adlib'</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
         <span class="p">}</span>
         <span class="c1"># Ensure session is valid; convert to eid</span>
-        <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;session&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
-            <span class="n">wa_</span><span class="p">[</span><span class="s1">&#39;session&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">to_eid</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;session&#39;</span><span class="p">))</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">wa_</span><span class="p">[</span><span class="s1">&#39;session&#39;</span><span class="p">]:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Failed to parse session ID&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'session'</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+            <span class="n">wa_</span><span class="p">[</span><span class="s1">'session'</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">to_eid</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">'session'</span><span class="p">))</span> <span class="ow">or</span> <span class="s1">''</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">wa_</span><span class="p">[</span><span class="s1">'session'</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Failed to parse session ID'</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;water-administrations&#39;</span><span class="p">,</span> <span class="s1">&#39;create&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">wa_</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">'water-administrations'</span><span class="p">,</span> <span class="s1">'create'</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">wa_</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="RegistrationClient.register_weight">
 <a class="viewcode-back" href="../../_autosummary/one.registration.html#one.registration.RegistrationClient.register_weight">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">register_weight</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subject</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="n">date_time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Register a subject weight to Alyx.</span>
+<span class="w">        </span><span class="sd">"""Register a subject weight to Alyx.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -971,22 +1023,22 @@
 <span class="sd">        requests.exceptions.HTTPError</span>
 <span class="sd">            Failed to connect to database, or submitted data not valid (500)</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Ensure subject exists</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assert_exists</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="s1">&#39;subjects&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assert_exists</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="s1">'subjects'</span><span class="p">)</span>
         <span class="c1"># Ensure user(s) exist</span>
         <span class="n">user</span> <span class="o">=</span> <span class="n">user</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">user</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assert_exists</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="s1">&#39;users&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assert_exists</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="s1">'users'</span><span class="p">)</span>
         <span class="c1"># Ensure weight not zero</span>
         <span class="k">if</span> <span class="n">weight</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Water volume must be greater than 0&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Water volume must be greater than 0'</span><span class="p">)</span>
 
         <span class="c1"># Post water admin</span>
-        <span class="n">wei_</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;subject&#39;</span><span class="p">:</span> <span class="n">subject</span><span class="p">,</span>
-                <span class="s1">&#39;date_time&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensure_ISO8601</span><span class="p">(</span><span class="n">date_time</span><span class="p">),</span>
-                <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">weight</span><span class="si">:</span><span class="s1">.4g</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">),</span>  <span class="c1"># Round to 4 s.f.</span>
-                <span class="s1">&#39;user&#39;</span><span class="p">:</span> <span class="n">user</span><span class="p">}</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">&#39;weighings&#39;</span><span class="p">,</span> <span class="s1">&#39;create&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">wei_</span><span class="p">)</span></div>
+        <span class="n">wei_</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'subject'</span><span class="p">:</span> <span class="n">subject</span><span class="p">,</span>
+                <span class="s1">'date_time'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensure_ISO8601</span><span class="p">(</span><span class="n">date_time</span><span class="p">),</span>
+                <span class="s1">'weight'</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">weight</span><span class="si">:</span><span class="s1">.4g</span><span class="si">}</span><span class="s1">'</span><span class="p">),</span>  <span class="c1"># Round to 4 s.f.</span>
+                <span class="s1">'user'</span><span class="p">:</span> <span class="n">user</span><span class="p">}</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">one</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">'weighings'</span><span class="p">,</span> <span class="s1">'create'</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">wei_</span><span class="p">)</span></div>
 </div>
 
 </pre></div>

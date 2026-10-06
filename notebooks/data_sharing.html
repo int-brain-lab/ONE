@@ -154,22 +154,22 @@ data_sharing.ipynb"><button id="github">Github link</button></a><section id="Rel
 <span class="c1"># Data locations:</span>
 <span class="c1"># The data_url is the location of the remote example dataset.  This will be downloaded so we</span>
 <span class="c1"># have something to build a cache from on our local computer.</span>
-<span class="n">data_url</span> <span class="o">=</span> <span class="s1">&#39;https://ndownloader.figshare.com/files/21623715&#39;</span>
+<span class="n">data_url</span> <span class="o">=</span> <span class="s1">'https://ndownloader.figshare.com/files/21623715'</span>
 
 <span class="c1"># The cache_dir is the location of the example dataset.  By default this will be</span>
 <span class="c1"># ~/Downloads/ONE/my_example but could be set to anything.</span>
-<span class="n">cache_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">CACHE_DIR_DEFAULT</span><span class="p">,</span> <span class="s1">&#39;my_example&#39;</span><span class="p">)</span>
+<span class="n">cache_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">CACHE_DIR_DEFAULT</span><span class="p">,</span> <span class="s1">'my_example'</span><span class="p">)</span>
 
 <span class="c1"># Download data if not already downloaded</span>
 <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">cache_dir</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span><span class="n">cache_dir</span><span class="o">.</span><span class="n">iterdir</span><span class="p">())):</span>
     <span class="n">cache_dir</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># Create destination dir</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Downloading data from </span><span class="si">{</span><span class="n">data_url</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">maxsplit</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1">...&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Downloading data from </span><span class="si">{</span><span class="n">data_url</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"."</span><span class="p">,</span><span class="w"> </span><span class="n">maxsplit</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1">...'</span><span class="p">)</span>
     <span class="n">request</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">data_url</span><span class="p">)</span>  <span class="c1"># Download data into memory (~300MB)</span>
     <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">content</span><span class="p">))</span> <span class="k">as</span> <span class="n">zipped</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Extracting into </span><span class="si">{</span><span class="n">cache_dir</span><span class="si">}</span><span class="s1">...&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Extracting into </span><span class="si">{</span><span class="n">cache_dir</span><span class="si">}</span><span class="s1">...'</span><span class="p">)</span>
         <span class="n">zipped</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">cache_dir</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>  <span class="c1"># Decompress into destination dir</span>
-    <span class="n">Path</span><span class="p">(</span><span class="n">cache_dir</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="s1">&#39;ibl-behavioral-data-Dec2019&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">)</span>  <span class="c1"># Rename</span>
-    <span class="n">cache_dir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;one_example.py&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>  <span class="c1"># Delete outdated example</span>
+    <span class="n">Path</span><span class="p">(</span><span class="n">cache_dir</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="s1">'ibl-behavioral-data-Dec2019'</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">)</span>  <span class="c1"># Rename</span>
+    <span class="n">cache_dir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">'one_example.py'</span><span class="p">)</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>  <span class="c1"># Delete outdated example</span>
     <span class="k">del</span> <span class="n">request</span>  <span class="c1"># Free resources</span>
 <br/></pre></div>
 </div>
@@ -199,7 +199,7 @@ Extracting into C:\Users\User\Downloads\ONE\my_example...
 </div>
 <div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">))</span>
-<span class="n">session_path</span> <span class="o">=</span> <span class="n">cache_dir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;zadorlab/Subjects/CSH_ZAD_003/2019-08-11/001/alf&#39;</span><span class="p">)</span>
+<span class="n">session_path</span> <span class="o">=</span> <span class="n">cache_dir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">'zadorlab/Subjects/CSH_ZAD_003/2019-08-11/001/alf'</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">session_path</span><span class="p">))</span>
 </pre></div>
 </div>
@@ -235,7 +235,7 @@ Extracting into C:\Users\User\Downloads\ONE\my_example...
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Building ONE cache from filesystem...&#39;</span><span class="p">)</span>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s1">'Building ONE cache from filesystem...'</span><span class="p">)</span>
 <span class="n">One</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">,</span> <span class="n">hash_files</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -272,17 +272,17 @@ One (offline, C:\Users\User\Downloads\ONE\my_example)
 <span class="n">one</span> <span class="o">=</span> <span class="n">One</span><span class="p">(</span><span class="n">cache_dir</span><span class="o">=</span><span class="n">cache_dir</span><span class="p">)</span>
 
 <span class="c1"># Searching for behaviour experiment by subject</span>
-<span class="n">subject</span> <span class="o">=</span> <span class="s1">&#39;NYU-01&#39;</span>
-<span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="n">subject</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;trials.goCue_times&#39;</span><span class="p">,</span> <span class="s1">&#39;trials.feedback_times&#39;</span><span class="p">])</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;There are </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">eids</span><span class="p">)</span><span class="si">}</span><span class="s1"> behaviour sessions for subject &quot;</span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
+<span class="n">subject</span> <span class="o">=</span> <span class="s1">'NYU-01'</span>
+<span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="n">subject</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="p">[</span><span class="s1">'trials.goCue_times'</span><span class="p">,</span> <span class="s1">'trials.feedback_times'</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'There are </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">eids</span><span class="p">)</span><span class="si">}</span><span class="s1"> behaviour sessions for subject "</span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s1">"'</span><span class="p">)</span>
 
 <span class="c1"># Load the trials object for this session</span>
-<span class="n">trials</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="n">eids</span><span class="o">.</span><span class="n">pop</span><span class="p">(),</span> <span class="s1">&#39;trials&#39;</span><span class="p">)</span>
+<span class="n">trials</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="n">eids</span><span class="o">.</span><span class="n">pop</span><span class="p">(),</span> <span class="s1">'trials'</span><span class="p">)</span>
 
 <span class="c1"># Make the plot</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">trials</span><span class="o">.</span><span class="n">feedback_times</span> <span class="o">-</span> <span class="n">trials</span><span class="o">.</span><span class="n">goCue_times</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;reaction time / s&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;trial #&#39;</span><span class="p">);</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">trials</span><span class="o">.</span><span class="n">feedback_times</span> <span class="o">-</span> <span class="n">trials</span><span class="o">.</span><span class="n">goCue_times</span><span class="p">,</span> <span class="s1">'.'</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">'reaction time / s'</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">'trial #'</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>

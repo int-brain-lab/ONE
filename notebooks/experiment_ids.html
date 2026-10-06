@@ -132,7 +132,7 @@ experiment_ids.ipynb"><button id="github">Github link</button></a><section id="E
 <span class="kn">from</span><span class="w"> </span><span class="nn">one.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">ONE</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">one.alf.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_session_path</span><span class="p">,</span> <span class="n">is_uuid_string</span><span class="p">,</span> <span class="n">is_uuid</span>
 
-<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://openalyx.internationalbrainlab.org&#39;</span><span class="p">)</span>
+<span class="n">one</span> <span class="o">=</span> <span class="n">ONE</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">'https://openalyx.internationalbrainlab.org'</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -141,7 +141,7 @@ experiment_ids.ipynb"><button id="github">Github link</button></a><section id="E
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">datasets</span><span class="o">=</span><span class="s1">&#39;channels.brainLocationIds_ccf_2017.npy&#39;</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;2022-08-01&#39;</span><span class="p">,</span> <span class="s1">&#39;2022-09-01&#39;</span><span class="p">])</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">eids</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">datasets</span><span class="o">=</span><span class="s1">'channels.brainLocationIds_ccf_2017.npy'</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="p">[</span><span class="s1">'2022-08-01'</span><span class="p">,</span> <span class="s1">'2022-09-01'</span><span class="p">])</span>
 <span class="k">assert</span> <span class="n">is_uuid</span><span class="p">(</span><span class="n">eids</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 </pre></div>
 </div>
@@ -153,7 +153,7 @@ experiment_ids.ipynb"><button id="github">Github link</button></a><section id="E
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">session_path</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">eid2path</span><span class="p">(</span><span class="n">eids</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>  <span class="c1"># returns a pathlib.Path object</span>
 <span class="k">assert</span> <span class="n">is_session_path</span><span class="p">(</span><span class="n">session_path</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Session </span><span class="si">{</span><span class="s2">&quot;exists&quot;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">session_path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">&quot;does not exist&quot;</span><span class="si">}</span><span class="s1"> on disk&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Session </span><span class="si">{</span><span class="s2">"exists"</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">session_path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">"does not exist"</span><span class="si">}</span><span class="s1"> on disk'</span><span class="p">)</span>
 
 <span class="n">uuid_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">eids</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 <span class="k">assert</span> <span class="n">is_uuid_string</span><span class="p">(</span><span class="n">uuid_str</span><span class="p">)</span>
@@ -220,7 +220,7 @@ Session exists on disk
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ids</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;2019-12-10_1_KS023&#39;</span><span class="p">,</span> <span class="s1">&#39;ae8787b1-4229-4d56-b0c2-566b61a25b77&#39;</span><span class="p">,</span> <span class="s1">&#39;CSH_ZAD_029/2020-09-19/001&#39;</span><span class="p">]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ids</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'2019-12-10_1_KS023'</span><span class="p">,</span> <span class="s1">'ae8787b1-4229-4d56-b0c2-566b61a25b77'</span><span class="p">,</span> <span class="s1">'CSH_ZAD_029/2020-09-19/001'</span><span class="p">]</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">to_eid</span><span class="p">(</span><span class="n">ids</span><span class="p">))</span>
 </pre></div>
 </div>
@@ -238,17 +238,17 @@ Session exists on disk
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">filepath</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">&#39;rightROIMotionEnergy.position.npy&#39;</span><span class="p">,</span> <span class="n">download_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">dset</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">session_path</span><span class="p">,</span> <span class="s1">&#39;rightROIMotionEnergy.position.npy&#39;</span><span class="p">)</span>
-<span class="n">dset</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;rightROIMotionEnergy.position.npy&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">filepath</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="s1">'rightROIMotionEnergy.position.npy'</span><span class="p">,</span> <span class="n">download_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">dset</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">session_path</span><span class="p">,</span> <span class="s1">'rightROIMotionEnergy.position.npy'</span><span class="p">)</span>
+<span class="n">dset</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s1">'rightROIMotionEnergy.position.npy'</span><span class="p">)</span>
 
-<span class="n">short_path</span> <span class="o">=</span> <span class="s1">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">session_path</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">:])</span>  <span class="c1"># &#39;subject/date/number&#39;</span>
-<span class="n">dset</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">short_path</span><span class="p">,</span> <span class="s1">&#39;rightROIMotionEnergy.position.npy&#39;</span><span class="p">)</span>
+<span class="n">short_path</span> <span class="o">=</span> <span class="s1">'/'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">session_path</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">:])</span>  <span class="c1"># 'subject/date/number'</span>
+<span class="n">dset</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">short_path</span><span class="p">,</span> <span class="s1">'rightROIMotionEnergy.position.npy'</span><span class="p">)</span>
 
 <span class="n">url</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">path2url</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
-<span class="n">dset</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="s1">&#39;rightROIMotionEnergy.position.npy&#39;</span><span class="p">)</span>
-<span class="n">dset</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">ref_dict</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;rightROIMotionEnergy.position.npy&#39;</span><span class="p">)</span>
-<span class="n">dset</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">refs</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="s1">&#39;rightROIMotionEnergy.position.npy&#39;</span><span class="p">)</span>
+<span class="n">dset</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="s1">'rightROIMotionEnergy.position.npy'</span><span class="p">)</span>
+<span class="n">dset</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">ref_dict</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">'rightROIMotionEnergy.position.npy'</span><span class="p">)</span>
+<span class="n">dset</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">refs</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="s1">'rightROIMotionEnergy.position.npy'</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -265,7 +265,7 @@ Session exists on disk
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">obj</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="n">short_path</span><span class="p">,</span> <span class="s1">&#39;channels&#39;</span><span class="p">,</span> <span class="n">attribute</span><span class="o">=</span><span class="s1">&#39;brainLocationIds&#39;</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">&#39;alf/probe00/pykilosort&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">obj</span> <span class="o">=</span> <span class="n">one</span><span class="o">.</span><span class="n">load_object</span><span class="p">(</span><span class="n">short_path</span><span class="p">,</span> <span class="s1">'channels'</span><span class="p">,</span> <span class="n">attribute</span><span class="o">=</span><span class="s1">'brainLocationIds'</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s1">'alf/probe00/pykilosort'</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
