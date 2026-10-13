@@ -1097,6 +1097,78 @@ class TestMisc(unittest.TestCase):
             self.assertEqual([], request('/labs'))
         self.assertEqual('This endpoint is deprecated', str(cm.warning))
 
+        # Links should be appended to the notice
+        rep.headers = requests.structures.CaseInsensitiveDict({
+            'Alyx-API-Notice': 'See the changelog',
+            'Link': '<https://example.com/changes>; rel="help", <https://example.com/x>'})
+        with self.assertLogs(wc.__name__, logging.INFO) as log:
+            request('/labs')
+        expected = ('Alyx-API-Notice: See the changelog '
+                    'See https://example.com/changes, https://example.com/x')
+        self.assertEqual(expected, log.records[-1].getMessage())
+
+        # Each notice should only be logged or warned once per client
+        with warnings.catch_warnings(), self.assertNoLogs(wc.__name__, logging.INFO):
+            warnings.simplefilter('error')
+            for notice in ('Consider upgrading ONE', '!!!This endpoint is deprecated'):
+                rep.headers = {'Alyx-API-Notice': notice}
+                request('/labs')
+        # ...but should be warned again with a fresh set, as for a new client
+        self.ac._logged_notices.clear()
+        with self.assertWarns(RuntimeWarning):
+            request('/labs')
+
+    def test_lifecycle_headers(self):
+        """Test that the Deprecation and Sunset response headers are logged."""
+        rep = requests.Response()
+        rep.status_code = 200
+        rep._content = b'[]'
+        # __wrapped__ to step over the response cache
+        request = partial(self.ac._generic_request.__wrapped__, self.ac, lambda *a, **k: rep)
+        past = datetime(2020, 1, 1, tzinfo=timezone.utc)
+        future = datetime.now(timezone.utc) + timedelta(days=365)
+        http_date = '%a, %d %b %Y %H:%M:%S GMT'
+
+        cases = [
+            # Deprecation as a structured field date (RFC 9745)
+            ({'Deprecation': f'@{int(past.timestamp())}'},
+             '/labs has been deprecated since 2020-01-01.'),
+            ({'Deprecation': f'@{int(future.timestamp())}'},
+             f'/labs will be deprecated on {future:%Y-%m-%d}.'),
+            # Legacy draft value
+            ({'Deprecation': 'true'}, '/labs is deprecated.'),
+            # Sunset with an unparsable date, alone and following an undated deprecation
+            ({'Sunset': 'soon'}, '/labs is scheduled for removal.'),
+            ({'Deprecation': 'true', 'Sunset': 'soon'},
+             '/labs is deprecated and is scheduled for removal.'),
+            # Sunset as an HTTP-date (RFC 8594)
+            ({'Sunset': future.strftime(http_date)},
+             f'/labs is scheduled for removal on {future:%Y-%m-%d}.'),
+            ({'Sunset': past.strftime(http_date)},
+             '/labs was scheduled for removal on 2020-01-01.'),
+            # Both, with links to further information
+            ({'Deprecation': f'@{int(past.timestamp())}',
+              'Sunset': future.strftime(http_date),
+              'Link': '<https://example.com/dep>; rel="deprecation", '
+                      '<https://example.com/sunset>; rel="sunset"'},
+             f'/labs has been deprecated since 2020-01-01 and is scheduled for removal on '
+             f'{future:%Y-%m-%d}. See https://example.com/dep, https://example.com/sunset'),
+        ]
+        for headers, expected in cases:
+            with self.subTest(headers=headers):
+                rep.headers = requests.structures.CaseInsensitiveDict(headers)
+                with self.assertLogs(wc.__name__, logging.WARNING) as log:
+                    self.assertEqual([], request('/labs?foo=bar'))
+                self.assertEqual(expected, log.records[-1].getMessage())
+                # Subsequent identical responses, e.g. other pages, should not log again
+                with self.assertNoLogs(wc.__name__, logging.WARNING):
+                    request('/labs?offset=100')
+
+        # Without either header, nothing should be logged
+        rep.headers = requests.structures.CaseInsensitiveDict()
+        with self.assertNoLogs(wc.__name__, logging.WARNING):
+            request('/labs')
+
     def test_paginated_response(self):
         """Test the _PaginatedResponse class."""
         alyx = mock.Mock(spec_set=self.ac)

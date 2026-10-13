@@ -9,7 +9,7 @@ This version supports the 'detail' key in Alyx paginated responses and logs spec
 
 ### Modified
 
-- Alyx-API-Notice headers are now logged by the AlyxClient
+- Alyx-API-Notice, Deprecation and Sunset headers are now logged by the AlyxClient
 
 ## [3.6.0]
 This version adds support for public accounts and authentication without password.
