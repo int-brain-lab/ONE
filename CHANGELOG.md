@@ -1,6 +1,17 @@
 # Changelog
 
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [3.6.0]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [3.6.1]
+This version supports the 'detail' key in Alyx paginated responses and logs special endpoint messages.
+
+### Fixed
+
+- Paginated REST responses with a 'detail' key are now correctly handled
+
+### Modified
+
+- Alyx-API-Notice, Deprecation and Sunset headers are now logged by the AlyxClient
+
+## [3.6.0]
 This version adds support for public accounts and authentication without password.
 It also allows users to register files not associated with a single session.
 

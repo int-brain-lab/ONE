@@ -45,7 +45,7 @@ import urllib.parse
 from collections.abc import Mapping
 from typing import Optional, List
 from inspect import unwrap
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from weakref import ReferenceType
 import warnings
@@ -337,6 +337,31 @@ class _PaginatedResponse(Mapping):
     def __iter__(self):
         for i in range(self.count):
             yield self.__getitem__(i)
+
+
+def _parse_lifecycle_date(value: str) -> Optional[datetime]:
+    """Parse the value of a Deprecation or Sunset response header.
+
+    Parameters
+    ----------
+    value : str
+        Either a structured field date (RFC 9651), e.g. '@1688169599', or an HTTP-date
+        (RFC 9110), e.g. 'Sat, 31 Dec 2025 23:59:59 GMT'.
+
+    Returns
+    -------
+    datetime, None
+        The parsed timezone-aware date, or None if the value could not be parsed (e.g. the
+        legacy 'true' value of earlier Deprecation header drafts).
+
+    """
+    value = value.strip()
+    try:
+        if value.startswith('@'):
+            return datetime.fromtimestamp(int(value[1:]), tz=timezone.utc)
+        return parsedate_to_datetime(value)
+    except (ValueError, TypeError, OverflowError):
+        return None
 
 
 def update_url_params(url: str, params: dict) -> str:
@@ -957,6 +982,8 @@ class AlyxClient:
         self._obj_id = id(self)
         # Used to track number of attempts for a given request, for retry logic in _generic_request
         self._attempt_counter = 0
+        # Response header notices already logged, so that each is logged only once per client
+        self._logged_notices = set()
 
     @property
     def _base_headers(self):
@@ -1003,6 +1030,68 @@ class AlyxClient:
     def print_endpoint_info(self, endpoint: str, action: str = None):
         self.rest_schemes.print_endpoint_info(endpoint, action)
 
+    def _log_response_headers(self, response: requests.Response, rest_query: str) -> None:
+        """Log the Alyx-API-Notice, Deprecation (RFC 9745) and Sunset (RFC 8594) headers.
+
+        Each distinct notice is logged only once per client, so that paginated queries and
+        retries do not repeat it.
+
+        Parameters
+        ----------
+        response : requests.Response
+            The response whose headers to check.
+        rest_query : str
+            The REST query that was made, used in the deprecation message.
+
+        """
+        headers = response.headers
+
+        def notify(message, emit):
+            """Pass the message to `emit` unless this client has already done so."""
+            if message not in self._logged_notices:
+                self._logged_notices.add(message)
+                emit(message)
+
+        def see(urls):
+            """Return a ' See ...' suffix listing the unique, non-empty URLs."""
+            urls = list(dict.fromkeys(filter(None, urls)))
+            return (' See ' + ', '.join(urls)) if urls else ''
+
+        # Alyx-API-Notice: logged, or raised as a warning if prefixed with '!!!'
+        if notice := headers.get('Alyx-API-Notice'):
+            links = see(link.get('url') for link in response.links.values())
+            if notice.startswith('!!!'):
+                warn = functools.partial(warnings.warn, category=RuntimeWarning)
+                notify(notice[3:] + links, warn)
+            else:
+                notify('Alyx-API-Notice: ' + notice + links, _logger.info)
+
+        deprecation = headers.get('Deprecation')
+        sunset = headers.get('Sunset')
+        if not (deprecation or sunset):
+            return
+        path = urllib.parse.urlsplit(rest_query).path
+        now = datetime.now(timezone.utc)
+        parts = []
+        if deprecation:
+            if (date := _parse_lifecycle_date(deprecation)) is None:
+                parts.append(f'{path} is deprecated')
+            elif date <= now:
+                parts.append(f'{path} has been deprecated since {date:%Y-%m-%d}')
+            else:
+                parts.append(f'{path} will be deprecated on {date:%Y-%m-%d}')
+        if sunset:
+            prefix = 'and' if parts else path
+            if (date := _parse_lifecycle_date(sunset)) is None:
+                parts.append(f'{prefix} is scheduled for removal')
+            elif date <= now:
+                parts.append(f'{prefix} was scheduled for removal on {date:%Y-%m-%d}')
+            else:
+                parts.append(f'{prefix} is scheduled for removal on {date:%Y-%m-%d}')
+        # Both headers may be accompanied by a Link header pointing to further information
+        links = (response.links.get(rel, {}).get('url') for rel in ('deprecation', 'sunset'))
+        notify(' '.join(parts) + '.' + see(links), _logger.warning)
+
     @_cache_response
     def _generic_request(self, reqfunction, rest_query, data=None, files=None):
         if not self.is_logged_in:
@@ -1026,6 +1115,7 @@ class AlyxClient:
         r = reqfunction(
             self.base_url + rest_query, stream=True, headers=headers, data=data, files=files
         )
+        self._log_response_headers(r, rest_query)
         if r and r.status_code in (200, 201, 204):
             self._attempt_counter = 0  # reset attempt counter on successful request
             return None if r.status_code == 204 else json.loads(r.text)
@@ -1518,7 +1608,11 @@ class AlyxClient:
 
         """
         rep = self._generic_request(requests.get, rest_query, **kwargs)
-        if isinstance(rep, dict) and list(rep.keys()) == ['count', 'next', 'previous', 'results']:
+        if isinstance(rep, dict) and {'count', 'next', 'previous', 'results'} <= rep.keys():
+            # If a detail message is returned, log it as a warning
+            # This is not an error, but may be useful to the user
+            if detail := rep.pop('detail', None):
+                _logger.warning('Alyx server returned a detail message: %s', detail)
             if len(rep['results']) < rep['count']:
                 cache_args = {k: v for k, v in kwargs.items() if k in ('clobber', 'expires')}
                 rep = _PaginatedResponse(self, rep, cache_args)
