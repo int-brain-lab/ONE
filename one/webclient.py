@@ -1026,6 +1026,12 @@ class AlyxClient:
         r = reqfunction(
             self.base_url + rest_query, stream=True, headers=headers, data=data, files=files
         )
+        # Log the Alyx-API-Notice header if present
+        if advice := r.headers.get('Alyx-API-Notice'):
+            if advice.startswith('!!!'):
+                warnings.warn(advice[3:], RuntimeWarning)
+            else:
+                _logger.info('Alyx-API-Notice: %s', advice)
         if r and r.status_code in (200, 201, 204):
             self._attempt_counter = 0  # reset attempt counter on successful request
             return None if r.status_code == 204 else json.loads(r.text)
@@ -1518,7 +1524,11 @@ class AlyxClient:
 
         """
         rep = self._generic_request(requests.get, rest_query, **kwargs)
-        if isinstance(rep, dict) and list(rep.keys()) == ['count', 'next', 'previous', 'results']:
+        if isinstance(rep, dict) and {'count', 'next', 'previous', 'results'} <= rep.keys():
+            # If a detail message is returned, log it as a warning
+            # This is not an error, but may be useful to the user
+            if detail := rep.pop('detail', None):
+                _logger.warning('Alyx server returned a detail message: %s', detail)
             if len(rep['results']) < rep['count']:
                 cache_args = {k: v for k, v in kwargs.items() if k in ('clobber', 'expires')}
                 rep = _PaginatedResponse(self, rep, cache_args)

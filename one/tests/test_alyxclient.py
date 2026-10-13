@@ -1071,6 +1071,32 @@ class TestMisc(unittest.TestCase):
         finally:
             self.ac._par = self.ac._par.set('CACHE_DIR', prev_path)
 
+    def test_alyx_advice_header(self):
+        """Test that the Alyx-API-Notice response header is logged or raised as a warning."""
+        rep = requests.Response()
+        rep.status_code = 200
+        rep._content = b'[]'
+        # __wrapped__ to step over the response cache
+        request = partial(self.ac._generic_request.__wrapped__, self.ac, lambda *a, **k: rep)
+
+        # Without the header, nothing should be logged or warned
+        with warnings.catch_warnings(), self.assertNoLogs(wc.__name__, logging.INFO):
+            warnings.simplefilter('error')
+            self.assertEqual([], request('/labs'))
+
+        # Plain advice should be logged at INFO level
+        rep.headers = {'Alyx-API-Notice': 'Consider upgrading ONE'}
+        with self.assertLogs(wc.__name__, logging.INFO) as log:
+            self.assertEqual([], request('/labs'))
+        self.assertEqual('Alyx-API-Notice: Consider upgrading ONE', log.records[-1].getMessage())
+        self.assertEqual(logging.INFO, log.records[-1].levelno)
+
+        # Advice prefixed with '!!!' should raise a RuntimeWarning, without the prefix
+        rep.headers = {'Alyx-API-Notice': '!!!This endpoint is deprecated'}
+        with self.assertWarns(RuntimeWarning) as cm:
+            self.assertEqual([], request('/labs'))
+        self.assertEqual('This endpoint is deprecated', str(cm.warning))
+
     def test_paginated_response(self):
         """Test the _PaginatedResponse class."""
         alyx = mock.Mock(spec_set=self.ac)

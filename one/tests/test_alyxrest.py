@@ -70,6 +70,26 @@ class TestREST(unittest.TestCase):
         with self.assertWarns(RuntimeWarning):
             _ = rep[10]
 
+        # Previously a strict key set match was used to determine if the response was paginated.
+        # Sometimes the response body includes a 'detail' key: check that the response is handled
+        # correctly
+        with unittest.mock.patch.object(self.alyx, '_generic_request') as mock_get:
+            mock_get.return_value = {
+                'count': 1,
+                'next': None,
+                'previous': None,
+                'results': [{'id': 1}],
+                'detail': 'This is a detail message'
+            }
+            with self.assertLogs('one.webclient', WARNING) as cm:
+                rep = self.alyx.rest('datasets', 'list')
+            self.assertRegex(
+                cm.output[0], r'Alyx server returned a detail message: This is a detail message')
+            self.assertEqual(
+                rep, mock_get.return_value['results'],
+                'Paginated response should return the results list'
+            )
+
     def test_generic_request(self):
         """Test AlyxClient.get method."""
         a = self.alyx.get('/labs')
