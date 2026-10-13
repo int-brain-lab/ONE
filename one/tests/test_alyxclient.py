@@ -25,7 +25,7 @@ from datetime import datetime, timedelta, timezone
 from iblutil.io import hashfile
 import iblutil.io.params as iopar
 
-from one.tests import OFFLINE_ONLY, TEST_DB_1, TEST_DB_2
+from one.tests import OFFLINE_ONLY, TEST_DB_1
 from one.tests import util
 
 # The defaults, not the developer's own parameters: importing a test module should not read -
@@ -41,7 +41,7 @@ def setUpModule():
     """Point the parameter files at a directory belonging to this module.
 
     These tests log in and out, which rewrites the parameter file for whichever database they
-    use - the developer's real ~/.one without this. Each test database is then set up silently
+    use - the developer's real ~/.one without this. The test database is then set up silently
     so no class depends on another having run first.
     """
     global _tempdir
@@ -52,10 +52,8 @@ def setUpModule():
     ))
     for patch in _patches:
         patch.start()
-    # TEST_DB_2 last and as the default, since it is the database a bare AlyxClient() reaches.
-    for db in (TEST_DB_1, TEST_DB_2):
-        if db:
-            one.params.setup(db['base_url'], silent=True, make_default=db is TEST_DB_2)
+    # As the default, since it is the database a bare AlyxClient() reaches.
+    one.params.setup(TEST_DB_1['base_url'], silent=True, make_default=True)
 
 
 def tearDownModule():
@@ -165,7 +163,10 @@ class TestRestDocumentation(unittest.TestCase):
         rep.status_code = 200
         rep._content = json.dumps(self.scheme_coreapi._rest_scheme).encode()
         get_mock = mock.MagicMock(return_value=rep)
-        self.ac._generic_request.__wrapped__(self.ac, get_mock, '/docs')
+        # Patch the login check so that offline, where there is no token, it doesn't authenticate
+        with mock.patch.object(wc.AlyxClient, 'is_logged_in', new_callable=mock.PropertyMock,
+                               return_value=True):
+            self.ac._generic_request.__wrapped__(self.ac, get_mock, '/docs')
         get_mock.assert_called_once()
         expected = get_mock.call_args.kwargs['headers'] | {'Accept': 'application/coreapi+json'}
         self.assertEqual(expected, get_mock.call_args.kwargs['headers'])
@@ -870,6 +871,27 @@ class _FakeDateTime(datetime):
         return _FakeDateTime._now or datetime.now(*args, **kwargs)
 
 
+# A dataset record from the public database, trimmed to its public FlatIron file record
+PUBLIC_DATASET = {
+    'url': 'https://openalyx.internationalbrainlab.org/'
+           'datasets/40af4a49-1b9d-45ec-b443-a151c010ea3c',
+    'name': '_spikeglx_ephysData_g0_t0.imec0.wiring.json',
+    'collection': 'raw_ephys_data/probe00',
+    'file_size': 95,
+    'hash': '10e76721a218051fb13db1e38c576904',
+    'file_records': [{
+        'id': '932eb661-5934-47bf-8a25-c5b7819eb280',
+        'data_repository': 'flatiron_hoferlab',
+        'data_repository_path': '/hoferlab/Subjects/',
+        'relative_path': 'SWC_043/2020-09-21/001/raw_ephys_data/probe00/'
+                         '_spikeglx_ephysData_g0_t0.imec0.wiring.json',
+        'data_url': 'https://ibl.flatironinstitute.org/public/hoferlab/Subjects/SWC_043/'
+                    '2020-09-21/001/raw_ephys_data/probe00/'
+                    '_spikeglx_ephysData_g0_t0.imec0.wiring.40af4a49-1b9d-45ec-b443-a151c010ea3c.json',
+        'exists': True}],
+}
+
+
 @unittest.skipIf(OFFLINE_ONLY, 'online only test')
 class TestDownloadHTTP(unittest.TestCase):
     def setUp(self):
@@ -879,26 +901,24 @@ class TestDownloadHTTP(unittest.TestCase):
         if 'public' in self.ac._par.HTTP_DATA_SERVER:
             self.ac._par = self.ac._par.set(
                 'HTTP_DATA_SERVER', self.ac._par.HTTP_DATA_SERVER.rsplit('/', 1)[0])
-        self.test_data_uuid = '40af4a49-1b9d-45ec-b443-a151c010ea3c'  # OpenAlyx dataset
 
     def test_download_datasets_with_api(self):
-        ac_public = wc.AlyxClient(**TEST_DB_2)
         cache_dir = tempfile.mkdtemp()
         self.addCleanup(lambda: shutil.rmtree(cache_dir))
+        # The test database's files are not public, so these use a saved public dataset record
+        dset = PUBLIC_DATASET
 
         # Test 1: empty dir, dict mode
-        dset = ac_public.get('/datasets/' + self.test_data_uuid)
         urls = wc.dataset_record_to_url(dset)
-        url = [u for u in urls if u.startswith('https://ibl.flatiron')]
-        (file_name,) = ac_public.download_file(url, target_dir=cache_dir)
+        self.assertEqual([dset['file_records'][0]['data_url']], urls)
+        (file_name,) = self.ac.download_file(urls, target_dir=cache_dir)
         self.assertTrue(os.path.isfile(file_name))
+        self.assertEqual(dset['hash'], hashfile.md5(file_name))
         os.unlink(file_name)
 
         # Test 2: empty dir, list mode
-        dset = ac_public.get('/datasets?id=' + self.test_data_uuid)
-        urls = wc.dataset_record_to_url(dset)
-        url = [u for u in urls if u.startswith('https://ibl.flatiron')]
-        (file_name,) = ac_public.download_file(url, target_dir=cache_dir)
+        urls = wc.dataset_record_to_url([dset])
+        (file_name,) = self.ac.download_file(urls, target_dir=cache_dir)
         self.assertTrue(os.path.isfile(file_name))
         os.unlink(file_name)
 

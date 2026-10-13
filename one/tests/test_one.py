@@ -15,7 +15,8 @@ Imported constants:
 - For tests that do require a remote connection use the tests.OFFLINE_ONLY flag in the skipIf
   decorator.
 - For testing REST POST requests use TEST_DB_1 (test.alyx.internationalbrainlab.org).
-- For testing download functions, use TEST_DB_2 (openalyx.internationalbrainlab.org).
+- For testing download functions, use TEST_DB_2 (openalyx.internationalbrainlab.org), as the
+  files of TEST_DB_1 are not publicly downloadable.
 
 Note ONE and AlyxClient use caching:
 
@@ -2284,7 +2285,7 @@ class TestOneSetup(unittest.TestCase):
         # Check conflict warning. Any URL other than the one above will do - the warning comes
         # from the cache directory already being claimed, so no login is involved.
         with mock.patch('iblutil.io.params.getfile', new=self.get_file):
-            OneAlyx(mode='local', base_url=TEST_DB_2['base_url'])
+            OneAlyx(mode='local', base_url='https://alyx.example.org')
         self.assertTrue(getattr(mock_input, 'conflict_warn', False))
 
     def test_patch_params(self):
