@@ -152,7 +152,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mapping</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">inspect</span><span class="w"> </span><span class="kn">import</span> <span class="n">unwrap</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span><span class="p">,</span> <span class="n">timezone</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">weakref</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReferenceType</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
@@ -447,6 +447,31 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="p">):</span>
             <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_lifecycle_date</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Parse the value of a Deprecation or Sunset response header.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    value : str</span>
+<span class="sd">        Either a structured field date (RFC 9651), e.g. '@1688169599', or an HTTP-date</span>
+<span class="sd">        (RFC 9110), e.g. 'Sat, 31 Dec 2025 23:59:59 GMT'.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    datetime, None</span>
+<span class="sd">        The parsed timezone-aware date, or None if the value could not be parsed (e.g. the</span>
+<span class="sd">        legacy 'true' value of earlier Deprecation header drafts).</span>
+
+<span class="sd">    """</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">'@'</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">:]),</span> <span class="n">tz</span><span class="o">=</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">parsedate_to_datetime</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">,</span> <span class="ne">OverflowError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
 
 
 <div class="viewcode-block" id="update_url_params">
@@ -1138,6 +1163,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_obj_id</span> <span class="o">=</span> <span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="c1"># Used to track number of attempts for a given request, for retry logic in _generic_request</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_attempt_counter</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># Response header notices already logged, so that each is logged only once per client</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logged_notices</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_base_headers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1190,6 +1217,68 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">rest_schemes</span><span class="o">.</span><span class="n">print_endpoint_info</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">action</span><span class="p">)</span></div>
 
 
+    <span class="k">def</span><span class="w"> </span><span class="nf">_log_response_headers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">response</span><span class="p">:</span> <span class="n">requests</span><span class="o">.</span><span class="n">Response</span><span class="p">,</span> <span class="n">rest_query</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Log the Alyx-API-Notice, Deprecation (RFC 9745) and Sunset (RFC 8594) headers.</span>
+
+<span class="sd">        Each distinct notice is logged only once per client, so that paginated queries and</span>
+<span class="sd">        retries do not repeat it.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        response : requests.Response</span>
+<span class="sd">            The response whose headers to check.</span>
+<span class="sd">        rest_query : str</span>
+<span class="sd">            The REST query that was made, used in the deprecation message.</span>
+
+<span class="sd">        """</span>
+        <span class="n">headers</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">headers</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">notify</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">emit</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">"""Pass the message to `emit` unless this client has already done so."""</span>
+            <span class="k">if</span> <span class="n">message</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logged_notices</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logged_notices</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+                <span class="n">emit</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">see</span><span class="p">(</span><span class="n">urls</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">"""Return a ' See ...' suffix listing the unique, non-empty URLs."""</span>
+            <span class="n">urls</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">urls</span><span class="p">)))</span>
+            <span class="k">return</span> <span class="p">(</span><span class="s1">' See '</span> <span class="o">+</span> <span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">urls</span><span class="p">))</span> <span class="k">if</span> <span class="n">urls</span> <span class="k">else</span> <span class="s1">''</span>
+
+        <span class="c1"># Alyx-API-Notice: logged, or raised as a warning if prefixed with '!!!'</span>
+        <span class="k">if</span> <span class="n">notice</span> <span class="o">:=</span> <span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'Alyx-API-Notice'</span><span class="p">):</span>
+            <span class="n">links</span> <span class="o">=</span> <span class="n">see</span><span class="p">(</span><span class="n">link</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'url'</span><span class="p">)</span> <span class="k">for</span> <span class="n">link</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">links</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">notice</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">'!!!'</span><span class="p">):</span>
+                <span class="n">warn</span> <span class="o">=</span> <span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span><span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="ne">RuntimeWarning</span><span class="p">)</span>
+                <span class="n">notify</span><span class="p">(</span><span class="n">notice</span><span class="p">[</span><span class="mi">3</span><span class="p">:]</span> <span class="o">+</span> <span class="n">links</span><span class="p">,</span> <span class="n">warn</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">notify</span><span class="p">(</span><span class="s1">'Alyx-API-Notice: '</span> <span class="o">+</span> <span class="n">notice</span> <span class="o">+</span> <span class="n">links</span><span class="p">,</span> <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">)</span>
+
+        <span class="n">deprecation</span> <span class="o">=</span> <span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'Deprecation'</span><span class="p">)</span>
+        <span class="n">sunset</span> <span class="o">=</span> <span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'Sunset'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">deprecation</span> <span class="ow">or</span> <span class="n">sunset</span><span class="p">):</span>
+            <span class="k">return</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlsplit</span><span class="p">(</span><span class="n">rest_query</span><span class="p">)</span><span class="o">.</span><span class="n">path</span>
+        <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
+        <span class="n">parts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">deprecation</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">date</span> <span class="o">:=</span> <span class="n">_parse_lifecycle_date</span><span class="p">(</span><span class="n">deprecation</span><span class="p">))</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1"> is deprecated'</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">date</span> <span class="o">&lt;=</span> <span class="n">now</span><span class="p">:</span>
+                <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1"> has been deprecated since </span><span class="si">{</span><span class="n">date</span><span class="si">:</span><span class="s1">%Y-%m-%d</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1"> will be deprecated on </span><span class="si">{</span><span class="n">date</span><span class="si">:</span><span class="s1">%Y-%m-%d</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">sunset</span><span class="p">:</span>
+            <span class="n">prefix</span> <span class="o">=</span> <span class="s1">'and'</span> <span class="k">if</span> <span class="n">parts</span> <span class="k">else</span> <span class="n">path</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">date</span> <span class="o">:=</span> <span class="n">_parse_lifecycle_date</span><span class="p">(</span><span class="n">sunset</span><span class="p">))</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1"> is scheduled for removal'</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">date</span> <span class="o">&lt;=</span> <span class="n">now</span><span class="p">:</span>
+                <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1"> was scheduled for removal on </span><span class="si">{</span><span class="n">date</span><span class="si">:</span><span class="s1">%Y-%m-%d</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1"> is scheduled for removal on </span><span class="si">{</span><span class="n">date</span><span class="si">:</span><span class="s1">%Y-%m-%d</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+        <span class="c1"># Both headers may be accompanied by a Link header pointing to further information</span>
+        <span class="n">links</span> <span class="o">=</span> <span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">links</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">rel</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'url'</span><span class="p">)</span> <span class="k">for</span> <span class="n">rel</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">'deprecation'</span><span class="p">,</span> <span class="s1">'sunset'</span><span class="p">))</span>
+        <span class="n">notify</span><span class="p">(</span><span class="s1">' '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">+</span> <span class="s1">'.'</span> <span class="o">+</span> <span class="n">see</span><span class="p">(</span><span class="n">links</span><span class="p">),</span> <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">)</span>
+
     <span class="nd">@_cache_response</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_generic_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reqfunction</span><span class="p">,</span> <span class="n">rest_query</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_logged_in</span><span class="p">:</span>
@@ -1213,6 +1302,7 @@
         <span class="n">r</span> <span class="o">=</span> <span class="n">reqfunction</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">base_url</span> <span class="o">+</span> <span class="n">rest_query</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="n">files</span>
         <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_response_headers</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">rest_query</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">r</span> <span class="ow">and</span> <span class="n">r</span><span class="o">.</span><span class="n">status_code</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">201</span><span class="p">,</span> <span class="mi">204</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_attempt_counter</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># reset attempt counter on successful request</span>
             <span class="k">return</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">204</span> <span class="k">else</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
@@ -1725,7 +1815,11 @@
 
 <span class="sd">        """</span>
         <span class="n">rep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generic_request</span><span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">,</span> <span class="n">rest_query</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rep</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">list</span><span class="p">(</span><span class="n">rep</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="p">[</span><span class="s1">'count'</span><span class="p">,</span> <span class="s1">'next'</span><span class="p">,</span> <span class="s1">'previous'</span><span class="p">,</span> <span class="s1">'results'</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rep</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="p">{</span><span class="s1">'count'</span><span class="p">,</span> <span class="s1">'next'</span><span class="p">,</span> <span class="s1">'previous'</span><span class="p">,</span> <span class="s1">'results'</span><span class="p">}</span> <span class="o">&lt;=</span> <span class="n">rep</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="c1"># If a detail message is returned, log it as a warning</span>
+            <span class="c1"># This is not an error, but may be useful to the user</span>
+            <span class="k">if</span> <span class="n">detail</span> <span class="o">:=</span> <span class="n">rep</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">'detail'</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+                <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">'Alyx server returned a detail message: </span><span class="si">%s</span><span class="s1">'</span><span class="p">,</span> <span class="n">detail</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rep</span><span class="p">[</span><span class="s1">'results'</span><span class="p">])</span> <span class="o">&lt;</span> <span class="n">rep</span><span class="p">[</span><span class="s1">'count'</span><span class="p">]:</span>
                 <span class="n">cache_args</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">'clobber'</span><span class="p">,</span> <span class="s1">'expires'</span><span class="p">)}</span>
                 <span class="n">rep</span> <span class="o">=</span> <span class="n">_PaginatedResponse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rep</span><span class="p">,</span> <span class="n">cache_args</span><span class="p">)</span>

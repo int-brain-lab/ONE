@@ -188,7 +188,27 @@
         <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">'subjects'</span><span class="p">,</span> <span class="s1">'create'</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s1">'nickname'</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span> <span class="s1">'lab'</span><span class="p">:</span> <span class="s1">'cortexlab'</span><span class="p">})</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">addCleanup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">,</span> <span class="s1">'subjects'</span><span class="p">,</span> <span class="s1">'delete'</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">s</span><span class="p">[</span><span class="s1">'nickname'</span><span class="p">])</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertWarns</span><span class="p">(</span><span class="ne">RuntimeWarning</span><span class="p">):</span>
-            <span class="n">_</span> <span class="o">=</span> <span class="n">rep</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span></div>
+            <span class="n">_</span> <span class="o">=</span> <span class="n">rep</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span>
+
+        <span class="c1"># Previously a strict key set match was used to determine if the response was paginated.</span>
+        <span class="c1"># Sometimes the response body includes a 'detail' key: check that the response is handled</span>
+        <span class="c1"># correctly</span>
+        <span class="k">with</span> <span class="n">unittest</span><span class="o">.</span><span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="p">,</span> <span class="s1">'_generic_request'</span><span class="p">)</span> <span class="k">as</span> <span class="n">mock_get</span><span class="p">:</span>
+            <span class="n">mock_get</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">'count'</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="s1">'next'</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s1">'previous'</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s1">'results'</span><span class="p">:</span> <span class="p">[{</span><span class="s1">'id'</span><span class="p">:</span> <span class="mi">1</span><span class="p">}],</span>
+                <span class="s1">'detail'</span><span class="p">:</span> <span class="s1">'This is a detail message'</span>
+            <span class="p">}</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertLogs</span><span class="p">(</span><span class="s1">'one.webclient'</span><span class="p">,</span> <span class="n">WARNING</span><span class="p">)</span> <span class="k">as</span> <span class="n">cm</span><span class="p">:</span>
+                <span class="n">rep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="s1">'datasets'</span><span class="p">,</span> <span class="s1">'list'</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertRegex</span><span class="p">(</span>
+                <span class="n">cm</span><span class="o">.</span><span class="n">output</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="sa">r</span><span class="s1">'Alyx server returned a detail message: This is a detail message'</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+                <span class="n">rep</span><span class="p">,</span> <span class="n">mock_get</span><span class="o">.</span><span class="n">return_value</span><span class="p">[</span><span class="s1">'results'</span><span class="p">],</span>
+                <span class="s1">'Paginated response should return the results list'</span>
+            <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TestREST.test_generic_request">
