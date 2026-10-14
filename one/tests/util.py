@@ -1,6 +1,6 @@
 """Utilities functions for setting up test fixtures."""
 import tempfile
-from contextlib import contextmanager
+from contextlib import contextmanager, ExitStack
 from pathlib import Path
 from unittest import mock
 import shutil
@@ -232,7 +232,7 @@ def caches_str2int(caches):
 
 
 @contextmanager
-def mock_http_download(content=b'mock file contents'):
+def mock_http_download(content=b'mock file contents', tag=True):
     """Stand in for the HTTP transfer so download tests need no data server access.
 
     The test database's file records point at the private FlatIron tree. Only the bytes on the
@@ -241,10 +241,17 @@ def mock_http_download(content=b'mock file contents'):
     The mismatch handler is stubbed out too: a fabricated file never matches the recorded hash,
     and the handler would flag the file record on Alyx, writing to the shared test database.
 
+    Parameters
+    ----------
+    content : bytes
+        The contents of each downloaded file.
+    tag : bool
+        If false, `_tag_mismatched_file_record` is not stubbed out.
+
     Yields
     ------
-    unittest.mock.MagicMock
-        The patched `_tag_mismatched_file_record`.
+    unittest.mock.MagicMock, None
+        The patched `_tag_mismatched_file_record`, or None if `tag` is false.
 
     """
     from iblutil.io import hashfile
@@ -258,6 +265,23 @@ def mock_http_download(content=b'mock file contents'):
         file.write_bytes(content)
         return (file, hashfile.md5(file)) if return_md5 else file
 
-    with mock.patch('one.webclient.http_download_file', new=download), \
-            mock.patch('one.api.OneAlyx._tag_mismatched_file_record') as tag:
-        yield tag
+    with ExitStack() as stack:
+        stack.enter_context(mock.patch('one.webclient.http_download_file', new=download))
+        if tag:
+            tag = stack.enter_context(mock.patch('one.api.OneAlyx._tag_mismatched_file_record'))
+        yield tag or None
+
+
+def rest_schemes():
+    """Load the Alyx REST schema fixture, so that an AlyxClient need not fetch it.
+
+    Returns
+    -------
+    one.webclient.RestSchemeOpenApi
+        The REST endpoints and their parameters.
+
+    """
+    from one.webclient import RestSchemeOpenApi
+    fixture = Path(__file__).parent.joinpath('fixtures', 'rest_responses', 'openapiv3.json')
+    with open(fixture, 'r') as f:
+        return RestSchemeOpenApi(json.load(f))
