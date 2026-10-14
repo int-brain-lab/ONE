@@ -19,7 +19,7 @@ def _get_test_db():
         dbs = json.load(f)
     if not isinstance(dbs, list):
         dbs = [dbs]
-    return [dbs[i] if len(dbs) >= i else None for i in range(2)]  # Ensure length == 2
+    return [dbs[i] if len(dbs) > i else None for i in range(2)]  # Ensure length == 2
 
 
 TEST_DB_1, TEST_DB_2 = _get_test_db()
