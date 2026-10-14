@@ -6,6 +6,7 @@ from unittest import mock
 import tempfile
 from pathlib import Path
 from functools import partial
+from types import SimpleNamespace
 
 from one.tests import TEST_DB_1, OFFLINE_ONLY, util
 from one.webclient import AlyxClient
@@ -143,6 +144,19 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(aws.url2uri(url), expected)
         uri, loc = aws.url2uri(url, return_location=True)
         self.assertEqual(loc, 'eu-east-1')
+
+    def test_download_folder_skips_siblings(self):
+        """Test one.remote.aws.s3_download_folder skips keys outside the source folder."""
+        s3 = mock.MagicMock()
+        s3.Bucket().objects.filter.return_value = [
+            SimpleNamespace(key='toto/tata/', size=0),  # the folder itself
+            SimpleNamespace(key='toto/tata/titi.txt', size=1),
+            SimpleNamespace(key='toto/tata_alternate/titi.txt', size=1),  # shares the prefix only
+        ]
+        with tempfile.TemporaryDirectory() as td, \
+                mock.patch('one.remote.aws.s3_download_file', side_effect=lambda _, x, **__: x):
+            local_files = aws.s3_download_folder('toto/tata', td, s3=s3, bucket_name='bucket')
+            self.assertEqual([Path(td, 'titi.txt')], local_files)
 
     @mock.patch('boto3.Session')
     def test_get_ibl_s3(self, session_mock):
