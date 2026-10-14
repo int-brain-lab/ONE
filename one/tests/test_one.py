@@ -15,7 +15,8 @@ Imported constants:
 - For tests that do require a remote connection use the tests.OFFLINE_ONLY flag in the skipIf
   decorator.
 - For testing REST POST requests use TEST_DB_1 (test.alyx.internationalbrainlab.org).
-- For testing download functions, use TEST_DB_2 (openalyx.internationalbrainlab.org).
+- The files of TEST_DB_1 are not publicly downloadable, so download tests use REST fixtures
+  of a public session and fake the HTTP transfer (see tests.util.mock_http_download).
 
 Note ONE and AlyxClient use caching:
 
@@ -42,7 +43,7 @@ import io
 import numpy as np
 import pandas as pd
 from requests.exceptions import HTTPError
-from iblutil.io import parquet
+from iblutil.io import parquet, hashfile
 from iblutil.util import Bunch
 
 from one import __version__
@@ -55,11 +56,12 @@ from one.util import (
 from one.webclient import AlyxClient
 import one.params
 import one.alf.exceptions as alferr
-from one.converters import datasets2records
+from one.converters import datasets2records, ses2records
 from one.alf import spec
-from one.alf.path import get_alf_path
-from one.alf.cache import EMPTY_DATASETS_FRAME, EMPTY_SESSIONS_FRAME, cast_index_object
-from one.tests import util, OFFLINE_ONLY, TEST_DB_1, TEST_DB_2  # 1 = TestAlyx; 2 = OpenAlyx
+from one.alf.cache import (
+    EMPTY_DATASETS_FRAME, EMPTY_SESSIONS_FRAME, cast_index_object, merge_tables
+)
+from one.tests import util, OFFLINE_ONLY, TEST_DB_1  # TestAlyx
 
 
 class TestONECache(unittest.TestCase):
@@ -1927,80 +1929,98 @@ class TestOneRemote(unittest.TestCase):
         self.tempdir.cleanup()
 
 
-@unittest.skipIf(OFFLINE_ONLY, 'online only test')
 class TestOneDownload(unittest.TestCase):
-    """Test downloading datasets using OpenAlyx."""
+    """Test downloading datasets.
+
+    The REST responses for an Open Alyx session are served from the fixtures in
+    tests/fixtures/rest_responses and HTTP downloads are faked, so no database is needed.
+    """
 
     tempdir = None
     one = None
 
     def setUp(self) -> None:
         self.tempdir = tempfile.TemporaryDirectory()
-        self.patch = mock.patch('one.params.iopar.getfile',
-                                new=partial(util.get_file, self.tempdir.name))
-        self.patch.start()
-        self.one = OneAlyx(**TEST_DB_2, cache_dir=self.tempdir.name)
-        self.one.load_cache()
+        self.addCleanup(self.tempdir.cleanup)
+        patch = mock.patch('one.params.iopar.getfile',
+                           new=partial(util.get_file, self.tempdir.name))
+        patch.start()
+        self.addCleanup(patch.stop)
+        util.setup_rest_cache(self.tempdir.name)
+        self.one = OneAlyx(base_url=TEST_DB_1['base_url'], cache_dir=self.tempdir.name,
+                           mode='remote', silent=True)
+        self.one.alyx._rest_schemes = util.rest_schemes()
         self.fid = UUID('6f175a7a-e20b-4622-81fc-08947a4fd1d3')  # File record of wiring.json
         self.eid = UUID('aad23144-0e52-4eac-80c5-c4ee2decb198')
         self.did = UUID('d693fbf9-2f90-4123-839e-41474c44742d')
+        # Build the cache tables from the session fixture
+        session, datasets = ses2records(self.one.alyx.rest('sessions', 'read', id=self.eid))
+        merge_tables(self.one._cache, sessions=session, datasets=datasets)
 
     def test_download_datasets(self):
         """Test OneAlyx._download_dataset, _download_file and _dset2url."""
         det = self.one.get_details(self.eid, True)
         rec = next(x for x in det['data_dataset_session_related'] if x['id'] == str(self.did))
-        # FIXME hack because data_url may be AWS
-        rec['data_url'] = self.one.alyx.rel_path2url(get_alf_path(rec['data_url']))
-        file = self.one._download_dataset(rec)
-        self.assertIsInstance(file, Path)
-        self.assertTrue(file.exists())
+        # The mismatch handler is left in place as it is checked below
+        fake_download = partial(util.mock_http_download, tag=False)
+        with fake_download():
+            file = self.one._download_dataset(rec)
+            self.assertIsInstance(file, Path)
+            self.assertTrue(file.exists())
 
-        url = rec['data_url']
-        file = self.one._download_dataset(url)
-        self.assertIsNotNone(file)
+            url = rec['data_url']
+            file = self.one._download_dataset(url)
+            self.assertIsNotNone(file)
 
-        rec = self.one.alyx.get(rec['url'])
-        file = self.one._download_dataset(rec)
-        self.assertIsNotNone(file)
+            rec = self.one.alyx.rest('datasets', 'read', id=self.did)
+            file = self.one._download_dataset(rec)
+            self.assertIsNotNone(file)
 
         # Check behaviour when hash mismatch
         self.one.alyx.silent = False  # So we can check for warning
         file_hash = rec['hash'].replace('a', 'd')
+        fr = [{'url': f'files/{str(self.fid)}', 'json': None}]
+
+        def forbidden(reqfunction, *_, **__):
+            """Return the file record to tag but forbid updating it."""
+            if reqfunction.__name__ == 'patch':
+                raise HTTPError(403, 'Forbidden')
+            return fr
+
         # Check three things:
         # 1. The mismatch should be logged at the debug level
-        # 2. As we don't have permission to update this db we should see a failure warning
-        with self.assertLogs(logging.getLogger('one.api'), logging.DEBUG), \
+        # 2. Without permission to update the db we should see a failure warning
+        with fake_download(), \
+                mock.patch.object(self.one.alyx, '_generic_request', side_effect=forbidden), \
+                self.assertLogs(logging.getLogger('one.api'), logging.DEBUG), \
                 self.assertWarns(Warning, msg=f'files/{self.fid}'):
             self.one._download_dataset(rec, hash=file_hash)
         self.one.alyx.silent = True  # Remove console clutter
 
         # Check JSON field added
         # 3. The files endpoint should be called with a 'mismatch_hash' json key
-        fr = [{'url': f'files/{str(self.fid)}', 'json': None}]
-        with mock.patch.object(self.one.alyx, '_generic_request', return_value=fr) as patched:
+        with fake_download(), \
+                mock.patch.object(self.one.alyx, '_generic_request', return_value=fr) as patched:
             self.one._download_dataset(rec, hash=file_hash)
             args, kwargs = patched.call_args
             self.assertEqual(kwargs.get('data', {}), {'json': {'mismatch_hash': True}})
 
-        # Check keep_uuid kwarg
-        # FIXME Another hack: for this to work the file records order must be correct.
-        fi = next(i for i, x in enumerate(rec['file_records'])
-                  if x['data_url'].startswith(self.one.alyx._par.HTTP_DATA_SERVER))
-        if fi != 0:
-            rec['file_records'] = [rec['file_records'].pop(fi), *rec['file_records']]
-        file = self.one._download_dataset(rec, keep_uuid=True)
-        self.assertEqual(file.stem.split('.')[-1], rec['url'].split('/')[-1])
+        with fake_download():
+            # Check keep_uuid kwarg
+            file = self.one._download_dataset(rec, keep_uuid=True)
+            self.assertEqual(file.stem.split('.')[-1], rec['url'].split('/')[-1])
 
-        # Check list input
-        recs = [rec, sorted(det['data_dataset_session_related'], key=lambda x: x['file_size'])[1]]
-        files = self.one._download_dataset(recs)
-        self.assertIsInstance(files, list)
-        self.assertTrue(all(isinstance(x, Path) for x in files))
+            # Check list input
+            other = next(x for x in det['data_dataset_session_related']
+                         if x['id'] != str(self.did))
+            files = self.one._download_dataset([rec, other])
+            self.assertIsInstance(files, list)
+            self.assertTrue(all(isinstance(x, Path) for x in files))
 
-        # Check Series input
-        r_ = datasets2records(rec).squeeze()
-        file = self.one._download_dataset(r_)
-        self.assertIn('imec0.wiring.json', file.name)
+            # Check Series input
+            r_ = datasets2records(rec).squeeze()
+            file = self.one._download_dataset(r_)
+            self.assertIn('imec0.wiring.json', file.name)
 
         # Check behaviour when URL invalid
         did = UUID(rec['url'].split('/')[-1])
@@ -2018,17 +2038,20 @@ class TestOneDownload(unittest.TestCase):
         # Check with invalid path
         path = self.one.cache_dir.joinpath(
             'lab', 'Subjects', 'subj', '2020-01-01', '001', 'spikes.times.npy')
-        with self.assertLogs(logging.getLogger('one.api'), logging.WARNING):
+        # No session on the database matches the path
+        with mock.patch.object(self.one.alyx, 'rest', return_value=[]), \
+                self.assertLogs(logging.getLogger('one.api'), logging.WARNING):
             file = self.one._download_dataset(path)
             self.assertIsNone(file)
 
         # Check data frame record
         rec = self.one.list_datasets(self.eid, details=True)
-        rec = rec[rec.rel_path.str.contains('00/_spikeglx_ephysData_g0_t0.imec0.wiring')]
-        rec.loc[self.did, 'exist_aws'] = False  # Ensure we use FlatIron for this
+        rec = rec[rec.rel_path.str.contains('00/_spikeglx_ephysData_g0_t0.imec0.wiring')].copy()
+        rec['exists_aws'] = False  # Ensure we use FlatIron for this
         rec = pd.concat({self.eid: rec}, names=['eid'])  # Add back eid index
 
-        files = self.one._download_datasets(rec)
+        with fake_download():
+            files = self.one._download_datasets(rec)
         self.assertFalse(None in files)
 
         # Check behaviour when dataset missing
@@ -2103,17 +2126,55 @@ class TestOneDownload(unittest.TestCase):
         data[0]['json']['mismatch_hash'] = True
         mk.assert_called_with('files', 'partial_update', id=did, data={'json': data[0]['json']})
 
+    @unittest.skipIf(OFFLINE_ONLY, 'online only test')
+    def test_download_public_dataset(self):
+        """Test OneAlyx._download_dataset with a real download from the public data server."""
+        det = self.one.get_details(self.eid, True)
+        rec = next(x for x in det['data_dataset_session_related'] if x['id'] == str(self.did))
+        # Passing the hash checks the download without tagging a mismatch
+        with mock.patch.object(self.one, '_tag_mismatched_file_record') as tag:
+            file = self.one._download_dataset(rec, hash=rec['hash'], file_size=rec['file_size'])
+            tag.assert_not_called()
+        self.assertEqual(rec['hash'], hashfile.md5(file))
+
     def tearDown(self) -> None:
-        """Remove any created file records and ensure cache not saved when object deleted."""
+        """Ensure cache not saved when object deleted."""
         self.one._cache['_meta']['saved_time'] = datetime.datetime.max
-        try:
-            # In case we did indeed have remote REST permissions, try resetting the json field
-            self.one.alyx.rest('files', 'partial_update', id=self.fid, data={'json': None})
-        except HTTPError as ex:
-            if ex.errno != 403:
-                raise ex
-        self.patch.stop()
-        self.tempdir.cleanup()
+
+
+@unittest.skipIf(OFFLINE_ONLY, 'online only test')
+class TestOneTagMismatch(unittest.TestCase):
+    """Test tagging a mismatched file record on the test database."""
+
+    # A dataset with a FlatIron file record on the test database
+    did = '00297014-35cd-4e5d-9ebf-72bbf2570c06'
+    fid = '97c977f5-22c1-444b-9f98-ff19aa30e89b'
+
+    def setUp(self) -> None:
+        self.tempdir = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tempdir.cleanup)
+        patch = mock.patch('one.params.iopar.getfile',
+                           new=partial(util.get_file, self.tempdir.name))
+        patch.start()
+        self.addCleanup(patch.stop)
+        self.one = OneAlyx(**TEST_DB_1, cache_dir=self.tempdir.name, mode='remote')
+
+    def test_tag_mismatched_file_record(self):
+        """Test OneAlyx._tag_mismatched_file_record updates the file record JSON."""
+        url = ('https://ibl.flatironinstitute.org/mainenlab/Subjects/clns0730/2018-08-24/1/'
+               f'spikes.clusters.{self.did}.npy')
+        # Check the updated record returned by the database, as parallel test runs may reset it
+        rest, updated = self.one.alyx.rest, []
+
+        def record(*args, **kwargs):
+            updated.append(rest(*args, **kwargs))
+            return updated[-1]
+
+        self.addCleanup(rest, 'files', 'partial_update', id=self.fid, data={'json': None})
+        with mock.patch.object(self.one.alyx, 'rest', side_effect=record):
+            self.one._tag_mismatched_file_record(url)
+        self.assertTrue(updated[-1]['url'].endswith(self.fid))
+        self.assertTrue(updated[-1]['json']['mismatch_hash'])
 
 
 class TestOneSetup(unittest.TestCase):
@@ -2284,7 +2345,7 @@ class TestOneSetup(unittest.TestCase):
         # Check conflict warning. Any URL other than the one above will do - the warning comes
         # from the cache directory already being claimed, so no login is involved.
         with mock.patch('iblutil.io.params.getfile', new=self.get_file):
-            OneAlyx(mode='local', base_url=TEST_DB_2['base_url'])
+            OneAlyx(mode='local', base_url='https://alyx.example.org')
         self.assertTrue(getattr(mock_input, 'conflict_warn', False))
 
     def test_patch_params(self):
