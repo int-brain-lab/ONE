@@ -1,6 +1,13 @@
 # Changelog
 
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [3.6.1]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [3.6.2]
+This release removes OpenAlyx from the repository tests.
+
+### Modified
+
+- Tests no longer run against OpenAlyx
+
+## [3.6.1]
 This version supports the 'detail' key in Alyx paginated responses and logs special endpoint messages.
 
 ### Fixed
