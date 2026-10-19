@@ -19,6 +19,8 @@ This version supports the 'detail' key in Alyx paginated responses and logs spec
 ### Modified
 
 - Alyx-API-Notice, Deprecation and Sunset headers are now logged by the AlyxClient
+- ONE now displays its INFO log messages on instantiation, unless logging has already been configured,
+  the web client is silent, or the ONE_USE_LOGGING environment variable is set to '0'
 
 ## [3.6.0]
 This version adds support for public accounts and authentication without password.
