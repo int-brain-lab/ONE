@@ -2395,6 +2395,63 @@ class TestOneSetup(unittest.TestCase):
                 self.assertIsInstance(one_obj, OneAlyx)
 
 
+class TestDefaultLogging(unittest.TestCase):
+    """Test one.api._setup_default_logging."""
+
+    def setUp(self):
+        # Start each test with no handlers on the 'one' or root logger, as in a fresh session
+        log = logging.getLogger('one')
+        for obj, attr, value in ((log, 'handlers', []), (log, 'level', logging.NOTSET),
+                                 (logging.getLogger(), 'handlers', [])):
+            patch = mock.patch.object(obj, attr, value)
+            patch.start()
+            self.addCleanup(patch.stop)
+        patch = mock.patch.dict('os.environ', {'ONE_USE_LOGGING': '1'})
+        patch.start()
+        self.addCleanup(patch.stop)
+        self.log = log
+
+    def test_setup_default_logging(self):
+        """Test a stream handler is added at INFO level, only once."""
+        one.api._setup_default_logging()
+        self.assertEqual(logging.INFO, self.log.level)
+        self.assertEqual(['one_auto'], [h.name for h in self.log.handlers])
+        one.api._setup_default_logging()
+        self.assertEqual(1, len(self.log.handlers), 'failed to avoid duplicate handlers')
+
+    def test_respects_user_configuration(self):
+        """Test nothing is changed when the user has configured logging or opted out."""
+        # Handlers on the root logger, e.g. from logging.basicConfig
+        with mock.patch.object(logging.getLogger(), 'handlers', [logging.NullHandler()]):
+            one.api._setup_default_logging()
+        self.assertFalse(self.log.handlers)
+        # Silent mode
+        one.api._setup_default_logging(silent=True)
+        self.assertFalse(self.log.handlers)
+        # Environment variable
+        with mock.patch.dict('os.environ', {'ONE_USE_LOGGING': 'false'}):
+            one.api._setup_default_logging()
+        self.assertFalse(self.log.handlers)
+        self.assertEqual(logging.NOTSET, self.log.level)
+        # A level set by the user without a handler should be kept
+        self.log.setLevel(logging.WARNING)
+        one.api._setup_default_logging()
+        self.assertEqual(logging.WARNING, self.log.level)
+        self.assertTrue(self.log.handlers)
+
+    def test_instantiation(self):
+        """Test logging is set up on instantiation, respecting the web client's silent flag."""
+        with mock.patch('one.api._setup_default_logging') as setup, \
+                tempfile.TemporaryDirectory() as tempdir:
+            One(cache_dir=tempdir)
+            setup.assert_called_once_with(silent=False)
+            setup.reset_mock()
+            with mock.patch('one.webclient.AlyxClient') as client:
+                client.return_value.silent = True
+                OneAlyx(mode='remote', cache_dir=tempdir)
+            setup.assert_called_once_with(silent=True)
+
+
 class TestOneMisc(unittest.TestCase):
     """Test functions in one.util."""
 

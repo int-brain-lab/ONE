@@ -1,11 +1,13 @@
 # Changelog
 
 ## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [3.6.2]
-This release removes OpenAlyx from the repository tests.
+This release adds logging configuration and removes OpenAlyx from the repository tests.
 
 ### Modified
 
 - Tests no longer run against OpenAlyx
+- ONE now displays its INFO log messages on instantiation, unless logging has already been configured,
+  the web client is silent, or the ONE_USE_LOGGING environment variable is set to '0'
 
 ## [3.6.1]
 This version supports the 'detail' key in Alyx paginated responses and logs special endpoint messages.
