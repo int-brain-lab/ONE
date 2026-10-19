@@ -9,6 +9,10 @@ This release adds logging configuration and removes OpenAlyx from the repository
 - ONE now displays its INFO log messages on instantiation, unless logging has already been configured,
   the web client is silent, or the ONE_USE_LOGGING environment variable is set to '0'
 
+### Fixed
+
+- Automatic documentation deployment restored
+
 ## [3.6.1]
 This version supports the 'detail' key in Alyx paginated responses and logs special endpoint messages.
 

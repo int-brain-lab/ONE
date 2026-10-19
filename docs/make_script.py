@@ -1,6 +1,7 @@
 import os
 import sys
 import shutil
+import subprocess
 import argparse
 from pathlib import Path
 import logging
@@ -12,6 +13,24 @@ scripts_path = root.joinpath('scripts')
 
 nb_path = root.joinpath('notebooks')
 nb_path_external = []
+
+
+def build_html():
+    """Clean the previous build and make the HTML documentation.
+
+    Returns
+    -------
+    int
+        The exit code of the first make command that failed, or 0 if both succeeded.
+    """
+    _logger.info('Cleaning up previous documentation')
+    if code := subprocess.run(['make', 'clean']).returncode:
+        _logger.error('make clean failed with exit code %i', code)
+        return code
+    _logger.info('Making documentation')
+    if code := subprocess.run(['make', 'html']).returncode:
+        _logger.error('make html failed with exit code %i', code)
+    return code
 
 
 def make_documentation(execute, force, documentation, clean, specific):
@@ -38,11 +57,7 @@ def make_documentation(execute, force, documentation, clean, specific):
             sys.exit(1)
         else:
             # If no errors make the documentation
-            _logger.info('Cleaning up previous documentation')
-            os.system('make clean')
-            _logger.info('Making documentation')
-            os.system('make html')
-            sys.exit(0)
+            sys.exit(build_html())
 
     # Case where we only want to build specific examples
     if execute and specific:
@@ -63,21 +78,13 @@ def make_documentation(execute, force, documentation, clean, specific):
             sys.exit(1)
         else:
             # If no errors make the documentation
-            _logger.info('Cleaning up previous documentation')
-            os.system('make clean')
-            _logger.info('Making documentation')
-            os.system('make html')
-            sys.exit(0)
+            sys.exit(build_html())
 
     if documentation:
         for nb_path_ext in nb_path_external:
             process_notebooks(nb_path_ext, execute=False, link=True, filename_pattern='docs')
 
-        _logger.info('Cleaning up previous documentation')
-        os.system('make clean')
-        _logger.info('Making documentation')
-        os.system('make html')
-        sys.exit(0)
+        sys.exit(build_html())
 
     # Clean up notebooks in directory if also specified
     if clean:

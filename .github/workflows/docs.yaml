@@ -5,45 +5,53 @@ on:
     branches:
       - main
       - docs
+  workflow_dispatch:
+
+# Only one deployment at a time; a newer push supersedes a queued one but never cancels one that
+# is already deploying
+concurrency:
+  group: pages
+  cancel-in-progress: false
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: read
     steps:
-    - uses: actions/checkout@v1
-    # Standard drop-in approach that should work for most people.
-#    - uses: ammaraskar/sphinx-action@master
+    - uses: actions/checkout@v4
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
         python-version: 3.11
     - name: setup
       run: |
-        sudo apt install pandoc
+        sudo apt-get install -y pandoc
         pip install -e .[docs]
     - name: build docs
       run: |
         cd docs/
         python ./make_script.py -d
-    # Publish built docs to gh-pages branch.
-    # ===============================
-    - name: Commit documentation changes
-      run: |
-        git clone https://github.com/int-brain-lab/ONE.git --branch gh-pages --single-branch gh-pages
-        cp -r docs/_build/html/* gh-pages/
-        cd gh-pages
-        touch .nojekyll
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git add .
-        git commit -m "Update documentation" -a || true
-        # The above command will fail if no changes were present, so we ignore that.
-    - name: Push changes
-      uses: ad-m/github-push-action@master
+    # Upload the built site for the deploy job. The upload is the whole site, so any page the
+    # build no longer produces is removed from the site.
+    - name: Upload documentation
+      uses: actions/upload-pages-artifact@v3
       with:
-        branch: gh-pages
-        directory: gh-pages
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-    # ===============================
+        path: docs/_build/html
+
+  # Publish the docs to GitHub Pages; requires the repository's Pages source to be GitHub Actions
+  deploy:
+    # Pushes to the docs branch only build the docs, as a check
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
