@@ -595,6 +595,8 @@ class One(ConversionMixin):
         eids = insertions.index.get_level_values('eid').unique()
         # NB: This will raise if no session in cache; may need to improve error handling here
         sessions = self._cache['sessions'].loc[eids, ['date', 'subject', 'number']]
+        # Name the index 'eid' so the join is on the eid level (pandas >= 3.1 keeps the name 'id')
+        sessions = sessions.rename_axis('eid')
         insertions = (insertions
                       .join(sessions, how='inner')
                       .sort_values(['date', 'subject', 'number', 'name'], ascending=False))
