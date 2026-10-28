@@ -461,7 +461,7 @@ class One(ConversionMixin):
                 query = '|'.join(ensure_list(value))
                 key = 'lab' if key == 'laboratory' else key
                 mask = sessions[key].str.contains(query, regex=self.wildcards)
-                sessions = sessions[mask.astype(bool, copy=False)]
+                sessions = sessions[mask.astype(bool)]
             elif key == 'date_range':
                 start, end = util.validate_date_range(value)
                 session_date = pd.to_datetime(sessions['date'])
@@ -584,7 +584,7 @@ class One(ConversionMixin):
             elif key in ('model', 'serial', 'name'):
                 query = '|'.join(ensure_list(value))
                 mask = insertions[key].str.contains(query, regex=self.wildcards)
-                insertions = insertions[mask.astype(bool, copy=False)]
+                insertions = insertions[mask.astype(bool)]
             else:
                 raise NotImplementedError(key)
 

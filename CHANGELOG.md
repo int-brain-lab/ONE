@@ -1,7 +1,7 @@
 # Changelog
 
 ## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [3.6.2]
-This release adds logging configuration and removes OpenAlyx from the repository tests.
+This release adds logging configuration and support for pandas 3.1.
 
 ### Modified
 
@@ -12,6 +12,7 @@ This release adds logging configuration and removes OpenAlyx from the repository
 ### Fixed
 
 - Automatic documentation deployment restored
+- Fixed "cannot join with no overlapping index names" error in pandas 3.1.0
 
 ## [3.6.1]
 This version supports the 'detail' key in Alyx paginated responses and logs special endpoint messages.
