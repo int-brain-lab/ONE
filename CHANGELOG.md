@@ -1,6 +1,20 @@
 # Changelog
 
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [3.6.1]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [3.6.2]
+This release adds logging configuration and support for pandas 3.1.
+
+### Modified
+
+- Tests no longer run against OpenAlyx
+- ONE now displays its INFO log messages on instantiation, unless logging has already been configured,
+  the web client is silent, or the ONE_USE_LOGGING environment variable is set to '0'
+
+### Fixed
+
+- Automatic documentation deployment restored
+- Fixed "cannot join with no overlapping index names" error in pandas 3.1.0
+
+## [3.6.1]
 This version supports the 'detail' key in Alyx paginated responses and logs special endpoint messages.
 
 ### Fixed
@@ -10,6 +24,8 @@ This version supports the 'detail' key in Alyx paginated responses and logs spec
 ### Modified
 
 - Alyx-API-Notice, Deprecation and Sunset headers are now logged by the AlyxClient
+- ONE now displays its INFO log messages on instantiation, unless logging has already been configured,
+  the web client is silent, or the ONE_USE_LOGGING environment variable is set to '0'
 
 ## [3.6.0]
 This version adds support for public accounts and authentication without password.

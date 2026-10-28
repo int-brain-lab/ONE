@@ -193,7 +193,7 @@ class TestONETables(unittest.TestCase):
         dataset['exists'] = not dataset['exists']
         apt.merge_tables(caches, sessions=session, datasets=dataset)
         self.assertTrue(session.name in caches.sessions.index)
-        updated, = dataset['exists'] == caches.datasets.loc[dataset.name, 'exists']
+        updated, = dataset['exists'] == caches.datasets.loc[[dataset.name], 'exists']
         self.assertTrue(updated)
         # Check that the updated data frame has kept its original dtypes
         types = caches.sessions.reset_index().dtypes.to_dict()

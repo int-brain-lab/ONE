@@ -6,6 +6,10 @@ from pathlib import Path
 """int: Flag for skipping tests that require an http connection."""
 OFFLINE_ONLY = int(os.getenv('OFFLINE_ONLY', '0'))
 
+# Don't let ONE instances configure logging during tests, which would print INFO messages to
+# stdout and leave the 'one' logger at INFO level; one.tests.test_one.TestDefaultLogging tests it
+os.environ.setdefault('ONE_USE_LOGGING', '0')
+
 
 def _get_test_db():
     """Load test database credentials for testing ONE api.
@@ -19,7 +23,7 @@ def _get_test_db():
         dbs = json.load(f)
     if not isinstance(dbs, list):
         dbs = [dbs]
-    return [dbs[i] if len(dbs) >= i else None for i in range(2)]  # Ensure length == 2
+    return [dbs[i] if len(dbs) > i else None for i in range(2)]  # Ensure length == 2
 
 
 TEST_DB_1, TEST_DB_2 = _get_test_db()

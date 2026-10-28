@@ -22,7 +22,7 @@ import packaging.version
 
 from iblutil.io import parquet, hashfile
 from iblutil.io.params import FileLock
-from iblutil.util import Bunch, flatten, ensure_list, Listable
+from iblutil.util import Bunch, flatten, ensure_list, Listable, setup_logger
 
 import one.params
 import one.webclient as wc
@@ -46,6 +46,34 @@ REVISION_LAST_BEFORE = os.environ.get('ONE_REVISION_LAST_BEFORE')
 """str: If set, the revision string to use when loading data before a given date."""
 
 _logger.debug('ONE_SAVE_ON_DELETE: %s', SAVE_ON_DELETE)
+
+
+def _setup_default_logging(silent=False):
+    """Display ONE's INFO log messages, unless logging has already been configured.
+
+    Without any configuration, Python only displays messages of level WARNING and above.  This
+    adds a stream handler to the 'one' logger so that users see informative messages (e.g. those
+    from the Alyx-API-Notice response header). Nothing is changed if the 'one' logger or any of
+    its ancestors (including the root logger) already has handlers, so applications that
+    configure logging themselves are unaffected.
+
+    Parameters
+    ----------
+    silent : bool
+        If true, logging is not configured.
+
+    Notes
+    -----
+    Set the environment variable ONE_USE_LOGGING to '0' to deactivate this behaviour.
+
+    """
+    if silent or os.environ.get('ONE_USE_LOGGING', '1').casefold() not in ('1', 'true', 'yes'):
+        return
+    log = logging.getLogger('one')
+    if log.hasHandlers():
+        return
+    # Respect a level the user may have set without adding a handler
+    setup_logger('one', level=log.level or logging.INFO)
 
 
 class One(ConversionMixin):
@@ -80,6 +108,8 @@ class One(ConversionMixin):
         """
         # get parameters override if inputs provided
         super().__init__()
+        web_client = getattr(self, '_web_client', None)  # May already be set by subclass
+        _setup_default_logging(silent=getattr(web_client, 'silent', False))
         if not getattr(self, 'cache_dir', None):  # May already be set by subclass
             self.cache_dir = cache_dir or one.params.get_cache_dir()
         self._tables_dir = tables_dir or self.cache_dir
@@ -431,7 +461,7 @@ class One(ConversionMixin):
                 query = '|'.join(ensure_list(value))
                 key = 'lab' if key == 'laboratory' else key
                 mask = sessions[key].str.contains(query, regex=self.wildcards)
-                sessions = sessions[mask.astype(bool, copy=False)]
+                sessions = sessions[mask.astype(bool)]
             elif key == 'date_range':
                 start, end = util.validate_date_range(value)
                 session_date = pd.to_datetime(sessions['date'])
@@ -554,7 +584,7 @@ class One(ConversionMixin):
             elif key in ('model', 'serial', 'name'):
                 query = '|'.join(ensure_list(value))
                 mask = insertions[key].str.contains(query, regex=self.wildcards)
-                insertions = insertions[mask.astype(bool, copy=False)]
+                insertions = insertions[mask.astype(bool)]
             else:
                 raise NotImplementedError(key)
 
@@ -565,6 +595,8 @@ class One(ConversionMixin):
         eids = insertions.index.get_level_values('eid').unique()
         # NB: This will raise if no session in cache; may need to improve error handling here
         sessions = self._cache['sessions'].loc[eids, ['date', 'subject', 'number']]
+        # Name the index 'eid' so the join is on the eid level (pandas >= 3.1 keeps the name 'id')
+        sessions = sessions.rename_axis('eid')
         insertions = (insertions
                       .join(sessions, how='inner')
                       .sort_values(['date', 'subject', 'number', 'name'], ascending=False))
