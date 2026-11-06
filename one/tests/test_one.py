@@ -1698,6 +1698,8 @@ class TestOneRemote(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             self.one.list_notices(datasets='foo')
+        with self.assertRaises(ValueError):
+            self.one.list_notices([self.eid, 'FMR019/2021-03-18/008'])  # session doesn't exist
         self.one.mode = 'local'
         with self.assertRaises(AssertionError):
             self.one.list_notices(self.eid)
