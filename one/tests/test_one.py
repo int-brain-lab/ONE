@@ -1645,6 +1645,99 @@ class TestOneRemote(unittest.TestCase):
         with self.assertWarns(Warning):
             self.one.list_datasets(query_type='remote')
 
+    def test_list_notices(self):
+        """Test OneAlyx.list_notices."""
+        dsets = self.one.list_datasets(self.eid, details=True)
+        other_eid = UUID('8dd0fcb0-1151-4c97-ae35-2e2421695ad7')
+        other_dsets = self.one.list_datasets(other_eid, details=True)
+        # Other notices may exist, so only our uniquely named ones are compared
+        name = f'test-notice-{uuid4()}'
+
+        def ours(names):
+            return [x for x in names if x.startswith(name)]
+
+        def create_notice(importance, dids):
+            data = {'name': f'{name}-{importance}', 'importance': importance,
+                    'description': 'A test notice', 'datasets': list(map(str, dids))}
+            notice = self.one.alyx.rest('data-notices', 'create', data=data)
+            self.addCleanup(self.one.alyx.rest, 'data-notices', 'delete', id=notice['id'])
+            return notice['name'], UUID(notice['id'])
+
+        major, major_id = create_notice(40, dsets.index[:2])
+        minor, minor_id = create_notice(30, [dsets.index[1], other_dsets.index[0]])
+
+        # By session, ordered by importance
+        self.assertEqual([major, minor], ours(self.one.list_notices(self.eid)))
+        self.assertEqual([minor], ours(self.one.list_notices(other_eid)))
+        self.assertEqual([], self.one.list_notices([]))
+        # By dataset, either UUIDs or a datasets table
+        notices = self.one.list_notices(datasets=str(other_dsets.index[0]))
+        self.assertEqual([minor], ours(notices))
+        self.assertEqual([major], ours(self.one.list_notices(datasets=dsets.iloc[[0]])))
+        # By both
+        notices = self.one.list_notices(other_eid, datasets=dsets.index[0])
+        self.assertEqual([major, minor], ours(notices))
+        # By importance
+        notices = self.one.list_notices(self.eid, min_importance='MAJOR')
+        self.assertEqual([major], ours(notices))
+        # All notices
+        self.assertEqual([major, minor], ours(self.one.list_notices()))
+
+        # The details include which of the given sessions' datasets each notice covers
+        notices = self.one.list_notices([self.eid, other_eid], details=True)
+        notices = notices.loc[[major_id, minor_id]]
+        self.assertCountEqual(dsets.index[:2], notices.loc[major_id, 'datasets'])
+        expected = [dsets.index[1], other_dsets.index[0]]
+        self.assertCountEqual(expected, notices.loc[minor_id, 'datasets'])
+        self.assertEqual(40, notices.loc[major_id, 'importance'])
+        self.assertEqual('A test notice', notices.loc[major_id, 'description'])
+        # ...or which of the given datasets
+        notices = self.one.list_notices(datasets=dsets.index[1:3], details=True)
+        notices = notices.loc[[major_id, minor_id]]
+        self.assertEqual([[dsets.index[1]]] * 2, notices['datasets'].tolist())
+
+        with self.assertRaises(ValueError):
+            self.one.list_notices(datasets='foo')
+        self.one.mode = 'local'
+        with self.assertRaises(AssertionError):
+            self.one.list_notices(self.eid)
+
+    def test_list_notices_queries(self):
+        """Test the REST queries made by OneAlyx.list_notices, using mock responses."""
+        eid, nid = uuid4(), uuid4()
+        dids = [uuid4() for _ in range(51)]  # more than one batch
+        notice = {
+            'id': str(nid), 'name': 'foo', 'description': 'bar', 'importance': 30,
+            'created_by': None, 'created_datetime': '2026-09-01T11:08:52',
+            'version_affected': '', 'affected_date_start': '2026-01-01',
+            'affected_date_end': None, 'json': None}
+
+        def rest(endpoint, action, **kwargs):
+            if endpoint == 'data-notices':
+                return [notice]  # the notice matches every query
+            return [{'url': f'{self.one.alyx.base_url}/datasets/{dids[0]}'}]
+
+        with mock.patch.object(self.one.alyx, 'rest', side_effect=rest) as rest_mock:
+            notices = self.one.list_notices(eid, datasets=dids, details=True)
+        batches = [list(map(str, dids[:50])), [str(dids[50])]]
+        expected = [
+            *(mock.call('data-notices', 'list', datasets=batch) for batch in batches),
+            mock.call('data-notices', 'list', session=[str(eid)]),
+            *(mock.call('datasets', 'list', django=f'data_notices__id,{nid},pk__in,{batch}')
+              for batch in batches),
+            mock.call('datasets', 'list', django=f"data_notices__id,{nid},session__in,['{eid}']")
+        ]
+        self.assertEqual(expected, rest_mock.call_args_list)
+        # The notice and its dataset should each be returned once
+        expected = ['name', 'description', 'importance', 'created_by', 'created_datetime',
+                    'version_affected', 'affected_date_start', 'affected_date_end', 'json',
+                    'datasets']
+        self.assertEqual(expected, notices.columns.tolist())
+        self.assertEqual([nid], notices.index.tolist())
+        self.assertEqual([dids[0]], notices.loc[nid, 'datasets'])
+        self.assertEqual(datetime.date(2026, 1, 1), notices.loc[nid, 'affected_date_start'])
+        self.assertIsNone(notices.loc[nid, 'affected_date_end'])
+
     def test_search(self):
         """Test OneAlyx.search method in remote mode."""
         # Load the cache tables

@@ -33,7 +33,7 @@ from one.alf.path import ALFPath, ensure_alf_path
 from .alf.cache import (
     make_parquet_db, load_tables, remove_table_files, merge_tables,
     default_cache, cast_index_object)
-from .alf.spec import is_uuid, is_uuid_string, QC, to_alf
+from .alf.spec import is_uuid, is_uuid_string, QC, NoticeImportance, to_alf
 from . import __version__
 from one.converters import ConversionMixin, session_record2path, ses2records, datasets2records
 from one import util
@@ -364,6 +364,8 @@ class One(ConversionMixin):
             A dataset QC value, returns sessions with datasets at or below this QC value, including
             those with no QC set.  If `dataset` not passed, sessions with any passing QC datasets
             are returned, otherwise all matching datasets must have the QC value or below.
+            Data notices may explain QC values and should be read before analysis (see
+            `OneAlyx.list_notices`).
         date_range : str, list, datetime.datetime, datetime.date, pandas.timestamp
             A single date to search or a list of 2 dates that define the range (inclusive).  To
             define only the upper or lower date bound, set the other element to None.
@@ -798,7 +800,8 @@ class One(ConversionMixin):
             Supports asterisks as wildcards.
         qc : str, int, one.alf.spec.QC
             Returns datasets at or below this QC level.  Integer values should correspond to the QC
-            enumeration NOT the qc category column codes in the pandas table.
+            enumeration NOT the qc category column codes in the pandas table.  Data notices may
+            explain QC values and should be read before analysis (see `OneAlyx.list_notices`).
         ignore_qc_not_set : bool
             When true, do not return datasets for which QC is NOT_SET.
         details : bool
@@ -2196,7 +2199,8 @@ class OneAlyx(One):
         datasets : str, list
             One or more exact dataset names. Returns insertions containing all these datasets.
         dataset_qc_lte : int, str, one.alf.spec.QC
-            The maximum QC value for associated datasets.
+            The maximum QC value for associated datasets.  Data notices may explain QC values and
+            should be read before analysis (see `OneAlyx.list_notices`).
         dataset_types : str, list
             One or more dataset_types (exact matching).
         details : bool
@@ -2351,6 +2355,8 @@ class OneAlyx(One):
         dataset_qc_lte : int, str, one.alf.spec.QC
             The maximum QC value for associated datasets. NB: Without `datasets`, not all
             associated datasets with the matching QC values are guarenteed to be reachable.
+            Data notices may explain QC values and should be read before analysis (see
+            `OneAlyx.list_notices`).
         details : bool
             If true also returns a dict of dataset details.
         query_type : str, None
@@ -3014,6 +3020,121 @@ class OneAlyx(One):
             if ex.response.status_code != 404:
                 raise ex
             print(f'revision "{revision}" not found')
+
+    def list_notices(self, eid=None, datasets=None, min_importance=None, details=False):
+        """List the data notices for given sessions and/or datasets.
+
+        Data notices describe known issues with particular datasets, and may explain their QC
+        values.  Reading the notices for your data is advised before using it in an analysis.  If
+        neither sessions nor datasets are given, all notices are listed.
+
+        NB: This requires an Alyx database connection.
+
+        Parameters
+        ----------
+        eid : str, UUID, pathlib.Path, dict, list
+            One or more experiment session identifiers.  Notices covering any dataset of these
+            sessions are returned.
+        datasets : str, UUID, list, pandas.DataFrame
+            One or more dataset UUIDs, or a datasets table, e.g. from
+            `list_datasets(eid, details=True)`.  Notices covering any of these datasets are
+            returned.
+        min_importance : int, str, one.alf.spec.NoticeImportance
+            If given, only notices of at least this importance are returned, e.g. 'MAJOR'.
+        details : bool
+            If true a table of notice records is returned, otherwise a list of notice names.  When
+            sessions or datasets are given, the table includes a 'datasets' column listing which
+            of them each notice covers (this requires additional queries).
+
+        Returns
+        -------
+        list of str, pandas.DataFrame
+            The notice names, or the notice records indexed by UUID, ordered by importance
+            (highest first), then creation date (newest first).
+
+        Raises
+        ------
+        ValueError
+            Invalid session or dataset ID.
+
+        Examples
+        --------
+        List the notices covering any dataset of a session
+
+        >>> notices = one.list_notices(eid)
+
+        Print the major and critical notices covering some datasets, and which datasets they cover
+
+        >>> dsets = one.list_datasets(eid, collection='alf', details=True)
+        >>> notices = one.list_notices(datasets=dsets, min_importance='MAJOR', details=True)
+        >>> for _, notice in notices.iterrows():
+        ...     print(notice['name'], notice['description'], sep='\\n')
+        ...     print(dsets.loc[notice['datasets'], 'rel_path'].tolist())
+
+        """
+        assert self.mode != 'local' and not self.offline, 'Unable to connect to Alyx in local mode'
+        eids = [] if eid is None else ensure_list(self.to_eid(eid))
+        if None in eids:
+            raise ValueError(f'Cannot parse session ID "{eid}" (session may not exist)')
+        if datasets is None:
+            dids = []
+        elif isinstance(datasets, pd.DataFrame):
+            index = datasets.index
+            dids = index.get_level_values('id') if 'id' in index.names else datasets['id']
+        else:
+            dids = ensure_list(datasets)
+        try:
+            dids = [d if isinstance(d, UUID) else UUID(d) for d in dids]
+        except (ValueError, TypeError, AttributeError):
+            raise ValueError('datasets must be one or more dataset UUIDs or a datasets table')
+        if min_importance is not None:
+            min_importance = NoticeImportance.validate(min_importance)
+
+        def batches(values, n=50):
+            """Yield unique values as lists of strings, few enough for a GET request URL."""
+            iterator = map(str, dict.fromkeys(values))
+            while batch := list(islice(iterator, n)):
+                yield batch
+
+        if eid is None and datasets is None:
+            queries = [{}]
+        else:
+            queries = [{'datasets': batch} for batch in batches(dids)]
+            queries.extend({'session': batch} for batch in batches(eids))
+        records = {}  # NB: A notice may match several queries
+        for query in queries:
+            records.update((r['id'], r) for r in self.alyx.rest('data-notices', 'list', **query))
+
+        columns = ['name', 'description', 'importance', 'created_by', 'created_datetime',
+                   'version_affected', 'affected_date_start', 'affected_date_end', 'json']
+        notices = pd.DataFrame(list(records.values()), columns=['id', *columns])
+        notices['id'] = notices['id'].map(UUID)
+        notices = notices.set_index('id')
+        notices['importance'] = notices['importance'].astype(int)
+        notices['created_datetime'] = notices['created_datetime'].map(datetime.fromisoformat)
+        for col in ('affected_date_start', 'affected_date_end'):
+            notices[col] = notices[col].map(lambda d: d and datetime.fromisoformat(d).date())
+        if min_importance is not None:
+            notices = notices[notices['importance'] >= min_importance]
+        notices = notices.sort_values(
+            ['importance', 'created_datetime', 'name'], ascending=[False, False, True])
+        if not details:
+            return notices['name'].tolist()
+
+        if eids or dids:
+            # Alyx doesn't return the datasets of each notice as they may number in the millions,
+            # so query those among the given sessions and datasets
+            covered = {}
+            for nid in notices.index:
+                covered[nid] = []
+                for lookup, values in (('pk__in', dids), ('session__in', eids)):
+                    for batch in batches(values):
+                        query = f'data_notices__id,{nid},{lookup},{batch}'
+                        dsets = self.alyx.rest('datasets', 'list', django=query)
+                        covered[nid].extend(UUID(d['url'][-36:]) for d in dsets)
+                covered[nid] = list(dict.fromkeys(covered[nid]))
+            notices['datasets'] = pd.Series(covered, dtype=object)
+        return notices
 
     def _dataset_name2id(self, dset_name, eid=None):
         # TODO finish function
