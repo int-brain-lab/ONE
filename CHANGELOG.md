@@ -1,6 +1,15 @@
 # Changelog
 
-## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [3.6.2]
+## [Latest](https://github.com/int-brain-lab/ONE/commits/main) [3.7.0]
+This release adds support for Alyx data notices, which describe known issues with datasets.
+
+### Added
+
+- OneAlyx.list_notices method lists the data notices covering given sessions and/or datasets
+- one.alf.spec.NoticeImportance enumeration of data notice importance levels
+- Documentation on listing data notices, which may explain dataset QC values and should be read before analysis
+
+## [3.6.2]
 This release adds logging configuration and support for pandas 3.1.
 
 ### Modified

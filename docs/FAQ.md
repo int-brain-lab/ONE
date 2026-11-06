@@ -242,3 +242,25 @@ You can then load the datasets with list_datasets and load_datasets:
 dsets = one.list_datasets(eid, qc='WARNING', ignore_qc_not_set=True)
 data, info = one.load_datasets(eid, dsets)
 ```
+
+Data notices may explain a dataset's QC value, and reading them is advised before using the data
+in an analysis (see [this question](#how-do-i-find-out-about-known-issues-with-the-data)).
+
+## How do I find out about known issues with the data?
+Known issues with datasets are described by data notices, which may also explain a dataset's QC value.
+We advise reading the notices for your data before using it in an analysis.  In remote mode, you can
+list the notices covering any dataset of one or more sessions, or covering a set of datasets:
+
+```python
+one = ONE()
+# The names of the notices covering any dataset of a session
+notices = one.list_notices(eid)
+
+# The notices covering a set of datasets, along with their descriptions
+dsets = one.list_datasets(eid, qc='WARNING', ignore_qc_not_set=True, details=True)
+notices = one.list_notices(datasets=dsets, details=True)
+for _, notice in notices.iterrows():
+    print(notice['name'], notice['description'], sep='\n')
+```
+
+For more information, see [Listing data notices](notebooks/one_list/one_list.html#Listing-data-notices).

@@ -61,14 +61,25 @@ class TestREST(unittest.TestCase):
         # This fails when new records are added/removed from the remote db while iterating
         # self.assertTrue(len([_ for _ in rep]) == len(rep))
 
-        # Test what happens when list changes between paginated requests
-        name = '0A' + uuid4().hex[:8]
-        # Add subject between calls
-        rep = self.alyx.rest('subjects', 'list', limit=5, no_cache=True)
-        s = self.alyx.rest('subjects', 'create', data={'nickname': name, 'lab': 'cortexlab'})
-        self.addCleanup(self.alyx.rest, 'subjects', 'delete', id=s['nickname'])
+        # Test what happens when list changes between paginated requests. The list is filtered by a
+        # unique nickname prefix as concurrent test runs on the same database may create/delete
+        # subjects between calls, leaving the total count unchanged
+        prefix = '0A' + uuid4().hex[:8]
+
+        def create_subject(i):
+            data = {'nickname': f'{prefix}_{i}', 'lab': 'cortexlab'}
+            s = self.alyx.rest('subjects', 'create', data=data)
+            self.addCleanup(self.alyx.rest, 'subjects', 'delete', id=s['nickname'])
+
+        for i in range(2):
+            create_subject(i)
+        query = f'nickname__startswith,{prefix}'
+        rep = self.alyx.rest('subjects', 'list', limit=1, django=query, no_cache=True)
+        self.assertIsInstance(rep, _PaginatedResponse)
+        create_subject(2)  # Add subject between calls
         with self.assertWarns(RuntimeWarning):
-            _ = rep[10]
+            _ = rep[1]
+        self.assertEqual(3, len(rep))
 
         # Previously a strict key set match was used to determine if the response was paginated.
         # Sometimes the response body includes a 'detail' key: check that the response is handled

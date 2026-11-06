@@ -250,6 +250,17 @@ class TestALFSpec(unittest.TestCase):
         value = alf_spec.QC.CRITICAL
         self.assertIs(alf_spec.QC.validate('critical'), value)
 
+    def test_notice_importance_validate(self):
+        """Test for one.alf.spec.NoticeImportance.validate enumeration method."""
+        value = alf_spec.NoticeImportance.MAJOR
+        self.assertIs(alf_spec.NoticeImportance.validate(value), value)
+        self.assertIs(alf_spec.NoticeImportance.validate('40'), value)
+        self.assertIs(alf_spec.NoticeImportance.validate(40), value)
+        self.assertIs(alf_spec.NoticeImportance.validate('MAJOR'), value)
+        self.assertIs(alf_spec.NoticeImportance.validate('major'), value)
+        self.assertRaises(ValueError, alf_spec.NoticeImportance.validate, 'FAIL')
+        self.assertRaises(ValueError, alf_spec.NoticeImportance.validate, 10)
+
 
 class TestALFErr(unittest.TestCase):
     """Tests for one.alf.exceptions."""

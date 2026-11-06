@@ -129,6 +129,9 @@ class QC(IntEnum):
     """Data QC outcomes.
 
     This enumeration is used by the Alyx database.  NB: Pandas cache tables use different codes.
+
+    Data notices may explain a dataset's QC value and should be read before using the data in an
+    analysis (see `one.api.OneAlyx.list_notices`).
     """
 
     CRITICAL = 50
@@ -176,6 +179,51 @@ class QC(IntEnum):
                 raise ValueError(f'{v} is not a valid QC')
         else:
             return QC(v)
+
+
+class NoticeImportance(IntEnum):
+    """Data notice importance levels.
+
+    This enumeration is used by the Alyx database.  Data notices describe known issues with
+    datasets (see `one.api.OneAlyx.list_notices`).
+    """
+
+    CRITICAL = 50
+    MAJOR = 40
+    MINOR = 30
+    INSIGNIFICANT = 20
+
+    @staticmethod
+    def validate(v):
+        """Validate importance input and return equivalent enumeration.
+
+        Parameters
+        ----------
+        v : int, str, NoticeImportance
+            A NoticeImportance enumeration, or equivalent int value or name.
+
+        Returns
+        -------
+        NoticeImportance
+            The enumeration.
+
+        Raises
+        ------
+        ValueError
+            An invalid importance value was passed.
+
+        """
+        if isinstance(v, NoticeImportance):
+            return v
+        elif isinstance(v, str):
+            if v.isnumeric():
+                return NoticeImportance(int(v))
+            try:
+                return NoticeImportance[v.upper()]
+            except KeyError:
+                raise ValueError(f'{v} is not a valid data notice importance')
+        else:
+            return NoticeImportance(v)
 
 
 def path_pattern() -> str:
